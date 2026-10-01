@@ -6,7 +6,7 @@ from typing import Callable
 from pydantic import BaseModel, Field, model_validator
 
 from app.llm import get_llm
-from app.models import Lock, Report, ReportStatus, Source, Version, validate_chain
+from app.models import Lock, Report, ReportStatus, Source, Version, WitnessStats, validate_chain
 from app.pipeline.align import align
 from app.pipeline import fahm, mizan, reader_exam, severity
 from app.pipeline.chain import STAGES as CHAIN_STAGES
@@ -71,15 +71,22 @@ def run_analysis(report_id: str) -> Report:
 
     try:
         llm = llm_factory()
+        model_a, model_b = llm.models.get("witness_a") or llm.models.get("main"), llm.models.get("witness_b")
+        two = bool(model_b) and model_b != model_a
+        stats: dict = {}
         report.alerts = analyze_chain(
             report,
             align_fn=lambda p, c, pl, cl: align(llm, p, c, pl, cl),
-            fp_fn=lambda text, lang: fingerprint(llm, text, lang),
+            fp_fn=lambda text, lang: fingerprint(llm, text, lang, role="witness_a"),
+            witness_fp_fn=(lambda text, lang: fingerprint(llm, text, lang, role="witness_b")) if two else None,
+            stats=stats,
             presence_fn=lambda item, kind, ptext, vtext, vlang: find_in_version(llm, item, kind, ptext, vtext, vlang),
             extra_rules=fahm.term_hits,
             lock_fn=lock_checker(llm),
             progress=progress,
         )
+        report.witnesses = WitnessStats(enabled=two, model_a=model_a or "", model_b=model_b if two else "",
+                                        agreement=stats.get("agreement"), compared=stats.get("compared", 0))
         progress("mizan")
         report.verifications, mizan_alerts = mizan.check_report(report)
         report.alerts += mizan_alerts

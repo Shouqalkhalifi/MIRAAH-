@@ -204,6 +204,15 @@ class Verification(BaseModel):
     note_ar: str = ""
 
 
+# ---------- الشاهدان (6.8) ----------
+class WitnessStats(BaseModel):
+    enabled: bool = False  # False = شاهد واحد فقط
+    model_a: str = ""
+    model_b: str = ""
+    agreement: Optional[float] = None  # نسبة اتفاق الحقول المؤثرة
+    compared: int = 0  # عدد نصوص الوحدات المقارنة
+
+
 # ---------- امتحان القارئ (6.7) ----------
 class ExamQuestion(BaseModel):
     id: str = ""
@@ -288,6 +297,7 @@ class Report(BaseModel):
     decisions: dict[str, Decision] = Field(default_factory=dict)  # alert_id ← آخر قرار
     revisions: dict[str, list[Revision]] = Field(default_factory=dict)  # alert_id ← الصياغات المقترحة
     reader_exam: Optional[ReaderExam] = None
+    witnesses: WitnessStats = Field(default_factory=WitnessStats)
     warnings: list[str] = Field(default_factory=list)  # مراحل اختيارية تعذّرت (لا تُفشل التقرير)
     published_at: Optional[datetime] = None
     reviewer_role: str = ""

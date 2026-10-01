@@ -71,7 +71,8 @@ class RouterProvider:
 
 @pytest.fixture(autouse=True)
 def fake_llm(monkeypatch):
-    monkeypatch.setattr(service, "llm_factory", lambda: LLM(get_engine(), RouterProvider(), {"main": "fake"}))
+    monkeypatch.setattr(service, "llm_factory", lambda: LLM(
+        get_engine(), RouterProvider(), {"main": "fake", "witness_a": "fake", "witness_b": "fake-b"}))
 
 
 def test_health():
@@ -266,3 +267,10 @@ def test_optional_stage_failure_becomes_warning_not_failure(monkeypatch):
     monkeypatch.setattr(reader_exam, "run_exam", boom)
     rep = client.post("/api/analyze", json=CHAIN).json()
     assert rep["status"] == "analyzed" and any("امتحان القارئ" in w for w in rep["warnings"])
+
+
+def test_two_witnesses_reported():
+    rep = client.post("/api/analyze", json=CHAIN).json()
+    w = rep["witnesses"]
+    assert w["enabled"] and w["model_b"] == "fake-b" and w["agreement"] == 1.0
+    assert "اتفاق الشاهدين" in client.get(f"/report/{rep['id']}").text

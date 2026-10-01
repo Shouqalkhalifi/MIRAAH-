@@ -71,7 +71,9 @@ def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
                   progress: Callable[[str], None] = lambda s: None, max_workers: int = 4,
                   presence_fn: Optional[PresenceFn] = None,
                   extra_rules: Optional[ExtraRulesFn] = None,
-                  lock_fn: Optional[LockFn] = None) -> list[Alert]:
+                  lock_fn: Optional[LockFn] = None,
+                  witness_fp_fn: Optional[FingerprintFn] = None,
+                  stats: Optional[dict] = None) -> list[Alert]:
     src = report.source
     langs = {"source": src.lang, **{v.label: v.lang for v in report.versions}}
     texts = {"source": src.text, **{v.label: v.text for v in report.versions}}
@@ -121,14 +123,23 @@ def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
     keys = sorted(needed)
     with ThreadPoolExecutor(max_workers) as ex:
         fps = dict(zip(keys, ex.map(lambda k: fp_fn(*k), keys)))
+        fps_b = dict(zip(keys, ex.map(lambda k: witness_fp_fn(*k), keys))) if witness_fp_fn else {}
+    if stats is not None:
+        from app.pipeline.witnesses import agreement
 
-    def fp(label: str, idx: tuple[int, ...]) -> Optional[Fingerprinted]:
-        return fps[(_join(sents[label], idx), langs[label])] if idx else None
+        stats["agreement"] = agreement([(fps[k], fps_b[k]) for k in keys]) if fps_b else None
+        stats["compared"] = len(keys) if fps_b else 0
+
+    def fp(label: str, idx: tuple[int, ...], b: bool = False) -> Optional[Fingerprinted]:
+        return (fps_b if b else fps)[(_join(sents[label], idx), langs[label])] if idx else None
 
     # 4) المقارنة: مع الأصل (تراكمية) ومع الأم (محلية)
     progress("compare")
-    def unit_hits(pl: str, lb: str, u: Unit) -> list[Hit]:
-        hits = compare_unit(fp(pl, u.parent), fp(lb, u.child))
+    def unit_hits(pl: str, lb: str, u: Unit, b: bool = False) -> list[Hit]:
+        hits = compare_unit(fp(pl, u.parent, b), fp(lb, u.child, b))
+        if b:
+            return [h for h in hits if not (h.type in _PRESENCE_TYPES and presence_fn and u.child and presence_fn(
+                h.match_key, _PRESENCE_TYPES[h.type], _join(sents[pl], u.parent), _join(sents[lb], u.child), langs[lb]))]
         if extra_rules and u.parent and u.child:
             hits += extra_rules(_join(sents[pl], u.parent), _join(sents[lb], u.child))
         if presence_fn is None or not u.child:
@@ -144,8 +155,18 @@ def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
 
     cum: dict[str, list[_Found]] = {}
     local: dict[str, list[Hit]] = {}
+    agree: dict[int, bool] = {}  # id(Hit) ← هل وافق الشاهد الثاني
     for lb in order:
-        cum[lb] = [_Found(h, u) for u in cum_units[lb] for h in unit_hits("source", lb, u)]
+        cum[lb] = []
+        for u in cum_units[lb]:
+            hits = unit_hits("source", lb, u)
+            if fps_b:
+                from app.pipeline.witnesses import reconcile
+
+                ok, only_b = reconcile(hits, unit_hits("source", lb, u, b=True))
+                agree.update({id(hits[i]): v for i, v in ok.items()})
+                hits = hits + only_b
+            cum[lb] += [_Found(h, u) for h in hits]
         pl = parent_of[lb]
         if pl == "source":
             local[lb] = [f.hit for f in cum[lb]]
@@ -180,8 +201,14 @@ def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
                 if lb not in prev[2].propagated_to:
                     prev[2].propagated_to.append(lb)
                 continue
-            confirmed = _hit_in(f.hit, local[lb])
-            records.append((lb, f, _make_alert(report, f, lb, sents, confirmed)))
+            confirmed = _hit_in(f.hit, local[lb]) or f.hit.type in (T.witness_disagreement, T.lock_violated)
+            alert = _make_alert(report, f, lb, sents, confirmed)
+            if id(f.hit) in agree:
+                alert.witnesses_agree = agree[id(f.hit)]
+                if not alert.witnesses_agree:
+                    alert.confidence = round(alert.confidence * 0.75, 2)
+                    alert.explanation_ar += " (مختلف فيه بين الشاهدين — يحتاج نظرة بشرية)"
+            records.append((lb, f, alert))
         lh = length_drop(texts[parent_of[lb]], texts[lb], langs[parent_of[lb]], langs[lb])
         if lh:
             records.append((lb, _Found(lh, Unit((), ())), _make_alert(report, _Found(lh, Unit((), ())), lb, sents, True)))

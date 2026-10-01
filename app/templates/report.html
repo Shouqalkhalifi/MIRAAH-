@@ -9,6 +9,11 @@
   </div>
   <div class="text-2xl font-bold">{{ light(report.alerts, report.referral) }}</div>
   <div class="text-xl bg-paper rounded-xl px-4 py-2">راجع <b>{{ flagged | length }}</b> جمل من أصل <b>{{ source_sentences | length }}</b></div>
+  <div class="text-sm text-navy/70" title="استخراج البصمة بنموذجين مستقلين">
+    {% if report.witnesses.enabled %}👥 اتفاق الشاهدين: <b>{{ ((report.witnesses.agreement or 0) * 100) | round | int }}٪</b>
+      <span class="text-xs">({{ report.witnesses.compared }} نصاً)</span>
+    {% else %}👤 شاهد واحد (الشاهد الثاني غير مفعّل){% endif %}
+  </div>
 </section>
 
 {% if report.referral %}
@@ -127,6 +132,8 @@
       {{ severity_badge(a.severity.value) }}
       <code class="text-xs bg-paper rounded px-2">{{ a.type.value }}</code>
       <span class="text-xs bg-navy/5 rounded px-2">{{ tier_labels[a.tier] }}</span>
+      {% if a.witnesses_agree == false %}<span class="text-xs bg-orange-100 text-orange-800 rounded px-2">👥 مختلف فيه</span>
+      {% elif a.witnesses_agree == true %}<span class="text-xs bg-green-50 text-green-800 rounded px-2">👥 اتفق الشاهدان</span>{% endif %}
       <span class="text-xs text-navy/60">دخل في: <b>{{ a.introduced_at }}</b>{% if a.propagated_to %} · انتقل إلى: {{ a.propagated_to | join('، ') }}{% endif %} · الثقة {{ (a.confidence * 100) | round | int }}٪</span>
     </div>
     <p class="mb-2">{{ a.explanation_ar }}</p>
