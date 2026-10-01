@@ -3,9 +3,10 @@
 <span class="text-xs rounded px-2 py-0.5 {{ m[sev][0] }}">{{ m[sev][1] }}</span>
 {%- endmacro %}
 
-{% macro light(alerts) -%}
+{% macro light(alerts, referral=False) -%}
 {%- set sevs = alerts | map(attribute='severity.value') | list -%}
-{%- if 'red' in sevs -%}<span class="text-red-600">🔴 لا تنشر</span>
+{%- if referral -%}<span class="text-slate-600">⚪ إحالة: خارج النطاق</span>
+{%- elif 'red' in sevs -%}<span class="text-red-600">🔴 لا تنشر</span>
 {%- elif 'yellow' in sevs -%}<span class="text-yellow-600">🟡 يحتاج نظرة</span>
 {%- else -%}<span class="text-green-600">🟢 جاهز للنشر</span>{%- endif -%}
 {%- endmacro %}

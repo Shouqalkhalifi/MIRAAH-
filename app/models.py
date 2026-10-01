@@ -164,6 +164,7 @@ class Alert(BaseModel):
     # امتدادات: كل جمل الأصل المعنية، والحلقات اللاحقة التي ورثت الخلل
     source_sentence_indices: list[int] = Field(default_factory=list)
     propagated_to: list[str] = Field(default_factory=list)
+    tier: int = 4  # طبقة الخطورة (6.11): 0 نسبة إلى الله ورسوله ﷺ ... 4 أسلوب
 
     @model_validator(mode="after")
     def _traceable(self) -> "Alert":
@@ -226,6 +227,7 @@ class Report(BaseModel):
     source_sentence_count: int = 0
     verifications: list[Verification] = Field(default_factory=list)
     understanding_risks: list[UnderstandingRisk] = Field(default_factory=list)
+    referral: bool = False  # مستوى D: خارج النطاق ← إحالة
 
     @model_validator(mode="after")
     def _chain_valid(self) -> "Report":

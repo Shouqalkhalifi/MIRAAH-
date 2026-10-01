@@ -7,10 +7,15 @@
     <h1 class="text-2xl font-bold">{{ report.title or 'تقرير' }}</h1>
     <p class="text-sm text-navy/60">المرجع: {{ report.source.source_ref or '—' }} · مستوى المحتوى: {{ report.source.content_level.value }}</p>
   </div>
-  <div class="text-2xl font-bold">{{ light(report.alerts) }}</div>
+  <div class="text-2xl font-bold">{{ light(report.alerts, report.referral) }}</div>
   <div class="text-xl bg-paper rounded-xl px-4 py-2">راجع <b>{{ flagged | length }}</b> جمل من أصل <b>{{ source_sentences | length }}</b></div>
 </section>
 
+{% if report.referral %}
+<section class="bg-slate-100 border border-slate-300 rounded-2xl p-4 mb-6 text-sm">
+  مستوى المحتوى D خارج نطاق مِرآة. التنبيهات أدناه للاستئناس فقط، ويُحال النص إلى مختص قبل أي نشر.
+</section>
+{% endif %}
 <section class="bg-white rounded-2xl shadow p-6 mb-6">
   <h2 class="font-bold mb-3">السلسلة</h2>
   {{ chain_view(chain, broken_at, warn_at, inherited) }}
@@ -81,6 +86,7 @@
     <div class="flex flex-wrap gap-2 items-center mb-2">
       {{ severity_badge(a.severity.value) }}
       <code class="text-xs bg-paper rounded px-2">{{ a.type.value }}</code>
+      <span class="text-xs bg-navy/5 rounded px-2">{{ tier_labels[a.tier] }}</span>
       <span class="text-xs text-navy/60">دخل في: <b>{{ a.introduced_at }}</b>{% if a.propagated_to %} · انتقل إلى: {{ a.propagated_to | join('، ') }}{% endif %} · الثقة {{ (a.confidence * 100) | round | int }}٪</span>
     </div>
     <p class="mb-2">{{ a.explanation_ar }}</p>

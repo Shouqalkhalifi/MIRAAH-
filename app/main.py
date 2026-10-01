@@ -15,6 +15,7 @@ from app.examples import get_example, load_examples
 from app.models import Report, ReportStatus
 from app.service import STAGES
 from app.pipeline.segment import split_sentences
+from app.pipeline.severity import TIER_LABELS_AR
 from app.service import AnalyzeRequest
 from app.store import load_report
 
@@ -27,6 +28,7 @@ app = FastAPI(title="مِرآة MIRAAH", version=VERSION,
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=APP_DIR / "templates")
 templates.env.globals["DISCLAIMER"] = DISCLAIMER
+templates.env.globals["tier_labels"] = TIER_LABELS_AR
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
 

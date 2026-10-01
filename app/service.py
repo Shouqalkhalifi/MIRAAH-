@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, model_validator
 from app.llm import get_llm
 from app.models import Lock, Report, ReportStatus, Source, Version, validate_chain
 from app.pipeline.align import align
-from app.pipeline import fahm, mizan
+from app.pipeline import fahm, mizan, severity
 from app.pipeline.chain import STAGES as CHAIN_STAGES
 from app.pipeline.chain import analyze_chain
 from app.pipeline.fingerprint import find_in_version, fingerprint
@@ -69,6 +69,8 @@ def run_analysis(report_id: str) -> Report:
         report.alerts += mizan_alerts
         progress("fahm")
         report.understanding_risks = fahm.understanding_risks(llm, report.source.text)
+        report.alerts = severity.apply_severity(report.alerts, report.source.content_level)
+        report.referral = severity.needs_referral(report.source.content_level)
         report.status, report.stage, report.error = ReportStatus.analyzed, "done", ""
     except Exception as e:  # يظهر الخطأ للمستخدم في شاشة التحليل بدل تقرير ناقص
         report.status, report.error = ReportStatus.failed, f"{type(e).__name__}: {e}"[:500]
