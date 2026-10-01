@@ -21,6 +21,10 @@ FP_DERIVED = {
     T.consensus_inflated, T.hadith_grade_dropped,
 }
 
+# ما يراه الشاهد الثاني وحده يصبح تنبيهاً فقط في هذه الأنواع. النطاق (scope) مستبعد: في التشغيل الفعلي اختلف
+# الشاهدان في قراءة «عليه» (محدد/غير محدد) على ترجمة أمينة، فهو حقل لين يُحتسب في نسبة الاتفاق فقط.
+B_ONLY_ALERT_TYPES = FP_DERIVED - {T.scope_widened, T.scope_narrowed}
+
 TYPE_AR = {
     T.condition_dropped: "سقوط شرط", T.exception_dropped: "سقوط استثناء", T.certainty_raised: "رفع اليقين",
     T.attribution_upgraded: "جزم بعد تمريض", T.new_prophetic_attribution: "نسبة جديدة إلى النبي ﷺ",
@@ -55,7 +59,7 @@ def reconcile(hits_a: list[Hit], hits_b: list[Hit]) -> tuple[dict[int, bool], li
             agree[i] = any(same_hit(h, b) for b in hits_b)
     only_b = []
     for b in hits_b:
-        if b.type in FP_DERIVED and not any(same_hit(b, h) for h in hits_a):
+        if b.type in B_ONLY_ALERT_TYPES and not any(same_hit(b, h) for h in hits_a):
             only_b.append(Hit(T.witness_disagreement, f"witness_b:{b.field}", before=TYPE_AR[b.type],
                               after="", src_quote=b.src_quote, match_key=f"wb-{b.type.value}-{b.match_key}",
                               confidence=0.5))

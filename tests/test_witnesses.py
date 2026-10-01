@@ -48,3 +48,8 @@ def test_single_witness_leaves_agreement_unset():
     stats = {}
     alerts = analyze_chain(chain_report(THREE_LINKS), fake_align, fake_fp, stats=stats)
     assert stats["agreement"] is None and all(a.witnesses_agree is None for a in alerts)
+
+
+def test_scope_seen_only_by_witness_b_is_not_an_alert():
+    ok, only_b = reconcile([], [Hit(T.scope_narrowed, "scope", "unspecified", "specific")])
+    assert only_b == []
