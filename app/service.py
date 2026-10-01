@@ -9,7 +9,7 @@ from app.llm import get_llm
 from app.models import Lock, Report, ReportStatus, Source, Version, validate_chain
 from app.pipeline.align import align
 from app.pipeline.chain import analyze_chain
-from app.pipeline.fingerprint import fingerprint
+from app.pipeline.fingerprint import find_in_version, fingerprint
 from app.pipeline.segment import split_sentences
 from app.store import load_report, save_report
 
@@ -52,6 +52,7 @@ def run_analysis(report_id: str) -> Report:
             report,
             align_fn=lambda p, c, pl, cl: align(llm, p, c, pl, cl),
             fp_fn=lambda text, lang: fingerprint(llm, text, lang),
+            presence_fn=lambda item, kind, ptext, vtext, vlang: find_in_version(llm, item, kind, ptext, vtext, vlang),
             progress=progress,
         )
         report.status, report.stage, report.error = ReportStatus.analyzed, "done", ""

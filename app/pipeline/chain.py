@@ -30,6 +30,9 @@ STAGES: list[tuple[str, str]] = [
 
 AlignFn = Callable[[list[str], list[str], str, str], list[Unit]]
 FingerprintFn = Callable[[str, str], Fingerprinted]
+# (العبارة، النوع، نص الأم، نص النسخة، لغة النسخة) ← اقتباس من النسخة إن وُجدت فيها، وإلا None
+PresenceFn = Callable[[str, str, str, str, str], Optional[str]]
+_PRESENCE_TYPES = {T.condition_dropped: "condition", T.exception_dropped: "exception"}
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
 
@@ -61,7 +64,8 @@ def _hit_in(hit: Hit, hits: list[Hit]) -> bool:
 
 
 def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
-                  progress: Callable[[str], None] = lambda s: None, max_workers: int = 4) -> list[Alert]:
+                  progress: Callable[[str], None] = lambda s: None, max_workers: int = 4,
+                  presence_fn: Optional[PresenceFn] = None) -> list[Alert]:
     src = report.source
     langs = {"source": src.lang, **{v.label: v.lang for v in report.versions}}
     texts = {"source": src.text, **{v.label: v.text for v in report.versions}}
@@ -117,15 +121,28 @@ def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
 
     # 4) المقارنة: مع الأصل (تراكمية) ومع الأم (محلية)
     progress("compare")
+    def unit_hits(pl: str, lb: str, u: Unit) -> list[Hit]:
+        hits = compare_unit(fp(pl, u.parent), fp(lb, u.child))
+        if presence_fn is None or not u.child:
+            return hits
+        # الشرط/الاستثناء «الساقط» قد يكون استخراجاً غير متسق بين اللغتين: تحقق موجّه قبل التنبيه
+        kept = []
+        for h in hits:
+            if h.type in _PRESENCE_TYPES and presence_fn(
+                    h.match_key, _PRESENCE_TYPES[h.type], _join(sents[pl], u.parent), _join(sents[lb], u.child), langs[lb]):
+                continue
+            kept.append(h)
+        return kept
+
     cum: dict[str, list[_Found]] = {}
     local: dict[str, list[Hit]] = {}
     for lb in order:
-        cum[lb] = [_Found(h, u) for u in cum_units[lb] for h in compare_unit(fp("source", u.parent), fp(lb, u.child))]
+        cum[lb] = [_Found(h, u) for u in cum_units[lb] for h in unit_hits("source", lb, u)]
         pl = parent_of[lb]
         if pl == "source":
             local[lb] = [f.hit for f in cum[lb]]
         else:
-            local[lb] = [h for u in local_units[lb] for h in compare_unit(fp(pl, u.parent), fp(lb, u.child))]
+            local[lb] = [h for u in local_units[lb] for h in unit_hits(pl, lb, u)]
 
     # 5) السلسلة: أول حلقة ظهر فيها الخلل
     progress("chain")

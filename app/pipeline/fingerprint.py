@@ -90,7 +90,7 @@ Fields:
 - ruling: the legal category stated by the wording: يجب/فرض/must/obligatory -> "obligatory"; يستحب/يسن/recommended -> "recommended"; يجوز/يباح/may/permissible -> "permissible"; يكره/disliked -> "disliked"; يحرم/لا يجوز/forbidden/must not -> "forbidden"; otherwise "none".
 - scope.quantifier: "all" (everyone, all Muslims, كل), "some" (بعض, some people), "specific" (a specific group or person: the traveler, women, the imam), "unspecified".
 - scope.restricted_to: the group the statement is limited to, 1-3 lowercase English words (e.g. "travelers"), else null.
-- conditions: every condition or restriction on when/for whom the statement holds, as short lowercase English phrases in the simplest common words (e.g. "person is traveling", "if able"). A restriction of WHO it applies to (e.g. "للمسافر", "for the traveler") is ALSO listed as a condition. A general subject such as "muslims" or "people" is NOT a condition.
+- conditions: every condition or restriction on when/for whom the statement holds, as short lowercase English phrases in the simplest common words (e.g. "person is traveling", "if able"). A restriction of WHO it applies to (e.g. "للمسافر", "for the traveler") is ALSO listed as a condition. A general subject such as "muslims" or "people" is NOT a condition. A relative clause that merely identifies or describes an object (e.g. "ما أفطره من أيام" / "the days he missed") is NOT a condition.
 - exceptions: explicit exceptions (إلا، سوى، غير، except, unless) as short lowercase English phrases. Do not list the exclusive "only" of a restriction (hasr) as an exception.
 - certainty: how certain the passage presents its claim: "definite" (asserted as fact or firm rule), "probable" (الأرجح، الأظهر، likely), "possible" (قد، ربما، يحتمل، perhaps, may possibly), "unstated" (reported without commitment, e.g. after رُوي / قيل).
 - restriction_hasr: true if the passage uses an exclusive restriction (إنما، ما ... إلا، لا ... إلا، "only", "nothing but").
@@ -157,3 +157,28 @@ def fingerprint(llm, text: str, lang: str, role: str = "main") -> Fingerprinted:
     prompt = f"Passage ({lang}):\n<<<\n{text}\n>>>"
     raw = llm.complete_json(prompt, FingerprintLLM, system=SYSTEM_FP, role=role, purpose="fingerprint")
     return apply_rules(raw, text)
+
+
+# ---------- تحقق موجّه: هل ما زال الشرط/الاستثناء موجوداً في النسخة؟ ----------
+SYSTEM_PRESENCE = """You check whether one specific condition or exception, taken from a parent text, is still expressed in a derived version (a translation or summary), possibly in different words or another language.
+
+Answer present=true ONLY if the version itself clearly expresses the same restriction (same limit on when, for whom, or except whom the statement holds). Similar topic is not enough.
+If present, copy into quote the exact substring of the version that expresses it, verbatim. If not present, quote is null."""
+
+
+class Presence(BaseModel):
+    present: bool
+    quote: Optional[str] = None
+
+
+def find_in_version(llm, item: str, kind: str, parent_text: str, version_text: str, version_lang: str,
+                    role: str = "main") -> Optional[str]:
+    """يعيد اقتباساً متحقَّقاً منه من النسخة إن كان الشرط/الاستثناء ما زال فيها، وإلا None.
+
+    لا يُقبل «موجود» بلا اقتباس حرفي موجود فعلاً في النص، حتى لا نُخفي سقوطاً حقيقياً.
+    """
+    prompt = (f"{kind.upper()} (from the parent): {item}\n\n"
+              f"PARENT TEXT:\n<<<\n{parent_text}\n>>>\n\n"
+              f"VERSION ({version_lang}):\n<<<\n{version_text}\n>>>")
+    res = llm.complete_json(prompt, Presence, system=SYSTEM_PRESENCE, role=role, purpose="presence")
+    return verify_quote(res.quote, version_text) if res.present else None

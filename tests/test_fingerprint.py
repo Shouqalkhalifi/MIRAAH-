@@ -83,3 +83,14 @@ def test_hasr_construction_is_not_counted_as_negation():
     assert count_negations("He narrated only in a state of purity") == 0
     # نفي حقيقي مع حصر
     assert count_negations("لم يكن يصوم، ولا يحدّث إلا متوضئاً") == 1
+
+
+def test_find_in_version_requires_verbatim_quote():
+    from app.pipeline.fingerprint import find_in_version
+
+    v = "A traveler may break the fast."
+    assert find_in_version(FakeLLM({"present": True, "quote": "A traveler"}), "person is traveling",
+                           "condition", "يجوز للمسافر", v, "en") == "A traveler"
+    # «موجود» بلا اقتباس حقيقي لا يُقبل، حتى لا يُخفى سقوط حقيقي
+    assert find_in_version(FakeLLM({"present": True, "quote": "for travelers"}), "x", "condition", "p", v, "en") is None
+    assert find_in_version(FakeLLM({"present": False, "quote": None}), "x", "condition", "p", v, "en") is None

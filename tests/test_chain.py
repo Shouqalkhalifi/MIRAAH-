@@ -99,3 +99,29 @@ def test_each_unit_text_fingerprinted_once():
 
     analyze_chain(chain_report(THREE_LINKS), fake_align, counting_fp)
     assert len(calls) == len(set(calls))
+
+
+def test_presence_check_suppresses_inconsistent_extraction():
+    # البصمة الوهمية تستخرج شرطاً من الأصل فقط؛ التحقق الموجّه يجده في النسخة فيُلغى التنبيه
+    def inconsistent_fp(text, lang):
+        if "قضاء" in text:
+            return Fingerprinted(fp=MeaningFingerprint(ruling="obligatory", conditions=["person broke fast on some days"]))
+        return fake_fp(text, lang)
+
+    calls = []
+
+    def presence(item, kind, ptext, vtext, vlang):
+        calls.append((item, kind, vlang))
+        return "the days he missed" if "missed" in vtext else None
+
+    vs = [Version(label="en", lang="en", text=TRANS)]
+    without = analyze_chain(chain_report(vs), fake_align, inconsistent_fp)
+    assert [a.type for a in without] == [T.condition_dropped]
+    with_check = analyze_chain(chain_report(vs), fake_align, inconsistent_fp, presence_fn=presence)
+    assert with_check == [] and calls == [("person broke fast on some days", "condition", "en")]
+
+
+def test_presence_check_keeps_real_drop():
+    alerts = analyze_chain(chain_report(THREE_LINKS), fake_align, fake_fp,
+                           presence_fn=lambda *a: None)
+    assert by_type(alerts)[T.condition_dropped].introduced_at == "en-summary"
