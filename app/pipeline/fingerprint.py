@@ -17,6 +17,7 @@ from app.text.normalize import normalize_ar
 _NEG_AR = {"لا", "لم", "لن", "ليس", "ليست", "لست", "لسنا", "ليسوا", "لستم", "غير", "بلا"}
 _NEG_EN = {"not", "no", "never", "none", "nor", "neither", "cannot", "without", "nobody", "nothing"}
 _NEG_FR = {"sans", "jamais"}
+_FR_NEG_PARTNERS = {"pas", "jamais", "plus", "rien", "aucun", "aucune", "personne", "point"}
 _WORD = re.compile(r"[\w']+", re.UNICODE)
 
 
@@ -33,11 +34,18 @@ def count_negations(text: str) -> int:
     t = normalize_ar(text).replace("’", "'")
     toks = _WORD.findall(t)
     fr_ne = sum(1 for tok in toks if tok == "ne" or tok.startswith("n'"))  # ne ... pas/jamais = نفي واحد
+    if fr_ne and "que" in toks and not _FR_NEG_PARTNERS & set(toks):
+        fr_ne = 0  # «ne ... que» حصر بمعنى "only"، لا نفي
     n = fr_ne
-    pending_ar = 0  # نفي عربي ينتظر «إلا/سوى»: «لا ... إلا» حصر وليس نفياً (يقابله "only")
+    # النفي الذي يليه استثناء حصرٌ لا نفي: «لا ... إلا» / "not ... except|unless" (يقابلهما "only")
+    pending_ar = pending_en = 0
     for tok in toks:
         if tok.endswith("n't") or tok in _NEG_EN:
             n += 1
+            pending_en += 1
+        elif tok in ("except", "unless") and pending_en:
+            n -= 1
+            pending_en -= 1
         elif tok == "sans" or (tok == "jamais" and not fr_ne):
             n += 1
         elif tok in ("الا", "سوي") and pending_ar:

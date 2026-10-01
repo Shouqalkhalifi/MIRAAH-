@@ -94,3 +94,13 @@ def test_find_in_version_requires_verbatim_quote():
     # «موجود» بلا اقتباس حقيقي لا يُقبل، حتى لا يُخفى سقوط حقيقي
     assert find_in_version(FakeLLM({"present": True, "quote": "for travelers"}), "x", "condition", "p", v, "en") is None
     assert find_in_version(FakeLLM({"present": False, "quote": None}), "x", "condition", "p", v, "en") is None
+
+
+def test_hasr_in_english_and_french_not_counted_as_negation():
+    # نسخ أمينة لـ «لا يحدّث إلا على طهارة»
+    assert count_negations("He would not narrate hadith except in a state of purity") == 0
+    assert count_negations("He did not narrate unless he was pure") == 0
+    assert count_negations("Il ne racontait que dans un état de pureté") == 0
+    # نفي حقيقي يبقى
+    assert count_negations("Il ne racontait pas") == 1
+    assert count_negations("He did not narrate.") == 1
