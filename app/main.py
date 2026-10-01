@@ -11,6 +11,7 @@ from markupsafe import Markup, escape
 
 from app import service
 from app.corpus import load_corpus
+from app.examples import get_example, load_examples
 from app.models import Report, ReportStatus
 from app.pipeline.chain import STAGES
 from app.pipeline.segment import split_sentences
@@ -95,10 +96,25 @@ def api_status(report_id: str) -> dict:
             "stages": [label for _, label in STAGES], "error": r.error}
 
 
+@app.get("/api/examples")
+def api_examples() -> list[dict]:
+    return [e.model_dump(mode="json") for e in load_examples()]
+
+
 # ---------- الشاشات ----------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return page(request, "home.html")
+    return page(request, "home.html", examples=load_examples())
+
+
+@app.post("/examples/{name}")
+def run_example(name: str, background_tasks: BackgroundTasks):
+    ex = get_example(name)
+    if ex is None:
+        raise HTTPException(404, "المثال غير موجود")
+    report = service.create_report(ex.request)
+    background_tasks.add_task(service.run_analysis, report.id)
+    return RedirectResponse(f"/analyze/{report.id}", status_code=303)
 
 
 @app.get("/new", response_class=HTMLResponse)

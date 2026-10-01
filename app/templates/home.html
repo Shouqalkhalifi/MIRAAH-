@@ -9,15 +9,13 @@
   </p>
 </section>
 <section class="grid md:grid-cols-3 gap-4">
-  {% for ex in [
-    ("رخصة الفطر للمسافر", "سلسلة من 3 حلقات يسقط فيها الشرط في الحلقة الثانية"),
-    ("نسبة قول بلا مصدر", "ملخص ينسب عبارة إلى النبي ﷺ لا توجد في الأصل"),
-    ("رفع درجة اليقين", "ترجمة تحوّل «قيل» إلى صيغة جازمة") ] %}
-  <div class="bg-white rounded-2xl shadow p-6 flex flex-col">
-    <h2 class="font-bold text-lg mb-2">{{ ex[0] }}</h2>
-    <p class="text-sm text-navy/70 flex-1 mb-4">{{ ex[1] }}</p>
-    <a href="/analyze/demo" class="bg-violet text-white rounded-xl px-4 py-2 text-center hover:opacity-90">جرّب مثالاً</a>
-  </div>
+  {% for ex in examples %}
+  <form method="post" action="/examples/{{ ex.name }}" class="bg-white rounded-2xl shadow p-6 flex flex-col">
+    <h2 class="font-bold text-lg mb-2">{{ ex.title }}</h2>
+    <p class="text-sm text-navy/70 flex-1 mb-2">{{ ex.description }}</p>
+    <p class="text-xs text-navy/50 mb-4">{{ ex.request.versions | length }} حلقات · مستوى {{ ex.request.source.content_level.value }}</p>
+    <button class="bg-violet text-white rounded-xl px-4 py-2 hover:opacity-90">جرّب مثالاً</button>
+  </form>
   {% endfor %}
 </section>
 <div class="text-center mt-8"><a href="/new" class="text-violet underline">أو أدخل نصك</a></div>

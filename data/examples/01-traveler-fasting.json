@@ -1,0 +1,24 @@
+{
+  "name": "traveler-fasting",
+  "title": "رخصة الفطر للمسافر",
+  "description": "سلسلة من 3 حلقات يسقط فيها الشرط في الحلقة الثانية (الملخص) ثم ينتقل إلى الترجمة الفرنسية.",
+  "review_note": "مثال اصطناعي — تراجعه المطوّرة وتضيف المصدر الرسمي في source_ref.",
+  "request": {
+    "title": "رخصة الفطر للمسافر",
+    "source": {
+      "text": "يجوز للمسافر أن يفطر في رمضان. ويجب عليه قضاء ما أفطره من أيام.",
+      "lang": "ar",
+      "source_ref": "يُضاف المصدر الرسمي",
+      "content_level": "B"
+    },
+    "versions": [
+      {"label": "en-translation", "lang": "en", "derived_from": "source",
+       "text": "A traveler may break the fast in Ramadan. He must make up the days he missed."},
+      {"label": "en-summary", "lang": "en", "derived_from": "en-translation",
+       "text": "Muslims may break the fast in Ramadan."},
+      {"label": "fr-translation", "lang": "fr", "derived_from": "en-summary",
+       "text": "Les musulmans peuvent rompre le jeûne pendant le Ramadan."}
+    ],
+    "locks": []
+  }
+}

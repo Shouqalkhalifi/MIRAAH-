@@ -1,0 +1,22 @@
+{
+  "name": "saying-attributed-to-prophet",
+  "title": "قول مأثور يُنسب إلى النبي ﷺ",
+  "description": "الأصل يذكر قولاً مأثوراً، والترجمة أمينة، ثم ينسبه منشور مختصر إلى النبي ﷺ.",
+  "review_note": "مثال اصطناعي — تراجعه المطوّرة وتضيف المصدر الرسمي في source_ref.",
+  "request": {
+    "title": "قول مأثور يُنسب إلى النبي ﷺ",
+    "source": {
+      "text": "ومن الأقوال المأثورة في فضل التعلّم المبكر: «العلم في الصغر كالنقش على الحجر».",
+      "lang": "ar",
+      "source_ref": "يُضاف المصدر الرسمي",
+      "content_level": "B"
+    },
+    "versions": [
+      {"label": "en-translation", "lang": "en", "derived_from": "source",
+       "text": "Among the well-known sayings on the virtue of learning early: \"Knowledge in childhood is like engraving on stone.\""},
+      {"label": "social-post", "lang": "en", "derived_from": "en-translation",
+       "text": "The Prophet ﷺ said: \"Knowledge in childhood is like engraving on stone.\""}
+    ],
+    "locks": []
+  }
+}

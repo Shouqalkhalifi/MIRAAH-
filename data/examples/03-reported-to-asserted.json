@@ -1,0 +1,20 @@
+{
+  "name": "reported-to-asserted",
+  "title": "من «رُوي» إلى الجزم",
+  "description": "ترجمة تحوّل صيغة التمريض «رُوي» إلى خبر جازم.",
+  "review_note": "مثال اصطناعي — تراجعه المطوّرة وتضيف المصدر الرسمي في source_ref.",
+  "request": {
+    "title": "من «رُوي» إلى الجزم",
+    "source": {
+      "text": "رُوي أن الإمام مالكاً كان لا يحدّث إلا على طهارة.",
+      "lang": "ar",
+      "source_ref": "يُضاف المصدر الرسمي",
+      "content_level": "C"
+    },
+    "versions": [
+      {"label": "en-translation", "lang": "en", "derived_from": "source",
+       "text": "Imam Malik only narrated hadith in a state of ritual purity."}
+    ],
+    "locks": []
+  }
+}

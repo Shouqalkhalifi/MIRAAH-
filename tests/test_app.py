@@ -10,6 +10,7 @@ from app.db import get_engine
 from app.llm import LLM, ProviderResponse
 from app.main import DISCLAIMER, app
 from app.pipeline.align import SYSTEM_ALIGN
+from app.pipeline.fingerprint import SYSTEM_PRESENCE
 
 client = TestClient(app)
 
@@ -40,6 +41,10 @@ class RouterProvider:
             else:
                 pairs = [{"version": [0], "parent": [0]}]
             reply = {"pairs": pairs}
+        elif system.startswith(SYSTEM_PRESENCE[:40]):
+            version = user.split("VERSION", 1)[1].split("<<<\n", 1)[1].rsplit("\n>>>", 1)[0]
+            hit = next((w for w in ("traveler", "voyageur") if w in version.lower()), None)
+            reply = {"present": bool(hit), "quote": hit}
         else:
             text = user.split("<<<\n", 1)[1].rsplit("\n>>>", 1)[0].lower()
             if any(k in text for k in ("مسافر", "travel", "voyag")):
@@ -130,3 +135,15 @@ def test_review_alpine_state_not_inlined_in_attribute():
     rid = client.post("/api/analyze", json=CHAIN).json()["id"]
     r = client.get(f"/review/{rid}").text
     assert 'x-data="reviewState()"' in r
+
+
+def test_examples_valid_and_runnable():
+    from app.examples import load_examples
+
+    exs = load_examples()
+    assert len(exs) == 3
+    assert any(len(e.request.versions) == 3 for e in exs)
+    r = client.post(f"/examples/{exs[0].name}", follow_redirects=False)
+    assert r.status_code == 303 and r.headers["location"].startswith("/analyze/")
+    assert client.post("/examples/nope").status_code == 404
+    assert "جرّب مثالاً" in client.get("/").text
