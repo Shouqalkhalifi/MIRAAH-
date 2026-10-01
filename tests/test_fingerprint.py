@@ -75,3 +75,11 @@ def test_fingerprint_calls_llm_with_passage():
     out = fingerprint(llm, "Six days.", "en")
     assert out.fp.certainty == "definite" and out.fp.numbers == ["6"]
     assert "Six days." in llm.calls[0][0] and llm.calls[0][1]["purpose"] == "fingerprint"
+
+
+def test_hasr_construction_is_not_counted_as_negation():
+    assert count_negations("كان لا يحدّث إلا على طهارة") == 0
+    assert count_negations("ما محمد إلا رسول") == 0
+    assert count_negations("He narrated only in a state of purity") == 0
+    # نفي حقيقي مع حصر
+    assert count_negations("لم يكن يصوم، ولا يحدّث إلا متوضئاً") == 1

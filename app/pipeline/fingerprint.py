@@ -34,13 +34,18 @@ def count_negations(text: str) -> int:
     toks = _WORD.findall(t)
     fr_ne = sum(1 for tok in toks if tok == "ne" or tok.startswith("n'"))  # ne ... pas/jamais = نفي واحد
     n = fr_ne
+    pending_ar = 0  # نفي عربي ينتظر «إلا/سوى»: «لا ... إلا» حصر وليس نفياً (يقابله "only")
     for tok in toks:
         if tok.endswith("n't") or tok in _NEG_EN:
             n += 1
         elif tok == "sans" or (tok == "jamais" and not fr_ne):
             n += 1
-        elif _strip_ar_prefix(tok, _NEG_AR) in _NEG_AR:
+        elif tok in ("الا", "سوي") and pending_ar:
+            n -= 1
+            pending_ar -= 1
+        elif _strip_ar_prefix(tok, _NEG_AR) in _NEG_AR or (tok == "ما" and "الا" in toks):
             n += 1
+            pending_ar += 1
     return n
 
 
