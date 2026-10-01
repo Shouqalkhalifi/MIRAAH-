@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}الرئيسية{% endblock %}
+{% block content %}
+<section class="text-center py-10">
+  <h1 class="text-4xl font-bold mb-4">نحافظ على المعنى، لا على الكلمات فقط</h1>
+  <p class="text-lg max-w-2xl mx-auto leading-loose">
+    مِرآة تتتبّع المعنى من الأصل العربي عبر الترجمات والملخصات، وتكشف أين تغيّر وفي أي حلقة دخل الخلل،
+    مع ربط كل تنبيه بمصدره، والقرار الأخير للمراجع البشري.
+  </p>
+</section>
+<section class="grid md:grid-cols-3 gap-4">
+  {% for ex in [
+    ("رخصة الفطر للمسافر", "سلسلة من 3 حلقات يسقط فيها الشرط في الحلقة الثانية"),
+    ("نسبة قول بلا مصدر", "ملخص ينسب عبارة إلى النبي ﷺ لا توجد في الأصل"),
+    ("رفع درجة اليقين", "ترجمة تحوّل «قيل» إلى صيغة جازمة") ] %}
+  <div class="bg-white rounded-2xl shadow p-6 flex flex-col">
+    <h2 class="font-bold text-lg mb-2">{{ ex[0] }}</h2>
+    <p class="text-sm text-navy/70 flex-1 mb-4">{{ ex[1] }}</p>
+    <a href="/analyze/demo" class="bg-violet text-white rounded-xl px-4 py-2 text-center hover:opacity-90">جرّب مثالاً</a>
+  </div>
+  {% endfor %}
+</section>
+<div class="text-center mt-8"><a href="/new" class="text-violet underline">أو أدخل نصك</a></div>
+{% endblock %}

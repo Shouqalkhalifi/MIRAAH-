@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}تحليل جديد{% endblock %}
+{% block content %}
+<form action="/analyze/demo" method="get" class="space-y-6"
+      x-data="{ versions: [{label:'v1', lang:'en', derived_from:'source', text:''}], locks: [] }">
+  <section class="bg-white rounded-2xl shadow p-6 space-y-4">
+    <h1 class="text-2xl font-bold">الأصل العربي</h1>
+    <textarea class="w-full border rounded-xl p-3 h-32" placeholder="الصق النص المصدر هنا" required></textarea>
+    <div class="grid md:grid-cols-2 gap-4">
+      <label class="block">المرجع
+        <input class="w-full border rounded-xl p-2" placeholder="مثال: كتاب الصيام، ص 12"></label>
+      <label class="block">مستوى المحتوى
+        <select class="w-full border rounded-xl p-2">
+          <option value="A">A — نصوص منسوبة إلى الله ورسوله ﷺ (أعلى حساسية)</option>
+          <option value="B" selected>B — أحكام وفتاوى منقولة</option>
+          <option value="C">C — محتوى دعوي وتربوي عام</option>
+          <option value="D">D — خارج النطاق (إحالة)</option>
+        </select></label>
+    </div>
+  </section>
+
+  <section class="bg-white rounded-2xl shadow p-6 space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold">النسخ (حتى 4)</h2>
+      <button type="button" class="bg-teal text-navy rounded-xl px-3 py-1 disabled:opacity-40"
+              :disabled="versions.length >= 4"
+              @click="versions.push({label:'v'+(versions.length+1), lang:'en', derived_from: versions[versions.length-1].label, text:''})">+ نسخة</button>
+    </div>
+    <template x-for="(v, i) in versions" :key="i">
+      <div class="border rounded-xl p-4 space-y-2">
+        <div class="grid md:grid-cols-3 gap-2">
+          <label>التسمية <input class="w-full border rounded p-1" x-model="v.label"></label>
+          <label>اللغة
+            <select class="w-full border rounded p-1" x-model="v.lang">
+              <option value="en">English</option><option value="fr">Français</option>
+              <option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="ar">العربية</option>
+            </select></label>
+          <label>الحلقة الأم
+            <select class="w-full border rounded p-1" x-model="v.derived_from">
+              <option value="source">الأصل</option>
+              <template x-for="p in versions.slice(0, i)"><option :value="p.label" x-text="p.label"></option></template>
+            </select></label>
+        </div>
+        <textarea class="w-full border rounded p-2 h-24" x-model="v.text" placeholder="نص النسخة"></textarea>
+        <button type="button" x-show="versions.length > 1" @click="versions.splice(i,1)" class="text-red-600 text-sm">حذف</button>
+      </div>
+    </template>
+  </section>
+
+  <section class="bg-white rounded-2xl shadow p-6 space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold">أقفال المعنى 🔒</h2>
+      <div class="flex gap-2">
+        <button type="button" class="border border-violet text-violet rounded-xl px-3 py-1" disabled title="المرحلة 2">اقترح أقفالاً</button>
+        <button type="button" class="bg-teal text-navy rounded-xl px-3 py-1" @click="locks.push({span:'', type:'condition'})">+ قفل</button>
+      </div>
+    </div>
+    <p class="text-sm text-navy/60">حدّد مقطعاً من الأصل يجب أن يبقى معناه في كل النسخ.</p>
+    <template x-for="(l, i) in locks" :key="i">
+      <div class="flex gap-2">
+        <input class="flex-1 border rounded p-1" x-model="l.span" placeholder="المقطع، مثل: للمسافر">
+        <select class="border rounded p-1" x-model="l.type">
+          <option value="condition">شرط</option><option value="certainty">يقين</option>
+          <option value="exception">استثناء</option><option value="attribution">نسبة</option>
+          <option value="grade">درجة</option><option value="term">مصطلح</option>
+          <option value="negation">نفي</option><option value="number">رقم</option>
+        </select>
+        <button type="button" @click="locks.splice(i,1)" class="text-red-600">✕</button>
+      </div>
+    </template>
+  </section>
+
+  <button class="bg-violet text-white rounded-xl px-6 py-3 text-lg">حلّل</button>
+</form>
+{% endblock %}

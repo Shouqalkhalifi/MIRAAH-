@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import severity_badge %}
+{% block title %}المراجعة والقرار{% endblock %}
+{% block content %}
+<script>
+  function reviewState() {
+    const ids = {{ report.alerts | map(attribute='id') | list | tojson }};
+    const reds = {{ reds | map(attribute='id') | list | tojson }};
+    const decisions = {};
+    ids.forEach(id => decisions[id] = { action: '', reason: '', saved: false });
+    return { decisions, reds, get ready() { return this.reds.every(id => this.decisions[id].saved) } };
+  }
+</script>
+<div x-data="reviewState()">
+  <h1 class="text-2xl font-bold mb-2">المراجعة والقرار</h1>
+  <p class="text-navy/70 mb-6">لكل تنبيه: قبول أو رفض أو تعديل، والسبب إلزامي. القرار النهائي لك.</p>
+
+  <div class="space-y-4">
+  {% for a in report.alerts %}
+  <article class="bg-white rounded-2xl shadow p-5" x-data="{ get d() { return decisions['{{ a.id }}'] } }">
+    <div class="flex gap-2 items-center mb-2">{{ severity_badge(a.severity.value) }} <code class="text-xs">{{ a.type.value }}</code>
+      <span x-show="d.saved" class="text-green-600 text-sm ms-auto">✔ حُسم: <span x-text="d.action"></span></span></div>
+    <p class="mb-3">{{ a.explanation_ar }}</p>
+
+    {% if revisions.get(a.id) %}
+    <div class="mb-3">
+      <p class="font-semibold text-sm mb-1">صياغات آمنة مقترحة:</p>
+      <div class="grid md:grid-cols-3 gap-2">
+        {% for name, text in revisions[a.id] %}
+        <div class="bg-paper rounded-xl p-3 text-sm"><p class="text-violet font-semibold mb-1">{{ name }}</p><p dir="ltr">{{ text }}</p></div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="flex flex-wrap gap-2 items-center">
+      {% for val, label in [('accept','قبول'),('reject','رفض'),('edit','تعديل')] %}
+      <label class="flex items-center gap-1"><input type="radio" value="{{ label }}" x-model="d.action" :disabled="d.saved"> {{ label }}</label>
+      {% endfor %}
+      <input class="flex-1 min-w-48 border rounded-lg p-1" placeholder="السبب (إلزامي)" x-model="d.reason" :disabled="d.saved">
+      <button class="bg-navy text-white rounded-lg px-3 py-1 disabled:opacity-40"
+              :disabled="d.saved || !d.action || d.reason.trim().length < 3" @click="d.saved = true">حفظ القرار</button>
+    </div>
+  </article>
+  {% endfor %}
+  </div>
+
+  <div class="mt-8 flex items-center gap-4">
+    <a :href="ready ? '/seal/{{ report.id }}' : null"
+       class="rounded-xl px-6 py-3 text-lg" :class="ready ? 'bg-green-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'">✅ جاهز للنشر</a>
+    <span x-show="!ready" class="text-sm text-navy/60">يتفعّل بعد حسم كل التنبيهات الحمراء.</span>
+  </div>
+  <p class="text-xs text-navy/50 mt-4">في المرحلة 0 القرارات لا تُحفظ في الخادم بعد.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% macro severity_badge(sev) -%}
+{%- set m = {'red': ('bg-red-600 text-white', 'خطير'), 'yellow': ('bg-yellow-400 text-navy', 'متوسط'), 'info': ('bg-slate-300 text-navy', 'معلومة')} -%}
+<span class="text-xs rounded px-2 py-0.5 {{ m[sev][0] }}">{{ m[sev][1] }}</span>
+{%- endmacro %}
+
+{% macro light(alerts) -%}
+{%- set sevs = alerts | map(attribute='severity.value') | list -%}
+{%- if 'red' in sevs -%}<span class="text-red-600">🔴 لا تنشر</span>
+{%- elif 'yellow' in sevs -%}<span class="text-yellow-600">🟡 يحتاج نظرة</span>
+{%- else -%}<span class="text-green-600">🟢 جاهز للنشر</span>{%- endif -%}
+{%- endmacro %}
+
+{% macro chain_view(chain, broken_at) -%}
+<div class="flex flex-wrap items-center gap-2">
+  {% for label in chain %}
+    <div class="rounded-xl px-4 py-2 border-2 {{ 'border-red-600 bg-red-50 text-red-700 font-bold' if label in broken_at else 'border-green-500 bg-green-50' }}">
+      {{ 'الأصل' if label == 'source' else label }}{% if label in broken_at %} ⚠️{% endif %}
+    </div>
+    {% if not loop.last %}<span class="text-2xl text-navy/40">←</span>{% endif %}
+  {% endfor %}
+</div>
+{%- endmacro %}

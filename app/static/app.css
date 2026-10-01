@@ -1,0 +1,4 @@
+body { font-family: "Readex Pro", system-ui, sans-serif; background: #F2F4FF; color: #12183F; }
+.mark-red { background: #fee2e2; border-bottom: 2px solid #dc2626; border-radius: 2px; }
+.mark-yellow { background: #fef9c3; border-bottom: 2px solid #ca8a04; border-radius: 2px; }
+[x-cloak] { display: none !important; }
