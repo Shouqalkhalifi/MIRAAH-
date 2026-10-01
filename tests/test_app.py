@@ -316,3 +316,11 @@ def test_provider_errors_get_a_clear_arabic_message(monkeypatch):
     monkeypatch.setattr(service, "llm_factory", no_credit)
     rep = client.post("/api/analyze", json=CHAIN).json()
     assert rep["status"] == "failed" and rep["error"].startswith("نفد رصيد")
+
+
+def test_favicon_served():
+    r = client.get("/favicon.ico")
+    assert r.status_code == 200 and r.headers["content-type"] == "image/x-icon"
+    assert r.content[:4] == b"\x00\x00\x01\x00"  # ترويسة ICO
+    assert client.get("/static/favicon.svg").status_code == 200
+    assert 'rel="icon" href="/static/favicon.svg"' in client.get("/").text

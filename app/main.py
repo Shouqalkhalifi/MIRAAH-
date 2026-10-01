@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup, escape
@@ -70,6 +70,11 @@ def _get(report_id: str) -> Report:
     if r is None:
         raise HTTPException(404, "التقرير غير موجود")
     return r
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse(APP_DIR / "static" / "favicon.ico", media_type="image/x-icon")
 
 
 # ---------- API ----------
