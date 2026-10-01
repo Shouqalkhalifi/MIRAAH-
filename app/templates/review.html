@@ -113,11 +113,12 @@
       <textarea x-show="d.action === 'edit'" x-cloak class="w-full border rounded-lg p-2" dir="auto" rows="2"
                 placeholder="الصياغة المعدّلة" x-model="d.edited_text" @input="d.saved = false" :disabled="published"></textarea>
       <div class="flex flex-wrap gap-2">
-        <input class="flex-1 min-w-48 border rounded-lg p-1" placeholder="السبب (إلزامي)" x-model="d.reason" @input="d.saved = false" :disabled="published">
+        <input class="flex-1 min-w-48 border rounded-lg p-1" placeholder="السبب (إلزامي): لماذا هذا القرار؟" x-model="d.reason" @input="d.saved = false" :disabled="published">
         <button class="bg-navy text-white rounded-lg px-3 py-1 disabled:opacity-40"
-                :disabled="published || d.saved || !d.action || d.reason.trim().length < 3 || (d.action === 'edit' && !d.edited_text.trim())"
+                :disabled="published || d.saved || !d.action || d.reason.trim().length < 3 || (d.action === 'edit' && (!d.edited_text.trim() || d.reason.trim() === d.edited_text.trim()))"
                 @click="save('{{ a.id }}')">حفظ القرار</button>
       </div>
+      <p x-show="d.action === 'edit' && d.reason.trim() && d.reason.trim() === d.edited_text.trim()" x-cloak class="text-sm text-red-600">اكتب سبب القرار (لماذا عدّلت؟)، لا الصياغة نفسها.</p>
       <p x-show="d.error" x-cloak class="text-sm text-red-600" x-text="d.error"></p>
     </div>
   </article>

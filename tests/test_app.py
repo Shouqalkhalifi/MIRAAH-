@@ -286,3 +286,15 @@ def test_review_page_renders_after_revisions_and_decisions():
     assert r.status_code == 200
     assert "A traveler may break the fast in Ramadan." in r.text  # الصياغة المحفوظة
     assert json.dumps("الشرط ضروري") in r.text  # القرار المحفوظ (tojson يهرّب الحروف العربية)
+
+
+def test_reason_must_not_be_the_edited_wording_and_seal_shows_both():
+    rep, reds = _analyzed()
+    wording = "A traveler may break the fast in Ramadan."
+    r = decide(rep["id"], reds[0], action="edit", edited_text=wording, reason=wording)
+    assert r.status_code == 422 and "سبب القرار" in r.text
+    for aid in reds:
+        assert decide(rep["id"], aid, action="edit", edited_text=wording, reason="أسقط الملخص شرط السفر").status_code == 200
+    assert client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"}).status_code == 200
+    seal = client.get(f"/seal/{rep['id']}").text
+    assert "الصياغة المعتمدة:" in seal and wording in seal and "السبب:</span> أسقط الملخص شرط السفر" in seal

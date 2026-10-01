@@ -253,6 +253,8 @@ class Decision(BaseModel):
             raise ValueError("السبب إلزامي")
         if self.action == "edit" and not (self.edited_text and self.edited_text.strip()):
             raise ValueError("التعديل يحتاج الصياغة المعدّلة")
+        if self.edited_text and " ".join(self.reason.split()) == " ".join(self.edited_text.split()):
+            raise ValueError("اكتب سبب القرار، لا الصياغة نفسها")
         return self
 
 

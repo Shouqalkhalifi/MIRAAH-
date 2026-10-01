@@ -20,7 +20,10 @@
   <ul class="list-disc ps-5 text-sm space-y-1">
     {% for a in report.alerts %}{% set d = report.decisions.get(a.id) %}
     <li><code class="text-xs">{{ a.type.value }}</code> ({{ a.severity.value }}) في {{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }} —
-      {% if d %}<b>{{ action_ar[d.action] }}</b>: {{ d.reason }}{% else %}<i>بلا قرار</i>{% endif %}</li>
+      {% if d %}<b>{{ action_ar[d.action] }}</b>
+        {% if d.action == 'edit' and d.edited_text %}<div class="mt-1 bg-paper rounded p-2"><span class="text-navy/60">الصياغة المعتمدة:</span> <span dir="auto">«{{ d.edited_text }}»</span></div>{% endif %}
+        <div class="mt-1"><span class="text-navy/60">السبب:</span> {{ d.reason }}</div>
+      {% else %}<i>بلا قرار</i>{% endif %}</li>
     {% else %}<li>لا توجد تنبيهات.</li>{% endfor %}
   </ul>
   <dl class="grid grid-cols-2 gap-2 mt-6 text-sm">
