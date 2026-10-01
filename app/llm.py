@@ -87,7 +87,8 @@ class AnthropicProvider:
         )
         if model not in self._no_temperature:
             try:
-                resp = self.client.messages.create(temperature=0, **kwargs)
+                # SDK 1.x أزال temperature من التوقيع، فنمررها عبر extra_body
+                resp = self.client.messages.create(extra_body={"temperature": 0}, **kwargs)
             except self._anthropic.BadRequestError as e:
                 if "temperature" not in str(e).lower():
                     raise
