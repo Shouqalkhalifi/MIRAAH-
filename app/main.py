@@ -230,11 +230,12 @@ def review_page(request: Request, report_id: str):
 
 @app.get("/seal/{report_id}", response_class=HTMLResponse)
 def seal_page(request: Request, report_id: str):
-    import hashlib
+    """صفحة عامة للقراءة فقط بعد النشر. لا بيانات شخصية: صفة المراجع لا اسمه."""
+    from app import seal
 
     r = _get(report_id)
     if r.status != ReportStatus.published:
         raise HTTPException(404, "لم يُنشر هذا التقرير بعد")
-    sha = lambda t: hashlib.sha256(t.encode("utf-8")).hexdigest()  # noqa: E731
-    hashes = [("source", sha(r.source.text))] + [(v.label, sha(v.text)) for v in r.versions]
-    return page(request, "seal.html", report=r, chain=["source"] + [v.label for v in r.versions], hashes=hashes)
+    return page(request, "seal.html", report=r, chain=["source"] + [v.label for v in r.versions],
+                hashes=seal.text_hashes(r), digest=seal.seal_digest(r), qr=Markup(seal.qr_svg(str(request.url))),
+                counts={sev: sum(1 for a in r.alerts if a.severity.value == sev) for sev in ("red", "yellow", "info")})

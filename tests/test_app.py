@@ -204,6 +204,7 @@ def test_publish_locked_until_all_reds_decided_then_seal_and_audit():
     assert decide(rid, reds[0]).status_code == 409
     seal = client.get(f"/seal/{rid}").text
     assert "مترجم" in seal and "قُبل التنبيه" in seal and DISCLAIMER in seal
+    assert 'aria-label="رمز QR لصفحة الختم"' in seal and "بصمة الختم" in seal
     events = [e["event"] for e in client.get(f"/api/report/{rid}/audit").json()]
     assert events == ["decision"] * len(reds) + ["publish"]
 

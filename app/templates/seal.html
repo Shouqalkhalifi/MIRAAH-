@@ -9,10 +9,12 @@
       <h1 class="text-2xl font-bold mt-1">{{ report.title }}</h1>
       <p class="text-sm text-navy/60">مرجع المصدر: {{ report.source.source_ref }}</p>
     </div>
-    <div class="w-32 h-32 border-2 border-dashed border-navy/30 rounded-xl flex items-center justify-center text-navy/40 text-sm text-center">رمز QR<br>(المرحلة 2)</div>
+    <div class="w-36 h-36 bg-white rounded-xl p-1 [&>svg]:w-full [&>svg]:h-full" title="امسح للوصول إلى هذه الصفحة">{{ qr }}</div>
   </div>
   <h2 class="font-bold mt-6 mb-2">السلسلة</h2>
   {{ chain_view(chain) }}
+  <p class="mt-4 text-sm">التنبيهات: <b class="text-red-600">{{ counts.red }}</b> خطير · <b class="text-yellow-600">{{ counts.yellow }}</b> متوسط · {{ counts.info }} معلومة —
+    حُسم {{ report.decisions | length }} منها بقرار بشري.</p>
   <h2 class="font-bold mt-6 mb-2">ملخص التنبيهات والقرارات</h2>
   {% set action_ar = {'accept': 'قُبل التنبيه', 'reject': 'رُفض التنبيه', 'edit': 'عُدّلت الصياغة'} %}
   <ul class="list-disc ps-5 text-sm space-y-1">
@@ -30,6 +32,8 @@
   <table class="w-full text-xs"><tbody>
     {% for label, h in hashes %}<tr class="border-t"><td class="py-1 pe-2">{{ label }}</td><td class="font-mono break-all" dir="ltr">{{ h }}</td></tr>{% endfor %}
   </tbody></table>
-  <p class="text-xs text-navy/50 mt-6">لا تحتوي هذه الصفحة على أي بيانات شخصية.</p>
+  <p class="text-sm mt-4">بصمة الختم (النصوص + القرارات + تاريخ النشر):</p>
+  <p class="font-mono text-xs break-all bg-paper rounded p-2" dir="ltr">{{ digest }}</p>
+  <p class="text-xs text-navy/50 mt-6">لا تحتوي هذه الصفحة على أي بيانات شخصية. القرار النهائي كان لمراجع بشري.</p>
 </section>
 {% endblock %}
