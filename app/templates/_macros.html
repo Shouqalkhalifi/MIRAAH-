@@ -55,22 +55,38 @@
 </svg>
 {%- endmacro %}
 
-{# بطاقة وحدة: featured = البطاقة الوسطى المرفوعة #}
-{% macro module_card(key, featured=False, extra='') -%}
+{# بطاقة وحدة كما في التصميم: الجانبيتان خضراوان داكنتان بأيقونة ذهبية، والوسطى بيضاء مرفوعة بإطار ذهبي #}
+{% macro module_card(key, featured=False, desc=False, button=False, active='') -%}
 {%- set m = modules[key] -%}
-<div class="module-card card relative flex flex-col items-center text-center px-6 {{ 'py-9 md:-translate-y-3 ring-2 ring-violet' if featured else 'py-7' }}">
-  {% if featured %}<span class="absolute -top-3 bg-violet text-white text-xs rounded-full px-3 py-1">قلب مِرآة</span>{% endif %}
-  <div class="rounded-2xl p-3 mb-3 {{ 'bg-violet text-white' if featured else 'bg-paper text-violet' }}">{{ module_icon(key) }}</div>
-  <p class="text-xs tracking-widest text-navy/50 font-semibold">{{ m.en }}</p>
-  <h3 class="text-2xl font-bold">{{ m.ar }}</h3>
-  <p class="text-sm font-semibold text-violet mb-2">{{ m.sub_ar }} <span class="text-navy/40 font-normal">({{ m.sub_en }})</span></p>
-  <p class="text-sm text-navy/70 leading-relaxed">{{ m.desc }}</p>
-  {{ extra }}
-</div>
+{%- set tag = 'button' if button else 'div' -%}
+<{{ tag }} {% if button %}type="button" @click="filter = (filter === '{{ key }}' ? 'all' : '{{ key }}')" :aria-pressed="filter === '{{ key }}'"{% endif %}
+  class="module-card relative flex flex-col items-center justify-center text-center rounded-xl w-full min-w-0 px-1
+         {{ 'bg-white text-ink border-2 border-gold shadow-2xl py-7 md:scale-110 z-10' if featured else 'bg-gradient-to-b from-pine to-pinedark text-white border border-gold/40 shadow-lg py-5' }}"
+  {% if button %}:class="filter === '{{ key }}' ? 'ring-4 ring-gold/60' : ''"{% endif %}>
+  <span class="{{ 'text-pine' if featured else 'text-gold' }}">{{ module_icon(key, 'w-9 h-9 sm:w-12 sm:h-12' if featured else 'w-8 h-8 sm:w-11 sm:h-11') }}</span>
+  <span class="mt-2 font-bold tracking-wide {{ 'text-lg sm:text-2xl' if featured else 'text-base sm:text-xl' }}">{{ m.en }}</span>
+  <span class="text-xs sm:text-sm font-semibold leading-snug">{{ m.sub_ar }}</span>
+  <span class="hidden sm:inline text-[11px] {{ 'text-ink/60' if featured else 'text-white/75' }}">({{ m.sub_en }})</span>
+  {% if desc %}<span class="hidden sm:block mt-3 px-4 text-xs leading-relaxed {{ 'text-ink/70' if featured else 'text-white/80' }}">{{ m.desc }}</span>{% endif %}
+</{{ tag }}>
+{%- endmacro %}
+
+{# صف الوحدات الثلاث بترتيب التصميم: MIZAN يساراً، ATHAR وسطاً، FAHM يميناً #}
+{% macro modules_row(desc=False, button=False) -%}
+<section class="bg-gradient-to-b from-white to-paper/60 border-b border-line -mx-4 px-4 pt-8 pb-10 mb-8" aria-label="وحدات مِرآة">
+  <div class="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8 max-w-3xl mx-auto items-center" dir="ltr">
+    {{ module_card('mizan', desc=desc, button=button) }}
+    {{ module_card('athar', featured=True, desc=desc, button=button) }}
+    {{ module_card('fahm', desc=desc, button=button) }}
+  </div>
+</section>
 {%- endmacro %}
 
 {% macro sev_icon(sev) -%}
-{%- if sev == 'red' -%}<span class="shrink-0 w-7 h-7 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold" aria-label="خطير">!</span>
-{%- elif sev == 'yellow' -%}<span class="shrink-0 w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold" aria-label="متوسط">!</span>
-{%- else -%}<span class="shrink-0 w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold" aria-label="معلومة">i</span>{%- endif -%}
+{%- if sev == 'info' -%}
+<svg class="w-6 h-6 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="currentColor" aria-label="معلومة"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.5v.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+{%- else -%}
+<svg class="w-6 h-6 shrink-0 {{ 'text-red-600' if sev == 'red' else 'text-amber-500' }}" viewBox="0 0 24 24" fill="currentColor" aria-label="{{ 'خطير' if sev == 'red' else 'متوسط' }}">
+  <path d="M10.3 3.9 1.8 18.5A2 2 0 0 0 3.5 21.5h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v5M12 17.3v.4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+{%- endif -%}
 {%- endmacro %}

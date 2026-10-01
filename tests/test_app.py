@@ -134,7 +134,8 @@ def test_report_page_colors_broken_link_and_highlights():
     assert "🔴 لا تنشر" in html
     assert re.search(r"border-red-600 bg-red-50[^>]*>\s*<div>en-summary ⚠️", html)
     assert "ورث خللاً من حلقة سابقة" in html  # fr-translation
-    assert '<mark class="mark-red" data-tip="تحذير: سقوط شرط">للمسافر</mark>' in html
+    assert re.search(r'<mark class="mark-red" data-tip="تحذير: سقوط شرط" data-alert="\w+">للمسافر</mark>', html)
+    assert 'class="tip tip-red"' in html  # فقاعة التحذير فوق المقطع في النسخة
     assert 'href="#alert-' in html and 'id="alert-' in html  # المقطع يقود إلى بطاقته
     assert "راجع <b>2</b> جمل من أصل <b>2</b>" in html
 

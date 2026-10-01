@@ -68,7 +68,7 @@
   <div class="space-y-4">
   {% for a in report.alerts %}
   <article class="card p-5" x-data="{ get d() { return decisions['{{ a.id }}'] } }">
-    <div class="flex flex-wrap gap-2 items-center mb-2">{{ severity_badge(a.severity.value) }} {% set mod, title = meta(a.type.value) %}<span class="font-semibold"><span class="text-xs text-navy/50">{{ modules[mod].en }}:</span> {{ title }}</span> <code class="text-xs text-navy/40">{{ a.type.value }}</code>
+    <div class="flex flex-wrap gap-2 items-center mb-2">{{ severity_badge(a.severity.value) }} {% set mod, title, title_en = meta(a.type.value) %}<span class="font-semibold"><span class="text-xs text-navy/50">{{ modules[mod].en }}:</span> {{ title }}</span> <code class="text-xs text-navy/40">{{ a.type.value }}</code>
       <span class="text-xs text-navy/60">في {{ a.introduced_at }}</span>
       <span x-show="d.saved" class="text-green-600 text-sm ms-auto">✔ حُسم</span></div>
     <p class="mb-2">{{ a.explanation_ar }}</p>

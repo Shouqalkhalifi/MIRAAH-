@@ -55,10 +55,16 @@ def highlight(text: str, alerts, side: str, label: str | None = None) -> Markup:
         spans.append((i, i + len(frag), a.severity.value, a))
     out, pos = [], 0
     for s, e, sev, a in sorted(spans, key=lambda x: x[0]):
-        tip = ("تحذير: " if sev == "red" else "تنبيه: ") + meta(a.type.value)[1]
+        _, ar, en = meta(a.type.value)
+        word, word_en = ("تحذير", "Warning") if sev == "red" else ("تنبيه", "Notice")
         out += [escape(text[pos:s]),
-                Markup(f'<a href="#alert-{a.id}" class="mark-link"><mark class="mark-{sev}" data-tip="{escape(tip)}">'),
-                escape(text[s:e]), Markup("</mark></a>")]
+                Markup(f'<a href="#alert-{a.id}" class="mark-link">'
+                       f'<mark class="mark-{sev}" data-tip="{escape(word)}: {escape(ar)}" data-alert="{a.id}">'),
+                escape(text[s:e]), Markup("</mark>")]
+        if side == "version":  # فقاعة ظاهرة فوق المقطع في النسخة (عربي + إنجليزي)
+            out.append(Markup(f'<span class="tip tip-{sev}" aria-hidden="true"><b>{escape(word)}: {escape(ar)}</b>'
+                              f'<span>{word_en}: {escape(en.split(": ", 1)[-1])}</span></span>'))
+        out.append(Markup("</a>"))
         pos = e
     out.append(escape(text[pos:]))
     return Markup("").join(out)
@@ -214,7 +220,7 @@ def _report_ctx(r: Report) -> dict:
     flagged = {i for a in r.alerts if a.severity.value != "info" for i in a.source_sentence_indices}
     counts = {m: {"red": 0, "yellow": 0, "info": 0} for m in MODULES}
     for a in r.alerts:
-        counts[meta(a.type.value)[0]][a.severity.value] += 1
+        counts[meta(a.type.value)[0]][a.severity.value] += 1  # noqa: E501
     version_index = {v.label: i for i, v in enumerate(r.versions)}
     entered = [a.introduced_at for a in r.alerts if a.severity.value != "info" and a.introduced_at in version_index]
     first_tab = version_index[entered[0]] if entered else 0  # افتح النسخة التي دخل فيها أخطر خلل
