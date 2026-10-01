@@ -20,6 +20,7 @@ class Settings:
     witness_b_model: str
     llm_max_tokens: int
     llm_timeout_seconds: float
+    llm_effort: str
     database_path: Path
     port: int
 
@@ -43,6 +44,7 @@ def get_settings() -> Settings:
         witness_b_model=os.getenv("WITNESS_B_MODEL", ""),
         llm_max_tokens=int(os.getenv("LLM_MAX_TOKENS", "16000")),
         llm_timeout_seconds=float(os.getenv("LLM_TIMEOUT_SECONDS", "120")),
+        llm_effort=os.getenv("LLM_EFFORT", "medium"),
         database_path=db,
         port=int(os.getenv("PORT", "8000")),
     )

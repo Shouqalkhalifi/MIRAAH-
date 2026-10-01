@@ -69,14 +69,23 @@ class Provider(Protocol):
 class AnthropicProvider:
     """استدعاء Anthropic عبر الـSDK الرسمي."""
 
-    def __init__(self, api_key: str, timeout: float = 120.0):
+    def __init__(self, api_key: str, timeout: float = 120.0, effort: str = ""):
         import anthropic
 
         if not api_key:
             raise LLMError("ANTHROPIC_API_KEY غير موجود في .env")
         self._anthropic = anthropic
         self.client = anthropic.Anthropic(api_key=api_key, timeout=timeout)
-        self._no_temperature: set[str] = set()
+        # معاملات اختيارية تُرسل عبر extra_body (SDK 1.x أزال temperature من التوقيع).
+        # إن رفضها نموذج بخطأ 400 نحذفها له ونتذكر ذلك.
+        self.optional: dict[str, object] = {"temperature": 0}
+        if effort:
+            self.optional["output_config"] = {"effort": effort}
+        self._rejected: dict[str, set[str]] = {}
+
+    @property
+    def _no_temperature(self) -> set[str]:  # للتشخيص
+        return {m for m, keys in self._rejected.items() if "temperature" in keys}
 
     def generate(self, model: str, system: str, user: str, max_tokens: int) -> ProviderResponse:
         kwargs = dict(
@@ -85,17 +94,18 @@ class AnthropicProvider:
             system=system,
             messages=[{"role": "user", "content": user}],
         )
-        if model not in self._no_temperature:
+        rejected = self._rejected.setdefault(model, set())
+        while True:
+            extra = {k: v for k, v in self.optional.items() if k not in rejected}
             try:
-                # SDK 1.x أزال temperature من التوقيع، فنمررها عبر extra_body
-                resp = self.client.messages.create(extra_body={"temperature": 0}, **kwargs)
+                resp = self.client.messages.create(extra_body=extra, **kwargs)
+                break
             except self._anthropic.BadRequestError as e:
-                if "temperature" not in str(e).lower():
+                msg = str(e).lower()
+                bad = [k for k in extra if k in msg or (k == "output_config" and "effort" in msg)]
+                if not bad:
                     raise
-                self._no_temperature.add(model)
-                resp = self.client.messages.create(**kwargs)
-        else:
-            resp = self.client.messages.create(**kwargs)
+                rejected.update(bad)
 
         if resp.stop_reason == "refusal":
             raise LLMError("رفض النموذج الطلب (stop_reason=refusal)")
@@ -232,6 +242,6 @@ def get_llm() -> LLM:
     st = get_settings()
     if st.llm_provider != "anthropic":
         raise LLMError(f"مزوّد غير مدعوم: {st.llm_provider}")
-    provider = AnthropicProvider(st.anthropic_api_key, st.llm_timeout_seconds)
+    provider = AnthropicProvider(st.anthropic_api_key, st.llm_timeout_seconds, st.llm_effort)
     models = {r: st.model_for(r) for r in ("main", "witness_a", "witness_b")}
     return LLM(get_engine(), provider, models, st.llm_max_tokens)

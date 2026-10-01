@@ -69,6 +69,8 @@ class AlertType(str, Enum):
 
 class ReportStatus(str, Enum):
     draft = "draft"
+    analyzing = "analyzing"
+    failed = "failed"
     analyzed = "analyzed"
     in_review = "in_review"
     published = "published"
@@ -156,6 +158,9 @@ class Alert(BaseModel):
     evidence: list[Evidence] = Field(default_factory=list)
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     witnesses_agree: Optional[bool] = None
+    # امتدادات: كل جمل الأصل المعنية، والحلقات اللاحقة التي ورثت الخلل
+    source_sentence_indices: list[int] = Field(default_factory=list)
+    propagated_to: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _traceable(self) -> "Alert":
@@ -175,6 +180,9 @@ class Report(BaseModel):
     locks: list[Lock] = Field(default_factory=list)
     alerts: list[Alert] = Field(default_factory=list)
     status: ReportStatus = ReportStatus.draft
+    stage: str = ""  # مرحلة التحليل الحالية (لشريط التقدم)
+    error: str = ""
+    source_sentence_count: int = 0
 
     @model_validator(mode="after")
     def _chain_valid(self) -> "Report":
