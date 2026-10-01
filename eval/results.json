@@ -596,7 +596,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 20.09
+    "seconds": 0.25,
+    "warnings": []
    },
    "s01-scope_widened": {
     "id": "s01-scope_widened",
@@ -610,7 +611,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 18.34
+    "seconds": 4.66,
+    "warnings": []
    },
    "s01-ruling_shift": {
     "id": "s01-ruling_shift",
@@ -623,7 +625,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 14.15
+    "seconds": 3.19,
+    "warnings": []
    },
    "s02-number_mismatch": {
     "id": "s02-number_mismatch",
@@ -636,7 +639,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 15.93
+    "seconds": 0.44,
+    "warnings": []
    },
    "s02-ruling_shift": {
     "id": "s02-ruling_shift",
@@ -649,7 +653,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 5.51
+    "seconds": 0.21,
+    "warnings": []
    },
    "s02-consensus_inflated": {
     "id": "s02-consensus_inflated",
@@ -663,7 +668,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 5.54
+    "seconds": 0.23,
+    "warnings": []
    },
    "s03-negation_mismatch": {
     "id": "s03-negation_mismatch",
@@ -676,7 +682,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 19.01
+    "seconds": 4.09,
+    "warnings": []
    },
    "s03-condition_dropped": {
     "id": "s03-condition_dropped",
@@ -689,7 +696,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 17.01
+    "seconds": 0.13,
+    "warnings": []
    },
    "s04-attribution_upgraded": {
     "id": "s04-attribution_upgraded",
@@ -697,13 +705,13 @@
     "error": "",
     "predicted": [
      "number_mismatch",
-     "reader_divergence",
-     "scope_widened"
+     "reader_divergence"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 15.77
+    "seconds": 1.75,
+    "warnings": []
    },
    "s04-new_prophetic_attribution": {
     "id": "s04-new_prophetic_attribution",
@@ -722,7 +730,8 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 17.09
+    "seconds": 0.16,
+    "warnings": []
    },
    "s05-certainty_raised": {
     "id": "s05-certainty_raised",
@@ -737,7 +746,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 19.19
+    "seconds": 0.24,
+    "warnings": []
    },
    "s05-scope_widened": {
     "id": "s05-scope_widened",
@@ -752,7 +762,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 15.76
+    "seconds": 2.54,
+    "warnings": []
    },
    "s06-hasr_lost": {
     "id": "s06-hasr_lost",
@@ -767,7 +778,8 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 12.97
+    "seconds": 0.24,
+    "warnings": []
    },
    "s07-consensus_inflated": {
     "id": "s07-consensus_inflated",
@@ -781,7 +793,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 15.04
+    "seconds": 0.29,
+    "warnings": []
    },
    "s07-condition_dropped": {
     "id": "s07-condition_dropped",
@@ -794,7 +807,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 8.86
+    "seconds": 0.22,
+    "warnings": []
    },
    "s08-term_narrowing": {
     "id": "s08-term_narrowing",
@@ -808,7 +822,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 14.78
+    "seconds": 0.15,
+    "warnings": []
    },
    "s08-ruling_shift": {
     "id": "s08-ruling_shift",
@@ -822,7 +837,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 15.03
+    "seconds": 0.15,
+    "warnings": []
    },
    "s09-condition_dropped": {
     "id": "s09-condition_dropped",
@@ -836,7 +852,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 16.61
+    "seconds": 1.78,
+    "warnings": []
    },
    "s09-negation_mismatch": {
     "id": "s09-negation_mismatch",
@@ -849,7 +866,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 17.6
+    "seconds": 0.09,
+    "warnings": []
    },
    "s10-ruling_shift": {
     "id": "s10-ruling_shift",
@@ -863,7 +881,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 14.63
+    "seconds": 0.25,
+    "warnings": []
    },
    "s10-term_narrowing": {
     "id": "s10-term_narrowing",
@@ -877,7 +896,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 14.8
+    "seconds": 0.15,
+    "warnings": []
    },
    "s11-number_mismatch": {
     "id": "s11-number_mismatch",
@@ -890,7 +910,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 12.54
+    "seconds": 0.39,
+    "warnings": []
    },
    "s12-hadith_grade_dropped": {
     "id": "s12-hadith_grade_dropped",
@@ -903,7 +924,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 15.32
+    "seconds": 0.07,
+    "warnings": []
    },
    "s13-exception_dropped": {
     "id": "s13-exception_dropped",
@@ -917,7 +939,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 17.22
+    "seconds": 0.26,
+    "warnings": []
    },
    "s13-scope_widened": {
     "id": "s13-scope_widened",
@@ -931,7 +954,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 15.37
+    "seconds": 2.76,
+    "warnings": []
    },
    "s14-negation_mismatch": {
     "id": "s14-negation_mismatch",
@@ -945,7 +969,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 13.95
+    "seconds": 0.24,
+    "warnings": []
    },
    "s14-ruling_shift": {
     "id": "s14-ruling_shift",
@@ -959,7 +984,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 6.83
+    "seconds": 0.24,
+    "warnings": []
    },
    "s15-negation_mismatch": {
     "id": "s15-negation_mismatch",
@@ -974,7 +1000,8 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 17.81
+    "seconds": 0.15,
+    "warnings": []
    },
    "s01-faithful": {
     "id": "s01-faithful",
@@ -986,7 +1013,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 7.02
+    "seconds": 0.11,
+    "warnings": []
    },
    "s02-faithful": {
     "id": "s02-faithful",
@@ -996,7 +1024,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 5.6
+    "seconds": 0.27,
+    "warnings": []
    },
    "s03-faithful": {
     "id": "s03-faithful",
@@ -1008,7 +1037,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 8.89
+    "seconds": 0.16,
+    "warnings": []
    },
    "s04-faithful": {
     "id": "s04-faithful",
@@ -1020,7 +1050,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 9.7
+    "seconds": 0.19,
+    "warnings": []
    },
    "s05-faithful": {
     "id": "s05-faithful",
@@ -1035,7 +1066,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 7.1
+    "seconds": 0.35,
+    "warnings": []
    },
    "s06-faithful": {
     "id": "s06-faithful",
@@ -1047,7 +1079,8 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 5.03
+    "seconds": 0.47,
+    "warnings": []
    },
    "s07-faithful": {
     "id": "s07-faithful",
@@ -1057,7 +1090,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 7.52
+    "seconds": 0.61,
+    "warnings": []
    },
    "s08-faithful": {
     "id": "s08-faithful",
@@ -1067,7 +1101,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 6.66
+    "seconds": 0.25,
+    "warnings": []
    },
    "s09-faithful": {
     "id": "s09-faithful",
@@ -1077,7 +1112,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 8.39
+    "seconds": 0.17,
+    "warnings": []
    },
    "s10-faithful": {
     "id": "s10-faithful",
@@ -1087,7 +1123,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 4.92
+    "seconds": 0.88,
+    "warnings": []
    },
    "s11-faithful": {
     "id": "s11-faithful",
@@ -1097,7 +1134,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 5.1
+    "seconds": 0.17,
+    "warnings": []
    },
    "s12-faithful": {
     "id": "s12-faithful",
@@ -1107,7 +1145,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 5.27
+    "seconds": 0.31,
+    "warnings": []
    },
    "s13-faithful": {
     "id": "s13-faithful",
@@ -1119,7 +1158,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 5.32
+    "seconds": 0.12,
+    "warnings": []
    },
    "s14-faithful": {
     "id": "s14-faithful",
@@ -1129,7 +1169,8 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 4.86
+    "seconds": 0.12,
+    "warnings": []
    },
    "s15-faithful": {
     "id": "s15-faithful",
@@ -1146,7 +1187,8 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 5.84
+    "seconds": 0.21,
+    "warnings": []
    },
    "a01": {
     "id": "a01",
@@ -1162,7 +1204,8 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 15.27
+    "seconds": 0.2,
+    "warnings": []
    },
    "a02": {
     "id": "a02",
@@ -1178,7 +1221,8 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 16.91
+    "seconds": 0.37,
+    "warnings": []
    },
    "a03": {
     "id": "a03",
@@ -1194,7 +1238,8 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 14.92
+    "seconds": 0.12,
+    "warnings": []
    },
    "a04": {
     "id": "a04",
@@ -1209,7 +1254,1366 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 14.86
+    "seconds": 0.2,
+    "warnings": []
+   }
+  },
+  {
+   "s01-condition_dropped": {
+    "id": "s01-condition_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 25.32,
+    "warnings": []
+   },
+   "s01-scope_widened": {
+    "id": "s01-scope_widened",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 21.34,
+    "warnings": []
+   },
+   "s01-ruling_shift": {
+    "id": "s01-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 14.91,
+    "warnings": []
+   },
+   "s02-number_mismatch": {
+    "id": "s02-number_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "number_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 15.02,
+    "warnings": []
+   },
+   "s02-ruling_shift": {
+    "id": "s02-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 13.59,
+    "warnings": []
+   },
+   "s02-consensus_inflated": {
+    "id": "s02-consensus_inflated",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "consensus_inflated",
+     "reader_divergence",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 13.79,
+    "warnings": []
+   },
+   "s03-negation_mismatch": {
+    "id": "s03-negation_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 16.06,
+    "warnings": []
+   },
+   "s03-condition_dropped": {
+    "id": "s03-condition_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 25.28,
+    "warnings": []
+   },
+   "s04-attribution_upgraded": {
+    "id": "s04-attribution_upgraded",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "number_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.39,
+    "warnings": []
+   },
+   "s04-new_prophetic_attribution": {
+    "id": "s04-new_prophetic_attribution",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "attribution_upgraded",
+     "new_prophetic_attribution",
+     "number_mismatch",
+     "reader_divergence",
+     "scope_narrowed",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 21.68,
+    "warnings": []
+   },
+   "s05-certainty_raised": {
+    "id": "s05-certainty_raised",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "certainty_raised",
+     "condition_dropped",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 18.02,
+    "warnings": []
+   },
+   "s05-scope_widened": {
+    "id": "s05-scope_widened",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "certainty_raised",
+     "condition_dropped",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 19.66,
+    "warnings": []
+   },
+   "s06-hasr_lost": {
+    "id": "s06-hasr_lost",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "hasr_lost"
+    ],
+    "verifications": [
+     "supported",
+     "supported"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 13.32,
+    "warnings": []
+   },
+   "s07-consensus_inflated": {
+    "id": "s07-consensus_inflated",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "consensus_inflated",
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 15.98,
+    "warnings": []
+   },
+   "s07-condition_dropped": {
+    "id": "s07-condition_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "witness_disagreement"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.65,
+    "warnings": []
+   },
+   "s08-term_narrowing": {
+    "id": "s08-term_narrowing",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 17.51,
+    "warnings": []
+   },
+   "s08-ruling_shift": {
+    "id": "s08-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 17.83,
+    "warnings": []
+   },
+   "s09-condition_dropped": {
+    "id": "s09-condition_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "negation_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 26.8,
+    "warnings": []
+   },
+   "s09-negation_mismatch": {
+    "id": "s09-negation_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 17.68,
+    "warnings": []
+   },
+   "s10-ruling_shift": {
+    "id": "s10-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.55,
+    "warnings": []
+   },
+   "s10-term_narrowing": {
+    "id": "s10-term_narrowing",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 19.53,
+    "warnings": []
+   },
+   "s11-number_mismatch": {
+    "id": "s11-number_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "number_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 11.56,
+    "warnings": []
+   },
+   "s12-hadith_grade_dropped": {
+    "id": "s12-hadith_grade_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "hadith_grade_dropped",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 17.63,
+    "warnings": []
+   },
+   "s13-exception_dropped": {
+    "id": "s13-exception_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 20.87,
+    "warnings": []
+   },
+   "s13-scope_widened": {
+    "id": "s13-scope_widened",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 23.92,
+    "warnings": []
+   },
+   "s14-negation_mismatch": {
+    "id": "s14-negation_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 19.39,
+    "warnings": []
+   },
+   "s14-ruling_shift": {
+    "id": "s14-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "negation_mismatch",
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 20.63,
+    "warnings": []
+   },
+   "s15-negation_mismatch": {
+    "id": "s15-negation_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch"
+    ],
+    "verifications": [
+     "supported",
+     "supported"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 15.08,
+    "warnings": []
+   },
+   "s01-faithful": {
+    "id": "s01-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 15.12,
+    "warnings": []
+   },
+   "s02-faithful": {
+    "id": "s02-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 13.25,
+    "warnings": []
+   },
+   "s03-faithful": {
+    "id": "s03-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 20.92,
+    "warnings": []
+   },
+   "s04-faithful": {
+    "id": "s04-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "number_mismatch",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 24.56,
+    "warnings": []
+   },
+   "s05-faithful": {
+    "id": "s05-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "certainty_raised",
+     "negation_mismatch",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 21.46,
+    "warnings": []
+   },
+   "s06-faithful": {
+    "id": "s06-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [
+     "supported"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 15.79,
+    "warnings": []
+   },
+   "s07-faithful": {
+    "id": "s07-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 21.58,
+    "warnings": []
+   },
+   "s08-faithful": {
+    "id": "s08-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 18.66,
+    "warnings": []
+   },
+   "s09-faithful": {
+    "id": "s09-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 20.51,
+    "warnings": []
+   },
+   "s10-faithful": {
+    "id": "s10-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 15.85,
+    "warnings": []
+   },
+   "s11-faithful": {
+    "id": "s11-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 25.84,
+    "warnings": []
+   },
+   "s12-faithful": {
+    "id": "s12-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 13.62,
+    "warnings": []
+   },
+   "s13-faithful": {
+    "id": "s13-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 16.89,
+    "warnings": []
+   },
+   "s14-faithful": {
+    "id": "s14-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 14.06,
+    "warnings": []
+   },
+   "s15-faithful": {
+    "id": "s15-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "quote_wording_differs",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "supported",
+     "partially_supported",
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 14.64,
+    "warnings": []
+   },
+   "a01": {
+    "id": "a01",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "new_prophetic_attribution",
+     "reader_divergence",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.45,
+    "warnings": []
+   },
+   "a02": {
+    "id": "a02",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "new_prophetic_attribution",
+     "reader_divergence",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 16.59,
+    "warnings": []
+   },
+   "a03": {
+    "id": "a03",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "new_prophetic_attribution",
+     "reader_divergence",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 16.78,
+    "warnings": []
+   },
+   "a04": {
+    "id": "a04",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified",
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 20.82,
+    "warnings": []
+   }
+  },
+  {
+   "s01-condition_dropped": {
+    "id": "s01-condition_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 23.28,
+    "warnings": []
+   },
+   "s01-scope_widened": {
+    "id": "s01-scope_widened",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 22.96,
+    "warnings": []
+   },
+   "s01-ruling_shift": {
+    "id": "s01-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 30.39,
+    "warnings": []
+   },
+   "s02-number_mismatch": {
+    "id": "s02-number_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "number_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 25.17,
+    "warnings": []
+   },
+   "s02-ruling_shift": {
+    "id": "s02-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 14.59,
+    "warnings": []
+   },
+   "s02-consensus_inflated": {
+    "id": "s02-consensus_inflated",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "consensus_inflated",
+     "reader_divergence",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 12.46,
+    "warnings": []
+   },
+   "s03-negation_mismatch": {
+    "id": "s03-negation_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 15.52,
+    "warnings": []
+   },
+   "s03-condition_dropped": {
+    "id": "s03-condition_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 22.16,
+    "warnings": []
+   },
+   "s04-attribution_upgraded": {
+    "id": "s04-attribution_upgraded",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "number_mismatch",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 20.07,
+    "warnings": []
+   },
+   "s04-new_prophetic_attribution": {
+    "id": "s04-new_prophetic_attribution",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "attribution_upgraded",
+     "new_prophetic_attribution",
+     "number_mismatch",
+     "reader_divergence",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 22.56,
+    "warnings": []
+   },
+   "s05-certainty_raised": {
+    "id": "s05-certainty_raised",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "certainty_raised",
+     "condition_dropped",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 21.77,
+    "warnings": []
+   },
+   "s05-scope_widened": {
+    "id": "s05-scope_widened",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "certainty_raised",
+     "condition_dropped",
+     "reader_divergence",
+     "scope_narrowed"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 20.09,
+    "warnings": []
+   },
+   "s06-hasr_lost": {
+    "id": "s06-hasr_lost",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "hasr_lost"
+    ],
+    "verifications": [
+     "supported",
+     "supported"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 14.99,
+    "warnings": []
+   },
+   "s07-consensus_inflated": {
+    "id": "s07-consensus_inflated",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "consensus_inflated",
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.45,
+    "warnings": []
+   },
+   "s07-condition_dropped": {
+    "id": "s07-condition_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "witness_disagreement"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 20.36,
+    "warnings": []
+   },
+   "s08-term_narrowing": {
+    "id": "s08-term_narrowing",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 16.88,
+    "warnings": []
+   },
+   "s08-ruling_shift": {
+    "id": "s08-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 15.61,
+    "warnings": []
+   },
+   "s09-condition_dropped": {
+    "id": "s09-condition_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "negation_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 21.54,
+    "warnings": []
+   },
+   "s09-negation_mismatch": {
+    "id": "s09-negation_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 20.61,
+    "warnings": []
+   },
+   "s10-ruling_shift": {
+    "id": "s10-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.16,
+    "warnings": []
+   },
+   "s10-term_narrowing": {
+    "id": "s10-term_narrowing",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "reader_divergence",
+     "ruling_shift",
+     "term_narrowing"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.5,
+    "warnings": []
+   },
+   "s11-number_mismatch": {
+    "id": "s11-number_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "number_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 16.38,
+    "warnings": []
+   },
+   "s12-hadith_grade_dropped": {
+    "id": "s12-hadith_grade_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "hadith_grade_dropped",
+     "reader_divergence"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 17.16,
+    "warnings": []
+   },
+   "s13-exception_dropped": {
+    "id": "s13-exception_dropped",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 23.95,
+    "warnings": []
+   },
+   "s13-scope_widened": {
+    "id": "s13-scope_widened",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "condition_dropped",
+     "reader_divergence",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 19.02,
+    "warnings": []
+   },
+   "s14-negation_mismatch": {
+    "id": "s14-negation_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 14.16,
+    "warnings": []
+   },
+   "s14-ruling_shift": {
+    "id": "s14-ruling_shift",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "reader_divergence",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 15.6,
+    "warnings": []
+   },
+   "s15-negation_mismatch": {
+    "id": "s15-negation_mismatch",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch",
+     "reader_divergence"
+    ],
+    "verifications": [
+     "supported",
+     "supported"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 17.55,
+    "warnings": []
+   },
+   "s01-faithful": {
+    "id": "s01-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 16.26,
+    "warnings": []
+   },
+   "s02-faithful": {
+    "id": "s02-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 13.32,
+    "warnings": []
+   },
+   "s03-faithful": {
+    "id": "s03-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.48,
+    "warnings": []
+   },
+   "s04-faithful": {
+    "id": "s04-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "number_mismatch",
+     "scope_widened"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 19.36,
+    "warnings": []
+   },
+   "s05-faithful": {
+    "id": "s05-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "certainty_raised",
+     "negation_mismatch",
+     "ruling_shift"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 22.39,
+    "warnings": []
+   },
+   "s06-faithful": {
+    "id": "s06-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [
+     "supported"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 18.13,
+    "warnings": []
+   },
+   "s07-faithful": {
+    "id": "s07-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 19.8,
+    "warnings": []
+   },
+   "s08-faithful": {
+    "id": "s08-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 16.5,
+    "warnings": []
+   },
+   "s09-faithful": {
+    "id": "s09-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 17.33,
+    "warnings": []
+   },
+   "s10-faithful": {
+    "id": "s10-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "scope_narrowed"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.0,
+    "seconds": 20.14,
+    "warnings": []
+   },
+   "s11-faithful": {
+    "id": "s11-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 12.86,
+    "warnings": []
+   },
+   "s12-faithful": {
+    "id": "s12-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "witness_disagreement"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 15.48,
+    "warnings": []
+   },
+   "s13-faithful": {
+    "id": "s13-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "negation_mismatch"
+    ],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 18.93,
+    "warnings": []
+   },
+   "s14-faithful": {
+    "id": "s14-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 14.03,
+    "warnings": []
+   },
+   "s15-faithful": {
+    "id": "s15-faithful",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "quote_wording_differs",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "supported",
+     "partially_supported",
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 14.56,
+    "warnings": []
+   },
+   "a01": {
+    "id": "a01",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "new_prophetic_attribution",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 12.65,
+    "warnings": [
+     "تعذّر امتحان القارئ: BadRequestError"
+    ]
+   },
+   "a02": {
+    "id": "a02",
+    "status": "failed",
+    "error": "BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfbVFMgrdnZgqn7tQPFTP'}",
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": null,
+    "seconds": 8.64,
+    "warnings": []
+   },
+   "a03": {
+    "id": "a03",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "new_prophetic_attribution",
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 0.5,
+    "seconds": 7.89,
+    "warnings": [
+     "تعذّر امتحان القارئ: BadRequestError"
+    ]
+   },
+   "a04": {
+    "id": "a04",
+    "status": "analyzed",
+    "error": "",
+    "predicted": [
+     "unverified_attribution"
+    ],
+    "verifications": [
+     "unverified",
+     "unverified"
+    ],
+    "fixed_phrase_ok": true,
+    "witness_agreement": 1.0,
+    "seconds": 5.45,
+    "warnings": [
+     "تعذّر مخاطر الفهم: BadRequestError",
+     "تعذّر امتحان القارئ: BadRequestError"
+    ]
    }
   }
  ],
@@ -1453,150 +2857,155 @@
  "metrics": {
   "attribution_upgraded": {
    "tp": 0,
-   "fn": 1,
+   "fn": 3,
    "fp": 0,
-   "support": 1,
+   "support": 3,
    "recall": 0.0,
    "precision": null
   },
   "certainty_raised": {
-   "tp": 1,
+   "tp": 3,
    "fn": 0,
-   "fp": 2,
-   "support": 1,
+   "fp": 6,
+   "support": 3,
    "recall": 1.0,
    "precision": 0.3333333333333333
   },
   "condition_dropped": {
-   "tp": 4,
+   "tp": 12,
    "fn": 0,
-   "fp": 1,
-   "support": 4,
+   "fp": 4,
+   "support": 12,
    "recall": 1.0,
-   "precision": 0.8
+   "precision": 0.75
   },
   "consensus_inflated": {
-   "tp": 2,
+   "tp": 6,
    "fn": 0,
    "fp": 0,
-   "support": 2,
+   "support": 6,
    "recall": 1.0,
    "precision": 1.0
   },
   "exception_dropped": {
    "tp": 0,
-   "fn": 1,
+   "fn": 3,
    "fp": 0,
-   "support": 1,
+   "support": 3,
    "recall": 0.0,
    "precision": null
   },
   "hadith_grade_dropped": {
-   "tp": 1,
+   "tp": 3,
    "fn": 0,
    "fp": 0,
-   "support": 1,
+   "support": 3,
    "recall": 1.0,
    "precision": 1.0
   },
   "hasr_lost": {
-   "tp": 1,
+   "tp": 3,
    "fn": 0,
    "fp": 0,
-   "support": 1,
+   "support": 3,
    "recall": 1.0,
    "precision": 1.0
   },
   "negation_mismatch": {
-   "tp": 4,
+   "tp": 12,
    "fn": 0,
-   "fp": 5,
-   "support": 4,
+   "fp": 15,
+   "support": 12,
    "recall": 1.0,
    "precision": 0.4444444444444444
   },
   "new_prophetic_attribution": {
-   "tp": 1,
+   "tp": 3,
    "fn": 0,
    "fp": 0,
-   "support": 1,
+   "support": 3,
    "recall": 1.0,
    "precision": 1.0
   },
   "number_mismatch": {
-   "tp": 2,
+   "tp": 6,
    "fn": 0,
-   "fp": 3,
-   "support": 2,
+   "fp": 9,
+   "support": 6,
    "recall": 1.0,
    "precision": 0.4
   },
   "quote_wording_differs": {
    "tp": 0,
    "fn": 0,
-   "fp": 1,
+   "fp": 3,
    "support": 0,
    "recall": null,
    "precision": 0.0
   },
   "ruling_shift": {
-   "tp": 5,
+   "tp": 15,
    "fn": 0,
-   "fp": 1,
-   "support": 5,
+   "fp": 6,
+   "support": 15,
    "recall": 1.0,
-   "precision": 0.8333333333333334
+   "precision": 0.7142857142857143
   },
   "scope_narrowed": {
    "tp": 0,
    "fn": 0,
-   "fp": 2,
+   "fp": 5,
    "support": 0,
    "recall": null,
    "precision": 0.0
   },
   "scope_widened": {
-   "tp": 3,
-   "fn": 0,
-   "fp": 2,
-   "support": 3,
-   "recall": 1.0,
-   "precision": 0.6
+   "tp": 7,
+   "fn": 2,
+   "fp": 4,
+   "support": 9,
+   "recall": 0.7777777777777778,
+   "precision": 0.6363636363636364
   },
   "term_narrowing": {
-   "tp": 2,
+   "tp": 6,
    "fn": 0,
-   "fp": 1,
-   "support": 2,
+   "fp": 3,
+   "support": 6,
    "recall": 1.0,
    "precision": 0.6666666666666666
   },
   "unverified_attribution": {
-   "tp": 4,
+   "tp": 8,
    "fn": 0,
-   "fp": 1,
-   "support": 4,
+   "fp": 3,
+   "support": 8,
    "recall": 1.0,
-   "precision": 0.8
+   "precision": 0.7272727272727273
   }
  },
  "cost": {
-  "calls": 403,
-  "live_calls": 298,
-  "cache_hits": 105,
-  "failed_calls": 0,
+  "calls": 1211,
+  "live_calls": 810,
+  "cache_hits": 396,
+  "failed_calls": 5,
+  "errors": [
+   "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anth"
+  ],
   "by_model": {
    "claude-sonnet-5-5": [
-    354664,
-    41648,
-    224
+    931296,
+    120780,
+    623
    ],
    "claude-haiku-4-5": [
-    192197,
-    17873,
-    74
+    486019,
+    45312,
+    187
    ]
   },
-  "usd": 1.4074
- }
+  "usd": 3.783
+ },
+ "start": "2026-10-01T11:58:48.554352+00:00",
+ "first_run_cached": true
 }
