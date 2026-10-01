@@ -171,6 +171,17 @@ class Alert(BaseModel):
 
 
 # ---------- التقرير ----------
+def validate_chain(versions: list["Version"]) -> None:
+    """كل حلقة تُشتق من الأصل أو من حلقة قبلها، والتسميات فريدة."""
+    seen = {"source"}
+    for v in versions:
+        if v.label in seen:
+            raise ValueError(f"تسمية مكررة أو محجوزة: {v.label}")
+        if v.derived_from not in seen:
+            raise ValueError(f"الحلقة الأم '{v.derived_from}' غير معرّفة قبل '{v.label}'")
+        seen.add(v.label)
+
+
 class Report(BaseModel):
     id: str = Field(default_factory=lambda: uuid.uuid4().hex[:12])
     created_at: datetime = Field(default_factory=_now)
@@ -186,13 +197,7 @@ class Report(BaseModel):
 
     @model_validator(mode="after")
     def _chain_valid(self) -> "Report":
-        seen = {"source"}
-        for v in self.versions:
-            if v.label in seen:
-                raise ValueError(f"تسمية مكررة أو محجوزة: {v.label}")
-            if v.derived_from not in seen:
-                raise ValueError(f"الحلقة الأم '{v.derived_from}' غير معرّفة قبل '{v.label}'")
-            seen.add(v.label)
+        validate_chain(self.versions)
         return self
 
 

@@ -4,8 +4,8 @@
 {% block content %}
 <section class="bg-white rounded-2xl shadow p-6 mb-6 flex flex-wrap gap-6 items-center justify-between">
   <div>
-    <h1 class="text-2xl font-bold">{{ report.title }}</h1>
-    <p class="text-sm text-navy/60">المرجع: {{ report.source.source_ref }} · مستوى المحتوى: {{ report.source.content_level.value }}</p>
+    <h1 class="text-2xl font-bold">{{ report.title or 'تقرير' }}</h1>
+    <p class="text-sm text-navy/60">المرجع: {{ report.source.source_ref or '—' }} · مستوى المحتوى: {{ report.source.content_level.value }}</p>
   </div>
   <div class="text-2xl font-bold">{{ light(report.alerts) }}</div>
   <div class="text-xl bg-paper rounded-xl px-4 py-2">راجع <b>{{ flagged | length }}</b> جمل من أصل <b>{{ source_sentences | length }}</b></div>
@@ -13,7 +13,7 @@
 
 <section class="bg-white rounded-2xl shadow p-6 mb-6">
   <h2 class="font-bold mb-3">السلسلة</h2>
-  {{ chain_view(chain, broken_at) }}
+  {{ chain_view(chain, broken_at, warn_at, inherited) }}
 </section>
 
 <section class="bg-white rounded-2xl shadow p-6 mb-6" x-data="{ tab: 0 }">
@@ -24,13 +24,13 @@
     {% endfor %}
   </div>
   <div class="grid md:grid-cols-2 gap-4">
-    <div class="bg-paper rounded-xl p-4 leading-loose" dir="rtl">
-      <h3 class="text-sm text-navy/60 mb-2">الأصل</h3>
+    <div class="bg-paper rounded-xl p-4 leading-loose" dir="{{ 'rtl' if report.source.lang in ['ar', 'ur'] else 'ltr' }}">
+      <h3 class="text-sm text-navy/60 mb-2" dir="rtl">الأصل</h3>
       {{ report.source.text | hl(report.alerts, 'source') }}
     </div>
     {% for v in report.versions %}
     <div class="bg-paper rounded-xl p-4 leading-loose" dir="{{ 'rtl' if v.lang in ['ar', 'ur'] else 'ltr' }}" x-show="tab === {{ loop.index0 }}" {% if not loop.first %}x-cloak{% endif %}>
-      <h3 class="text-sm text-navy/60 mb-2" dir="rtl">{{ v.label }} ({{ v.lang }}) ← من {{ v.derived_from }}</h3>
+      <h3 class="text-sm text-navy/60 mb-2" dir="rtl">{{ v.label }} ({{ v.lang }}) ← من {{ 'الأصل' if v.derived_from == 'source' else v.derived_from }}</h3>
       {{ v.text | hl(report.alerts, 'version', v.label) }}
     </div>
     {% endfor %}
@@ -38,20 +38,27 @@
 </section>
 
 <section class="space-y-4">
-  <h2 class="font-bold text-xl">التنبيهات</h2>
+  <h2 class="font-bold text-xl">التنبيهات ({{ report.alerts | length }})</h2>
+  {% if not report.alerts %}
+  <p class="bg-white rounded-2xl shadow p-5 text-green-700">لم تُكتشف تغيّرات في المعنى بالقواعد الحالية. القرار النهائي للمراجع.</p>
+  {% endif %}
   {% for a in report.alerts %}
   <article class="bg-white rounded-2xl shadow p-5 border-s-8 {{ {'red':'border-red-600','yellow':'border-yellow-400','info':'border-slate-300'}[a.severity.value] }}" x-data="{ why: false }">
     <div class="flex flex-wrap gap-2 items-center mb-2">
       {{ severity_badge(a.severity.value) }}
       <code class="text-xs bg-paper rounded px-2">{{ a.type.value }}</code>
-      <span class="text-xs text-navy/60">دخل في: <b>{{ a.introduced_at }}</b> · الثقة {{ (a.confidence * 100) | round | int }}٪</span>
+      <span class="text-xs text-navy/60">دخل في: <b>{{ a.introduced_at }}</b>{% if a.propagated_to %} · انتقل إلى: {{ a.propagated_to | join('، ') }}{% endif %} · الثقة {{ (a.confidence * 100) | round | int }}٪</span>
     </div>
     <p class="mb-2">{{ a.explanation_ar }}</p>
+    <div class="grid md:grid-cols-2 gap-2 text-sm mb-2">
+      {% if a.source_span.text %}<p class="bg-paper rounded-lg p-2"><span class="text-navy/50">في الأصل:</span> «{{ a.source_span.text }}»</p>{% endif %}
+      {% if a.version_span.text %}<p class="bg-paper rounded-lg p-2"><span class="text-navy/50">في {{ a.version_label }}:</span> <span dir="auto">«{{ a.version_span.text }}»</span></p>{% endif %}
+    </div>
     <button class="text-violet text-sm underline" @click="why = !why">ليش هذا مهم؟</button>
     <div x-show="why" x-cloak class="mt-2 bg-paper rounded-xl p-3 text-sm">
       <p class="mb-2">{{ a.why_it_matters_ar }}</p>
       <p class="font-semibold">الدليل:</p>
-      <ul class="list-disc ps-5">{% for e in a.evidence %}<li><code>{{ e.kind }}</code> {{ e.ref }} — {{ e.detail }}</li>{% endfor %}</ul>
+      <ul class="list-disc ps-5">{% for e in a.evidence %}<li><code>{{ e.kind }}</code> {{ e.ref }} — <span dir="auto">{{ e.detail }}</span></li>{% endfor %}</ul>
     </div>
   </article>
   {% endfor %}

@@ -1,20 +1,40 @@
 {% extends "base.html" %}
 {% block title %}جارٍ التحليل{% endblock %}
 {% block content %}
-<section class="bg-white rounded-2xl shadow p-8 max-w-2xl mx-auto"
-  x-data="{ steps: ['تقسيم الجمل', 'محاذاة النسخ بالأصل', 'استخراج بصمة المعنى', 'مقارنة البصمات وتطبيق القواعد', 'تحديد الحلقة التي دخل فيها الخلل', 'الميزان: التحقق من المصادر', 'إعداد التقرير'], done: 0 }"
-  x-init="let t = setInterval(() => { done++; if (done >= steps.length) { clearInterval(t); setTimeout(() => location.href = '/report/{{ report_id }}', 500) } }, 450)">
-  <h1 class="text-2xl font-bold mb-6">جارٍ التحليل…</h1>
+<script>
+  function progressState() {
+    return {
+      steps: {{ stages | tojson }}, done: 0, status: 'analyzing', error: '',
+      async poll() {
+        try {
+          const r = await (await fetch('/api/report/{{ report.id }}/status')).json();
+          this.status = r.status; this.error = r.error;
+          this.done = Math.max(0, r.stage_index);
+          if (r.status === 'analyzed') { this.done = this.steps.length; setTimeout(() => location.href = '/report/{{ report.id }}', 400); return; }
+          if (r.status === 'failed') return;
+        } catch (e) { /* إعادة المحاولة */ }
+        setTimeout(() => this.poll(), 1000);
+      }
+    };
+  }
+</script>
+<section class="bg-white rounded-2xl shadow p-8 max-w-2xl mx-auto" x-data="progressState()" x-init="poll()">
+  <h1 class="text-2xl font-bold mb-1">جارٍ التحليل…</h1>
+  <p class="text-sm text-navy/60 mb-6">{{ report.title or 'تقرير جديد' }} · {{ report.versions | length }} نسخ</p>
   <div class="w-full bg-paper rounded-full h-3 mb-6">
     <div class="bg-violet h-3 rounded-full transition-all" :style="`width: ${done / steps.length * 100}%`"></div>
   </div>
   <ol class="space-y-2">
     <template x-for="(s, i) in steps" :key="i">
       <li class="flex items-center gap-2" :class="i < done ? 'text-navy' : 'text-navy/40'">
-        <span x-text="i < done ? '✅' : (i === done ? '⏳' : '◻️')"></span><span x-text="s"></span>
+        <span x-text="i < done ? '✅' : (i === done && status === 'analyzing' ? '⏳' : '◻️')"></span><span x-text="s"></span>
       </li>
     </template>
   </ol>
-  <p class="text-xs text-navy/50 mt-6">في المرحلة 0 هذه محاكاة للواجهة فقط.</p>
+  <div x-show="status === 'failed'" x-cloak class="mt-6 bg-red-50 border border-red-300 rounded-xl p-4 text-sm">
+    <p class="font-bold text-red-700 mb-1">تعذّر إكمال التحليل</p>
+    <p dir="ltr" class="font-mono text-xs break-all" x-text="error"></p>
+    <a href="/new" class="text-violet underline mt-2 inline-block">ابدأ من جديد</a>
+  </div>
 </section>
 {% endblock %}

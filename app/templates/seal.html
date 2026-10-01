@@ -12,7 +12,7 @@
     <div class="w-32 h-32 border-2 border-dashed border-navy/30 rounded-xl flex items-center justify-center text-navy/40 text-sm text-center">رمز QR<br>(المرحلة 2)</div>
   </div>
   <h2 class="font-bold mt-6 mb-2">السلسلة</h2>
-  {{ chain_view(chain, []) }}
+  {{ chain_view(chain) }}
   <h2 class="font-bold mt-6 mb-2">ملخص التنبيهات والقرارات</h2>
   <ul class="list-disc ps-5 text-sm">
     {% for a in report.alerts %}<li>{{ a.type.value }} في {{ a.version_label }} — <i>القرار: (بيانات وهمية)</i></li>{% endfor %}

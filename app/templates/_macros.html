@@ -10,11 +10,16 @@
 {%- else -%}<span class="text-green-600">🟢 جاهز للنشر</span>{%- endif -%}
 {%- endmacro %}
 
-{% macro chain_view(chain, broken_at) -%}
+{% macro chain_view(chain, broken_at=[], warn_at=[], inherited=[]) -%}
 <div class="flex flex-wrap items-center gap-2">
   {% for label in chain %}
-    <div class="rounded-xl px-4 py-2 border-2 {{ 'border-red-600 bg-red-50 text-red-700 font-bold' if label in broken_at else 'border-green-500 bg-green-50' }}">
-      {{ 'الأصل' if label == 'source' else label }}{% if label in broken_at %} ⚠️{% endif %}
+    {%- if label in broken_at -%}{% set cls = 'border-red-600 bg-red-50 text-red-700 font-bold' %}{% set note = '⚠️ دخل هنا خلل خطير' %}
+    {%- elif label in warn_at -%}{% set cls = 'border-yellow-500 bg-yellow-50 font-bold' %}{% set note = 'دخل هنا ما يحتاج نظرة' %}
+    {%- elif label in inherited -%}{% set cls = 'border-orange-300 border-dashed bg-orange-50/50' %}{% set note = 'ورث خللاً من حلقة سابقة' %}
+    {%- else -%}{% set cls = 'border-green-500 bg-green-50' %}{% set note = '' %}{%- endif %}
+    <div class="rounded-xl px-4 py-2 border-2 {{ cls }}" title="{{ note }}">
+      <div>{{ 'الأصل' if label == 'source' else label }}{% if label in broken_at %} ⚠️{% endif %}</div>
+      {% if note %}<div class="text-[11px] font-normal opacity-80">{{ note }}</div>{% endif %}
     </div>
     {% if not loop.last %}<span class="text-2xl text-navy/40">←</span>{% endif %}
   {% endfor %}
