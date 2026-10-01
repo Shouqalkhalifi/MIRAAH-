@@ -1,5 +1,5 @@
 from app.models import AlertType as T
-from app.models import Lock, MeaningFingerprint, Report, Source, Version
+from app.models import Lock, MeaningFingerprint, Report, Source
 from app.pipeline.chain import analyze_chain
 from app.pipeline.fingerprint import Fingerprinted
 from app.pipeline.locks import check_lock, lock_in_text, suggest_locks

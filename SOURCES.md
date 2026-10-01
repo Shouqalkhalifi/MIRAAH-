@@ -21,11 +21,13 @@
 | [Alpine.js](https://alpinejs.dev) (CDN) | تفاعل الواجهة | MIT |
 | [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | الخط | SIL Open Font License 1.1 |
 
-## الخدمات
+## الخدمات والبنية
 
-| الخدمة | الاستخدام |
-|---|---|
-| Anthropic API (Claude) | النماذج اللغوية. أسماء النماذج في `.env` |
+| العنصر | الاستخدام | الترخيص / الشروط |
+|---|---|---|
+| Anthropic API: `claude-sonnet-5-5` (الشاهد الأول) و `claude-haiku-4-5` (الشاهد الثاني) | المحاذاة، وبصمة المعنى، والتحقق الموجّه، والصياغات الآمنة، وامتحان القارئ، ومخاطر الفهم | شروط استخدام Anthropic التجارية. أسماء النماذج في `.env` |
+| صورة Docker `python:3.11-slim` | تشغيل التطبيق | PSF License (Python) وتراخيص حزم Debian |
+| [ruff](https://github.com/astral-sh/ruff) (أداة فحص أثناء التطوير، ليست في المتطلبات) | فحص الكود غير المستخدم | MIT |
 
 ## بيانات المدونة (`data/corpus/`)
 

@@ -167,7 +167,6 @@ def main() -> None:
         print(f"run {i + 1}/{args.runs}: {len(cases)} cases in {time.perf_counter() - t0:.0f}s")
     cost = cost_since(start)
     first = runs[0]
-    by_id = {c["id"]: c for c in cases}
     mut = [c for c in cases if c["kind"] == "mutation"]
     fai = [c for c in cases if c["kind"] == "faithful"]
     abst = [c for c in cases if c["kind"] == "abstention"]
@@ -199,7 +198,7 @@ def main() -> None:
     chrf_fai = statistics.mean(base[c["id"]]["chrf"] for c in fai) if fai else None
 
     # ---------- results.md ----------
-    L = [f"# نتائج التقييم — مِرآة",
+    L = ["# نتائج التقييم — مِرآة",
          "",
          f"- التاريخ: {start.strftime('%Y-%m-%d %H:%M UTC')} · عدد الحالات: {len(cases)} "
          f"(تغيّر مزروع {len(mut)} · سليمة المعنى {len(fai)} · امتناع {len(abst)}) · التشغيلات: {len(runs)}",
