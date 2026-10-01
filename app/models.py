@@ -165,6 +165,9 @@ class Alert(BaseModel):
     source_sentence_indices: list[int] = Field(default_factory=list)
     propagated_to: list[str] = Field(default_factory=list)
     tier: int = 4  # طبقة الخطورة (6.11): 0 نسبة إلى الله ورسوله ﷺ ... 4 أسلوب
+    # سياق الوحدة كاملاً (جمل الأصل وجمل النسخة) لاقتراح الصياغة الآمنة
+    source_context: str = ""
+    version_context: str = ""
 
     @model_validator(mode="after")
     def _traceable(self) -> "Alert":
@@ -199,6 +202,15 @@ class Verification(BaseModel):
     source_name: str = ""
     source_url: str = ""
     note_ar: str = ""
+
+
+# ---------- الصياغة الآمنة (6.10) ----------
+class Revision(BaseModel):
+    style: Literal["precise", "balanced", "clear"]
+    label_ar: str
+    text: str
+    passed: bool  # اجتازت التحقق الذاتي (البصمة + القواعد + الميزان + الأقفال)
+    problems: list[str] = Field(default_factory=list)
 
 
 # ---------- قرار المراجع (6.12) ----------
@@ -262,6 +274,7 @@ class Report(BaseModel):
     understanding_risks: list[UnderstandingRisk] = Field(default_factory=list)
     referral: bool = False  # مستوى D: خارج النطاق ← إحالة
     decisions: dict[str, Decision] = Field(default_factory=dict)  # alert_id ← آخر قرار
+    revisions: dict[str, list[Revision]] = Field(default_factory=dict)  # alert_id ← الصياغات المقترحة
     published_at: Optional[datetime] = None
     reviewer_role: str = ""
 

@@ -194,6 +194,7 @@ def _make_alert(report: Report, f: _Found, label: str, sents: dict[str, list[str
         version_span=Span(text=ver_text, sentence_index=u.child[0] if u.child else None),
         version_label=label, introduced_at=label, explanation_ar=exp, why_it_matters_ar=why,
         evidence=evidence, confidence=conf, source_sentence_indices=list(u.parent),
+        source_context=_join(sents["source"], u.parent), version_context=_join(sents[label], u.child),
     )
 
 

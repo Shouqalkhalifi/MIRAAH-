@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from app import review, service
 from app.corpus import load_corpus
 from app.examples import get_example, load_examples
-from app.models import REVIEWER_ROLES, Decision, Report, ReportStatus
+from app.models import REVIEWER_ROLES, Decision, Report, ReportStatus, Revision
 from app.service import STAGES
 from app.pipeline.segment import split_sentences
 from app.pipeline.severity import TIER_LABELS_AR
@@ -127,6 +127,24 @@ def api_decision(body: DecisionIn):
 def api_publish(body: PublishIn):
     """ينشر التقرير ويُنشئ صفحة الختم. يُرفض ما لم تُحسم كل التنبيهات الحمراء."""
     return _review_call(review.publish, body.report_id, body.reviewer_role)
+
+
+class ReviseIn(BaseModel):
+    report_id: str
+    alert_id: str
+
+
+@app.post("/api/revise", response_model=list[Revision])
+def api_revise(body: ReviseIn):
+    """ثلاث صياغات آمنة (الأدق / المتوازنة / الأوضح) بلغة النسخة، كل منها مُعاد فحصها؛ passed=false تعني أنها استُبعدت."""
+    from app.pipeline.revise import RevisionError
+
+    try:
+        return service.revise_alert(body.report_id, body.alert_id)
+    except KeyError:
+        raise HTTPException(404, "التقرير أو التنبيه غير موجود")
+    except RevisionError as e:
+        raise HTTPException(409, str(e))
 
 
 @app.get("/api/report/{report_id}/audit")

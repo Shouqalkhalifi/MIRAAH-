@@ -17,6 +17,19 @@
       role: {{ (report.reviewer_role or roles[0]) | tojson }},
       referral: {{ report.referral | tojson }}, published: {{ (report.status.value == 'published') | tojson }},
       publishError: '',
+      revisions: {{ report.revisions | tojson }}, revLoading: {}, revError: {},
+      async suggest(id) {
+        this.revLoading[id] = true; this.revError[id] = '';
+        try {
+          const res = await fetch('/api/revise', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ report_id: '{{ report.id }}', alert_id: id }) });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || 'تعذّر الاقتراح');
+          this.revisions[id] = data;
+        } catch (e) { this.revError[id] = String(e.message || e); }
+        this.revLoading[id] = false;
+      },
+      use(id, text) { const d = this.decisions[id]; d.action = 'edit'; d.edited_text = text; d.saved = false; },
       get pending() { return this.reds.filter(id => !this.decisions[id].saved).length },
       get ready() { return !this.referral && this.pending === 0 },
       async save(id) {
@@ -60,6 +73,36 @@
       <span x-show="d.saved" class="text-green-600 text-sm ms-auto">✔ حُسم</span></div>
     <p class="mb-2">{{ a.explanation_ar }}</p>
     {% if a.version_span.text %}<p class="text-sm bg-paper rounded-lg p-2 mb-3" dir="auto">«{{ a.version_span.text }}»</p>{% endif %}
+
+    {% if a.severity.value != 'info' and a.version_label != 'source' %}
+    <div class="mb-3">
+      <button x-show="!revisions['{{ a.id }}']" class="border border-violet text-violet rounded-lg px-3 py-1 text-sm disabled:opacity-50"
+              :disabled="revLoading['{{ a.id }}'] || published" @click="suggest('{{ a.id }}')"
+              x-text="revLoading['{{ a.id }}'] ? 'جارٍ الاقتراح والتحقق…' : 'اقترح صياغات آمنة'"></button>
+      <p x-show="revError['{{ a.id }}']" x-cloak class="text-sm text-red-600" x-text="revError['{{ a.id }}']"></p>
+      <template x-if="revisions['{{ a.id }}']">
+        <div>
+          <p class="font-semibold text-sm mb-1">صياغات آمنة (اجتازت إعادة الفحص بالبصمة والقواعد والميزان والأقفال):</p>
+          <div class="grid md:grid-cols-3 gap-2">
+            <template x-for="r in revisions['{{ a.id }}'].filter(r => r.passed)">
+              <div class="bg-paper rounded-xl p-3 text-sm flex flex-col">
+                <p class="text-violet font-semibold mb-1" x-text="r.label_ar"></p>
+                <p dir="auto" class="flex-1" x-text="r.text"></p>
+                <button class="text-xs text-navy underline mt-2 self-start" :disabled="published" @click="use('{{ a.id }}', r.text)">استخدم هذه الصياغة</button>
+              </div>
+            </template>
+          </div>
+          <template x-if="revisions['{{ a.id }}'].some(r => !r.passed)">
+            <details class="text-xs text-navy/60 mt-2"><summary>استُبعدت <span x-text="revisions['{{ a.id }}'].filter(r => !r.passed).length"></span> صياغة لأنها كسرت ثابتاً</summary>
+              <template x-for="r in revisions['{{ a.id }}'].filter(r => !r.passed)">
+                <p class="mt-1"><b x-text="r.label_ar"></b>: <span x-text="r.problems.join('؛ ')"></span></p>
+              </template>
+            </details>
+          </template>
+        </div>
+      </template>
+    </div>
+    {% endif %}
 
     <div class="space-y-2">
       <div class="flex flex-wrap gap-4">

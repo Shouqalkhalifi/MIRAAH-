@@ -11,6 +11,7 @@ from app.llm import LLM, ProviderResponse
 from app.main import DISCLAIMER, app
 from app.pipeline.align import SYSTEM_ALIGN
 from app.pipeline.fingerprint import SYSTEM_PRESENCE
+from app.pipeline.revise import SYSTEM_REVISE
 
 client = TestClient(app)
 
@@ -41,6 +42,10 @@ class RouterProvider:
             else:
                 pairs = [{"version": [0], "parent": [0]}]
             reply = {"pairs": pairs}
+        elif system.startswith(SYSTEM_REVISE[:40]):
+            reply = {"precise": "A traveler may break the fast in Ramadan.",
+                     "balanced": "Travelers may break their fast in Ramadan.",
+                     "clear": "Muslims can skip fasting in Ramadan."}
         elif system.startswith(SYSTEM_PRESENCE[:40]):
             version = user.split("VERSION", 1)[1].split("<<<\n", 1)[1].rsplit("\n>>>", 1)[0]
             hit = next((w for w in ("traveler", "voyageur") if w in version.lower()), None)
@@ -206,3 +211,14 @@ def test_level_d_cannot_be_published():
             decide(rep["id"], a["id"])
     r = client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"})
     assert r.status_code == 409 and "مختص" in r.json()["detail"]
+
+
+def test_revise_endpoint_self_checks_and_caches():
+    rep, _ = _analyzed()
+    cd = next(a for a in rep["alerts"] if a["type"] == "condition_dropped")
+    r = client.post("/api/revise", json={"report_id": rep["id"], "alert_id": cd["id"]})
+    assert r.status_code == 200, r.text
+    assert [x["passed"] for x in r.json()] == [True, True, False]
+    saved = client.get(f"/api/report/{rep['id']}").json()["revisions"][cd["id"]]
+    assert len(saved) == 3
+    assert client.post("/api/revise", json={"report_id": rep["id"], "alert_id": "nope"}).status_code == 404

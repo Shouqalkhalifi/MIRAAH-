@@ -76,3 +76,32 @@ def run_analysis(report_id: str) -> Report:
         report.status, report.error = ReportStatus.failed, f"{type(e).__name__}: {e}"[:500]
     save_report(report)
     return report
+
+
+def revise_alert(report_id: str, alert_id: str) -> list:
+    """ثلاث صياغات آمنة لتنبيه، بعد التحقق الذاتي. تُحفظ في التقرير ولا تُولَّد مرتين."""
+    from app.pipeline.revise import revise
+
+    report = load_report(report_id)
+    if report is None:
+        raise KeyError(report_id)
+    alert = next((a for a in report.alerts if a.id == alert_id), None)
+    if alert is None:
+        raise KeyError(alert_id)
+    if alert_id in report.revisions:
+        return report.revisions[alert_id]
+    llm = llm_factory()
+    revisions = revise(
+        llm, report, alert,
+        fp_fn=lambda text, lang: fingerprint(llm, text, lang),
+        presence_fn=lambda item, kind, ptext, vtext, vlang: find_in_version(llm, item, kind, ptext, vtext, vlang),
+        lock_fn=lock_checker(llm),
+    )
+    report.revisions[alert_id] = revisions
+    save_report(report)
+    return revisions
+
+
+def lock_checker(llm):
+    """يُستبدل في بند الأقفال؛ حتى ذلك الحين لا فحص."""
+    return None

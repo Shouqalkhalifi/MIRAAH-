@@ -214,5 +214,7 @@ def check_report(report: Report, mizan: Mizan | None = None) -> tuple[list[Verif
                     version_label=label, introduced_at=label, explanation_ar=exp, why_it_matters_ar=why,
                     evidence=evidence, confidence=0.9 if v.status == "unverified" else round(max(v.score, 0.5), 2),
                     source_sentence_indices=[seg.index] if label == "source" else [],
+                    source_context=seg.text if label == "source" else "",
+                    version_context=seg.text if label != "source" else "",
                 )))
     return verifications, [a for _, a in records]
