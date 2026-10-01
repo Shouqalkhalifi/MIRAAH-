@@ -1,22 +1,59 @@
 {% extends "base.html" %}
+{% from "_macros.html" import module_card %}
 {% block title %}الرئيسية{% endblock %}
 {% block content %}
-<section class="text-center py-10">
-  <h1 class="text-4xl font-bold mb-4">نحافظ على المعنى، لا على الكلمات فقط</h1>
-  <p class="text-lg max-w-2xl mx-auto leading-loose">
+<section class="text-center pt-6 pb-12">
+  <p class="inline-block bg-white border border-violet/20 text-violet text-sm rounded-full px-4 py-1 mb-5">الأصل ← ترجمة ← ملخص ← ترجمة أخرى</p>
+  <h1 class="text-4xl md:text-5xl font-bold mb-5 leading-tight">نحافظ على <span class="text-violet">المعنى</span>، لا على الكلمات فقط</h1>
+  <p class="text-lg max-w-2xl mx-auto leading-loose text-navy/80">
     مِرآة تتتبّع المعنى من الأصل العربي عبر الترجمات والملخصات، وتكشف أين تغيّر وفي أي حلقة دخل الخلل،
-    مع ربط كل تنبيه بمصدره، والقرار الأخير للمراجع البشري.
+    مع ربط كل تنبيه بموضعه ومصدره، والقرار الأخير للمراجع البشري.
   </p>
+  <div class="flex flex-wrap gap-3 justify-center mt-7">
+    <a href="/new" class="bg-navy text-white rounded-xl px-6 py-3 hover:bg-violet transition">ابدأ تحليلاً</a>
+    <a href="#examples" class="bg-white border border-navy/15 rounded-xl px-6 py-3 hover:border-violet">جرّب مثالاً جاهزاً</a>
+  </div>
 </section>
-<section class="grid md:grid-cols-3 gap-4">
-  {% for ex in examples %}
-  <form method="post" action="/examples/{{ ex.name }}" class="bg-white rounded-2xl shadow p-6 flex flex-col">
-    <h2 class="font-bold text-lg mb-2">{{ ex.title }}</h2>
-    <p class="text-sm text-navy/70 flex-1 mb-2">{{ ex.description }}</p>
-    <p class="text-xs text-navy/50 mb-4">{{ ex.request.versions | length }} حلقات · مستوى {{ ex.request.source.content_level.value }}</p>
-    <button class="bg-violet text-white rounded-xl px-4 py-2 hover:opacity-90">جرّب مثالاً</button>
-  </form>
-  {% endfor %}
+
+<section class="grid md:grid-cols-3 gap-6 items-center mb-16" aria-label="وحدات مِرآة">
+  {{ module_card('mizan') }}
+  {{ module_card('athar', featured=True) }}
+  {{ module_card('fahm') }}
 </section>
-<div class="text-center mt-8"><a href="/new" class="text-violet underline">أو أدخل نصك</a></div>
+
+<section id="how" class="card p-8 mb-16 scroll-mt-24">
+  <h2 class="text-2xl font-bold mb-6 text-center">كيف تعمل؟</h2>
+  <ol class="grid md:grid-cols-4 gap-6">
+    {% for title, text in [
+      ('بصمة المعنى', 'لكل جملة بصمة: الشرط، والاستثناء، ودرجة اليقين، والنسبة، ونوع الحكم، والأرقام.'),
+      ('مقارنة السلسلة', 'كل حلقة تُقارن بأمها وبالأصل، فيُعرف أول موضع انكسر فيه المعنى.'),
+      ('الدليل والامتحان', 'النصوص المنسوبة تُوزن بالمدونة، وقارئ النسخة يُمتحن مقابل قارئ الأصل.'),
+      ('قرار المراجع', 'صياغات آمنة مفحوصة، وقرار بسبب إلزامي، ثم ختم معنى عام برمز QR.') ] %}
+    <li class="relative">
+      <span class="w-9 h-9 rounded-full bg-violet text-white flex items-center justify-center font-bold mb-3">{{ loop.index }}</span>
+      <h3 class="font-bold mb-1">{{ title }}</h3>
+      <p class="text-sm text-navy/70 leading-relaxed">{{ text }}</p>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+<section id="examples" class="scroll-mt-24">
+  <h2 class="text-2xl font-bold mb-2">جرّب مثالاً</h2>
+  <p class="text-navy/60 mb-5">أمثلة اصطناعية جاهزة؛ اضغط وشاهد الرحلة كاملة من التحليل إلى الختم.</p>
+  <div class="grid md:grid-cols-3 gap-5">
+    {% for ex in examples %}
+    <form method="post" action="/examples/{{ ex.name }}" class="card p-6 flex flex-col">
+      <div class="flex items-center gap-2 text-xs text-navy/50 mb-2">
+        <span class="bg-paper rounded-full px-2 py-0.5">{{ ex.request.versions | length + 1 }} حلقات</span>
+        <span class="bg-paper rounded-full px-2 py-0.5">مستوى {{ ex.request.source.content_level.value }}</span>
+      </div>
+      <h3 class="font-bold text-lg mb-2">{{ ex.title }}</h3>
+      <p class="text-sm text-navy/70 flex-1 mb-4 leading-relaxed">{{ ex.description }}</p>
+      <button class="bg-violet text-white rounded-xl px-4 py-2 hover:bg-navy transition">جرّب مثالاً</button>
+    </form>
+    {% endfor %}
+  </div>
+  <div class="text-center mt-8"><a href="/new" class="text-violet underline">أو أدخل نصك</a></div>
+</section>
 {% endblock %}

@@ -21,6 +21,7 @@ from app.pipeline.locks import LOCK_TYPE_AR
 from app.pipeline.severity import TIER_LABELS_AR
 from app.service import AnalyzeRequest
 from app.store import load_report
+from app.ui import MODULES, meta
 
 APP_DIR = Path(__file__).resolve().parent
 VERSION = "0.1.0"
@@ -33,13 +34,15 @@ templates = Jinja2Templates(directory=APP_DIR / "templates")
 templates.env.globals["DISCLAIMER"] = DISCLAIMER
 templates.env.globals["tier_labels"] = TIER_LABELS_AR
 templates.env.globals["lock_types"] = LOCK_TYPE_AR
+templates.env.globals["modules"] = MODULES
+templates.env.globals["meta"] = meta
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
 
 
 def highlight(text: str, alerts, side: str, label: str | None = None) -> Markup:
     """يظلّل مقاطع التنبيهات في النص (الأحمر يغلب عند التداخل)."""
-    spans: list[tuple[int, int, str]] = []
+    spans: list[tuple[int, int, str, object]] = []
     for a in sorted(alerts, key=lambda a: _SEV_ORDER[a.severity.value]):
         if a.severity.value == "info":
             continue
@@ -47,12 +50,15 @@ def highlight(text: str, alerts, side: str, label: str | None = None) -> Markup:
             continue
         frag = (a.source_span if side == "source" else a.version_span).text
         i = text.find(frag) if frag else -1
-        if i < 0 or any(i < e and s < i + len(frag) for s, e, _ in spans):
+        if i < 0 or any(i < e and s < i + len(frag) for s, e, _, _ in spans):
             continue
-        spans.append((i, i + len(frag), a.severity.value))
+        spans.append((i, i + len(frag), a.severity.value, a))
     out, pos = [], 0
-    for s, e, sev in sorted(spans):
-        out += [escape(text[pos:s]), Markup(f'<mark class="mark-{sev}">'), escape(text[s:e]), Markup("</mark>")]
+    for s, e, sev, a in sorted(spans, key=lambda x: x[0]):
+        tip = ("تحذير: " if sev == "red" else "تنبيه: ") + meta(a.type.value)[1]
+        out += [escape(text[pos:s]),
+                Markup(f'<a href="#alert-{a.id}" class="mark-link"><mark class="mark-{sev}" data-tip="{escape(tip)}">'),
+                escape(text[s:e]), Markup("</mark></a>")]
         pos = e
     out.append(escape(text[pos:]))
     return Markup("").join(out)
@@ -206,7 +212,14 @@ def analyzing(request: Request, report_id: str):
 def _report_ctx(r: Report) -> dict:
     by_sev = lambda sev: {a.introduced_at for a in r.alerts if a.severity.value == sev}  # noqa: E731
     flagged = {i for a in r.alerts if a.severity.value != "info" for i in a.source_sentence_indices}
-    return dict(report=r, chain=["source"] + [v.label for v in r.versions],
+    counts = {m: {"red": 0, "yellow": 0, "info": 0} for m in MODULES}
+    for a in r.alerts:
+        counts[meta(a.type.value)[0]][a.severity.value] += 1
+    version_index = {v.label: i for i, v in enumerate(r.versions)}
+    entered = [a.introduced_at for a in r.alerts if a.severity.value != "info" and a.introduced_at in version_index]
+    first_tab = version_index[entered[0]] if entered else 0  # افتح النسخة التي دخل فيها أخطر خلل
+    return dict(report=r, chain=["source"] + [v.label for v in r.versions], module_counts=counts,
+                version_index=version_index, first_tab=first_tab,
                 reds=[a for a in r.alerts if a.severity.value == "red"],
                 broken_at=by_sev("red"), warn_at=by_sev("yellow") - by_sev("red"),
                 inherited={lb for a in r.alerts if a.severity.value != "info" for lb in a.propagated_to},

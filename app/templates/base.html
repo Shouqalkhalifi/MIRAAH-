@@ -19,19 +19,32 @@
   <link rel="apple-touch-icon" href="/static/favicon-180.png">
 </head>
 <body class="min-h-screen flex flex-col">
-  <header class="bg-navy text-white">
-    <nav class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-4">
-      <a href="/" class="text-2xl font-bold">مِرآة <span class="text-teal text-sm font-normal">MIRAAH</span></a>
-      <div class="flex gap-3 text-sm opacity-90 flex-wrap">
-        <a href="/new" class="hover:text-teal">تحليل جديد</a>
-        <a href="/docs" class="hover:text-teal">API</a>
+{% from "_macros.html" import logo %}
+{% set path = request.url.path %}
+  <header class="bg-white/95 backdrop-blur border-b border-navy/10 sticky top-0 z-30">
+    <nav class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2" x-data="{ open: false }">
+      <a href="/" class="flex items-center gap-3 shrink-0" aria-label="مِرآة — الرئيسية">
+        {{ logo('w-11 h-11') }}
+        <span class="leading-tight">
+          <span class="block text-2xl font-bold text-navy">مِرآة</span>
+          <span class="block text-[11px] tracking-[0.3em] text-violet font-semibold">MIRAAH</span>
+        </span>
+      </a>
+      <p class="hidden lg:block border-s border-navy/15 ps-4 text-xs text-navy/60 leading-relaxed max-w-xs">
+        منصة ذكاء اصطناعي لتتبّع أثر المعنى في المحتوى الإسلامي عبر الترجمة والتلخيص
+      </p>
+      <button class="md:hidden ms-auto border rounded-lg px-3 py-1" @click="open = !open" aria-label="القائمة">☰</button>
+      <div class="w-full md:w-auto md:ms-auto md:flex items-center gap-1 text-sm" :class="open ? 'flex flex-col items-start' : 'hidden md:flex'">
+        {% for href, label in [('/', 'الرئيسية'), ('/new', 'تحليل جديد'), ('/#how', 'كيف تعمل'), ('/docs', 'التوثيق')] %}
+        <a href="{{ href }}" class="rounded-lg px-3 py-2 hover:bg-paper {{ 'bg-paper text-violet font-semibold' if path == href else 'text-navy/80' }}">{{ label }}</a>
+        {% endfor %}
+        <a href="/new" class="rounded-lg px-4 py-2 bg-navy text-white hover:bg-violet transition">حلّل نصاً</a>
       </div>
-      
     </nav>
   </header>
-  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">{% block content %}{% endblock %}</main>
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">{% block content %}{% endblock %}</main>
   <footer class="bg-navy text-white/80 text-sm">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap gap-2 justify-between">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap gap-2 justify-between">
       <p role="note" class="font-semibold text-teal">⚠️ {{ DISCLAIMER }}.</p>
       <p>«نحافظ على المعنى، لا على الكلمات فقط»</p>
     </div>

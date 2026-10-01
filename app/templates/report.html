@@ -1,9 +1,13 @@
 {% extends "base.html" %}
-{% from "_macros.html" import severity_badge, light, chain_view %}
+{% from "_macros.html" import severity_badge, light, chain_view, module_icon, sev_icon %}
 {% block title %}التقرير{% endblock %}
 {% block content %}
-<section class="bg-white rounded-2xl shadow p-6 mb-6 flex flex-wrap gap-6 items-center justify-between">
+<div x-data="{ filter: 'all', tab: {{ first_tab }}, tips: false }">
+
+{# ---------- الملخص ---------- #}
+<section class="card p-6 mb-6 flex flex-wrap gap-x-8 gap-y-4 items-center justify-between">
   <div>
+    <p class="text-xs text-navy/50 mb-1">تقرير أثر المعنى</p>
     <h1 class="text-2xl font-bold">{{ report.title or 'تقرير' }}</h1>
     <p class="text-sm text-navy/60">المرجع: {{ report.source.source_ref or '—' }} · مستوى المحتوى: {{ report.source.content_level.value }}</p>
   </div>
@@ -21,67 +25,137 @@
   مستوى المحتوى D خارج نطاق مِرآة. التنبيهات أدناه للاستئناس فقط، ويُحال النص إلى مختص قبل أي نشر.
 </section>
 {% endif %}
-<section class="bg-white rounded-2xl shadow p-6 mb-6">
-  <h2 class="font-bold mb-3">السلسلة</h2>
-  {{ chain_view(chain, broken_at, warn_at, inherited) }}
-</section>
-
 {% if report.warnings %}
-<section class="bg-yellow-50 border border-yellow-300 rounded-2xl p-4 mb-6 text-sm">
+<section class="bg-amber-50 border border-amber-300 rounded-2xl p-4 mb-6 text-sm">
   {% for w in report.warnings %}<p>⚠️ {{ w }} — بقية التقرير سليم، ويمكن إعادة التحليل لاحقاً.</p>{% endfor %}
 </section>
 {% endif %}
 
-{% if report.reader_exam and report.reader_exam.questions %}
-<section class="bg-white rounded-2xl shadow p-6 mb-6 overflow-x-auto">
-  <h2 class="font-bold mb-1">امتحان القارئ 📝</h2>
-  <p class="text-xs text-navy/60 mb-3">أسئلة عن معنى الأصل؛ أجاب عنها قارئ يرى الأصل وحده، وقارئ منفصل لكل نسخة يرى النسخة وحدها.</p>
-  {% set ex = report.reader_exam %}
-  <table class="w-full text-sm">
-    <thead><tr class="text-navy/60"><th class="text-start p-2">السؤال</th><th class="text-start p-2">الأصل</th>
-      {% for v in report.versions %}<th class="text-start p-2">{{ v.label }}</th>{% endfor %}</tr></thead>
-    <tbody>
-    {% for q in ex.questions %}{% set qi = loop.index0 %}{% set s = (ex.answers.get('source') or [])[qi] if (ex.answers.get('source') or [])|length > qi else none %}
-      <tr class="border-t align-top"><td class="p-2">{{ q.question_ar }}</td>
-        <td class="p-2">{{ q.options[s] if s is not none else '—' }}</td>
-        {% for v in report.versions %}{% set ans = ex.answers.get(v.label) or [] %}{% set a = ans[qi] if ans|length > qi else none %}
-        <td class="p-2 {{ 'bg-yellow-50 text-yellow-800 font-semibold' if a is not none and s is not none and a != s else '' }}">{{ q.options[a] if a is not none else '—' }}</td>
-        {% endfor %}</tr>
-    {% endfor %}
-    </tbody>
-  </table>
+{# ---------- الوحدات الثلاث (تعمل مرشّحاً للتنبيهات) ---------- #}
+<section class="grid md:grid-cols-3 gap-4 mb-6" aria-label="تصفية التنبيهات حسب الوحدة">
+  {% for key in ['mizan', 'athar', 'fahm'] %}{% set m = modules[key] %}{% set c = module_counts[key] %}
+  <button type="button" class="module-card card p-4 flex items-center gap-4 text-start border-2"
+          :class="filter === '{{ key }}' ? 'border-violet' : 'border-transparent'"
+          @click="filter = (filter === '{{ key }}' ? 'all' : '{{ key }}')" :aria-pressed="filter === '{{ key }}'">
+    <span class="rounded-xl p-2 {{ 'bg-violet text-white' if key == 'athar' else 'bg-paper text-violet' }}">{{ module_icon(key, 'w-8 h-8') }}</span>
+    <span class="flex-1">
+      <span class="block font-bold">{{ m.ar }} <span class="text-xs text-navy/40 font-normal tracking-widest">{{ m.en }}</span></span>
+      <span class="block text-xs text-navy/60">{{ m.sub_ar }}</span>
+    </span>
+    <span class="flex gap-1 text-xs">
+      {% if c.red %}<span class="bg-red-100 text-red-700 rounded-full px-2 py-0.5">{{ c.red }} خطير</span>{% endif %}
+      {% if c.yellow %}<span class="bg-amber-100 text-amber-700 rounded-full px-2 py-0.5">{{ c.yellow }} متوسط</span>{% endif %}
+      {% if not c.red and not c.yellow %}<span class="bg-green-100 text-green-700 rounded-full px-2 py-0.5">سليم</span>{% endif %}
+    </span>
+  </button>
+  {% endfor %}
 </section>
-{% endif %}
 
-{% if report.locks %}
-<section class="bg-white rounded-2xl shadow p-6 mb-6">
-  <h2 class="font-bold mb-2">أقفال المعنى 🔒</h2>
-  {% set broken = report.alerts | selectattr('type.value', 'equalto', 'lock_violated') | map(attribute='source_span.text') | list %}
-  <div class="flex flex-wrap gap-2 text-sm">
-    {% for l in report.locks %}
-    <span class="rounded-lg px-2 py-1 {{ 'bg-red-50 border border-red-400 text-red-700' if l.span_text in broken else 'bg-green-50 border border-green-400' }}">
-      {{ '🔓' if l.span_text in broken else '🔒' }} «{{ l.span_text }}» · {{ lock_types[l.lock_type.value] }}</span>
-    {% endfor %}
-  </div>
+{# ---------- السلسلة ---------- #}
+<section class="card p-6 mb-6">
+  <h2 class="font-bold mb-3 flex items-center gap-2">{{ module_icon('athar', 'w-5 h-5 text-violet') }} الأثر · سلسلة المعنى</h2>
+  {{ chain_view(chain, broken_at, warn_at, inherited) }}
 </section>
-{% endif %}
 
-{% if report.understanding_risks %}
-<section class="bg-white rounded-2xl shadow p-6 mb-6">
-  <h2 class="font-bold mb-1">مخاطر فهم محتملة 💭</h2>
-  <p class="text-xs text-navy/60 mb-3">احتمالات للمراجعة، لا أحكام. لا تفترض شيئاً عن هوية القارئ.</p>
-  <ul class="space-y-2 text-sm">
-    {% for r in report.understanding_risks %}
-    <li class="bg-paper rounded-xl p-3"><p>{{ r.risk_ar }}</p>
-      <p class="text-xs text-navy/70 mt-1">في الأصل: «{{ r.quote }}» — {{ r.reason_ar }}</p></li>
+{# ---------- لوحة العمل: المصدر | النسخة | التنبيهات ---------- #}
+<section class="grid lg:grid-cols-12 gap-5 mb-8 items-start">
+
+  <article class="card lg:col-span-4 flex flex-col">
+    <header class="flex items-center justify-between border-b border-navy/10 px-5 py-3">
+      <h2 class="font-bold">المصدر العربي</h2><span class="text-xs text-navy/40">Arabic Source</span>
+    </header>
+    <div class="px-5 py-4 leading-[2.2] text-[17px]" dir="{{ 'rtl' if report.source.lang in ['ar', 'ur'] else 'ltr' }}">
+      {{ report.source.text | hl(report.alerts, 'source') }}
+    </div>
+    <footer class="mt-auto border-t border-navy/10 px-5 py-3 text-xs text-navy/50">{{ report.source.source_ref or 'بلا مرجع مسجّل' }}</footer>
+  </article>
+
+  <article class="card lg:col-span-4 flex flex-col">
+    <header class="border-b border-navy/10 px-5 py-3">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="font-bold">النسخة</h2>
+        <label class="flex items-center gap-1 text-xs text-navy/60 cursor-pointer">
+          <input type="checkbox" x-model="tips" class="accent-violet"> إظهار التسميات</label>
+      </div>
+      <div class="flex gap-1 flex-wrap" role="tablist">
+        {% for v in report.versions %}
+        <button role="tab" class="rounded-lg px-3 py-1 text-sm border transition"
+                :class="tab === {{ loop.index0 }} ? 'bg-navy text-white border-navy' : 'border-navy/15 hover:border-violet'"
+                :aria-selected="tab === {{ loop.index0 }}" @click="tab = {{ loop.index0 }}">{{ v.label }}</button>
+        {% endfor %}
+      </div>
+    </header>
+    {% for v in report.versions %}
+    <div x-show="tab === {{ loop.index0 }}" {% if loop.index0 != first_tab %}x-cloak{% endif %} class="flex flex-col flex-1">
+      <div class="px-5 py-4 leading-[2.2] text-[16px]" :class="tips && 'show-tips'" dir="{{ 'rtl' if v.lang in ['ar', 'ur'] else 'ltr' }}">
+        {{ v.text | hl(report.alerts, 'version', v.label) }}
+      </div>
+      <footer class="mt-auto border-t border-navy/10 px-5 py-3 text-xs text-navy/50">
+        {{ v.lang }} · مشتقة من {{ 'الأصل' if v.derived_from == 'source' else v.derived_from }}</footer>
+    </div>
     {% endfor %}
-  </ul>
+  </article>
+
+  <aside class="card lg:col-span-4 flex flex-col lg:sticky lg:top-24" aria-label="تنبيهات المراجعة والتحقق">
+    <header class="flex items-center justify-between border-b border-navy/10 px-5 py-3">
+      <h2 class="font-bold">تنبيهات المراجعة والتحقق</h2>
+      <span class="text-xs bg-paper rounded-full px-2 py-0.5">{{ report.alerts | length }}</span>
+    </header>
+    <div class="px-3 py-3 space-y-2 max-h-[34rem] overflow-y-auto thin-scroll">
+      {% if not report.alerts %}
+      <p class="text-green-700 text-sm p-3">لم تُكتشف تغيّرات في المعنى بالقواعد الحالية. القرار النهائي للمراجع.</p>
+      {% endif %}
+      {% for a in report.alerts %}{% set mod, title = meta(a.type.value) %}
+      <div id="alert-{{ a.id }}" class="alert-target rounded-xl border scroll-mt-28 {{ {'red':'border-red-200 bg-red-50/40','yellow':'border-amber-200 bg-amber-50/40','info':'border-slate-200'}[a.severity.value] }}"
+           x-data="{ open: false }" x-show="filter === 'all' || filter === '{{ mod }}'">
+        <button type="button" class="w-full flex items-start gap-3 p-3 text-start" :aria-expanded="open"
+                @click="open = !open{% if a.version_label in version_index %}; tab = {{ version_index[a.version_label] }}{% endif %}">
+          {{ sev_icon(a.severity.value) }}
+          <span class="flex-1">
+            <span class="block font-semibold text-sm"><span class="text-navy/50 text-xs">{{ modules[mod].en }}:</span> {{ title }}</span>
+            <span class="text-xs text-navy/70 clamp-1" x-show="!open">{{ a.explanation_ar }}</span>
+            <span class="block text-xs text-navy/60">دخل في: <b>{{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }}</b>{% if a.propagated_to %} ← {{ a.propagated_to | join('، ') }}{% endif %}</span>
+          </span>
+          <span class="text-navy/40 text-xs mt-1" x-text="open ? '▲' : '▼'"></span>
+        </button>
+        <div x-show="open" x-cloak class="px-3 pb-3 text-sm space-y-2">
+          <p>{{ a.explanation_ar }}</p>
+          {% if a.source_span.text %}<p class="bg-white rounded-lg p-2"><span class="text-navy/50">في الأصل:</span> «{{ a.source_span.text }}»</p>{% endif %}
+          {% if a.version_span.text %}<p class="bg-white rounded-lg p-2"><span class="text-navy/50">في {{ a.version_label }}:</span> <span dir="auto">«{{ a.version_span.text }}»</span></p>{% endif %}
+          <div class="flex flex-wrap gap-1 text-xs">
+            {{ severity_badge(a.severity.value) }}
+            <span class="bg-navy/5 rounded px-2">{{ tier_labels[a.tier] }}</span>
+            <span class="bg-navy/5 rounded px-2">الثقة {{ (a.confidence * 100) | round | int }}٪</span>
+            {% if a.witnesses_agree == false %}<span class="bg-orange-100 text-orange-800 rounded px-2">👥 مختلف فيه</span>
+            {% elif a.witnesses_agree == true %}<span class="bg-green-50 text-green-800 rounded px-2">👥 اتفق الشاهدان</span>{% endif %}
+            <code class="bg-white rounded px-2">{{ a.type.value }}</code>
+          </div>
+          <details class="bg-white rounded-lg p-2">
+            <summary class="text-violet cursor-pointer">ليش هذا مهم؟</summary>
+            <p class="mt-2">{{ a.why_it_matters_ar }}</p>
+            <p class="font-semibold mt-2">الدليل:</p>
+            <ul class="list-disc ps-5 text-xs">{% for e in a.evidence %}<li><code>{{ e.kind }}</code> {{ e.ref }} — <span dir="auto">{{ e.detail }}</span></li>{% endfor %}</ul>
+          </details>
+        </div>
+      </div>
+      {% endfor %}
+      <p x-show="filter !== 'all'" x-cloak class="text-xs text-center text-navy/50 pt-1">
+        تعرض تنبيهات وحدة واحدة — <button class="text-violet underline" @click="filter = 'all'">أظهر الكل</button></p>
+    </div>
+    <footer class="border-t border-navy/10 p-4 space-y-2">
+      <a href="/review/{{ report.id }}" class="block text-center bg-navy text-white rounded-xl py-3 hover:bg-violet transition">المراجعة والقرار</a>
+      <a href="/review/{{ report.id }}" class="block text-center bg-teal/80 text-navy font-semibold rounded-xl py-3 hover:bg-teal transition">صياغات آمنة (مراجعة آمنة)</a>
+      <a href="/new" class="block text-center border border-navy/15 rounded-xl py-2 text-sm hover:border-violet">تحليل جديد</a>
+    </footer>
+  </aside>
 </section>
-{% endif %}
+
+{# ---------- التفاصيل ---------- #}
+<div class="grid lg:grid-cols-2 gap-6">
 
 {% if report.verifications %}
-<section class="bg-white rounded-2xl shadow p-6 mb-6">
-  <h2 class="font-bold mb-1">الميزان ⚖️ النصوص المنسوبة</h2>
+<section class="card p-6">
+  <h2 class="font-bold mb-1 flex items-center gap-2">{{ module_icon('mizan', 'w-5 h-5 text-violet') }} الميزان · النصوص المنسوبة</h2>
   <p class="text-xs text-navy/60 mb-3">بحث في المدونة المحلية فقط. ما لا يوجد فيها لا يُحكم عليه، بل يُحال إلى المراجع.</p>
   {% set badge = {'supported': ('bg-green-600 text-white', 'مدعوم'), 'partially_supported': ('bg-yellow-400 text-navy', 'مدعوم جزئياً'),
                   'conflicting': ('bg-red-600 text-white', 'متعارض'), 'unsupported': ('bg-red-600 text-white', 'غير مدعوم'),
@@ -100,55 +174,53 @@
 </section>
 {% endif %}
 
-<section class="bg-white rounded-2xl shadow p-6 mb-6" x-data="{ tab: 0 }">
-  <h2 class="font-bold mb-3">عرض متقابل</h2>
-  <div class="flex gap-2 mb-4 flex-wrap">
-    {% for v in report.versions %}
-    <button class="rounded-lg px-3 py-1 border" :class="tab === {{ loop.index0 }} ? 'bg-navy text-white' : ''" @click="tab = {{ loop.index0 }}">{{ v.label }}</button>
+{% if report.understanding_risks %}
+<section class="card p-6">
+  <h2 class="font-bold mb-1 flex items-center gap-2">{{ module_icon('fahm', 'w-5 h-5 text-violet') }} الفهم · مخاطر فهم محتملة</h2>
+  <p class="text-xs text-navy/60 mb-3">احتمالات للمراجعة، لا أحكام. لا تفترض شيئاً عن هوية القارئ.</p>
+  <ul class="space-y-2 text-sm">
+    {% for r in report.understanding_risks %}
+    <li class="bg-paper rounded-xl p-3"><p>{{ r.risk_ar }}</p>
+      <p class="text-xs text-navy/70 mt-1">في الأصل: «{{ r.quote }}» — {{ r.reason_ar }}</p></li>
     {% endfor %}
-  </div>
-  <div class="grid md:grid-cols-2 gap-4">
-    <div class="bg-paper rounded-xl p-4 leading-loose" dir="{{ 'rtl' if report.source.lang in ['ar', 'ur'] else 'ltr' }}">
-      <h3 class="text-sm text-navy/60 mb-2" dir="rtl">الأصل</h3>
-      {{ report.source.text | hl(report.alerts, 'source') }}
-    </div>
-    {% for v in report.versions %}
-    <div class="bg-paper rounded-xl p-4 leading-loose" dir="{{ 'rtl' if v.lang in ['ar', 'ur'] else 'ltr' }}" x-show="tab === {{ loop.index0 }}" {% if not loop.first %}x-cloak{% endif %}>
-      <h3 class="text-sm text-navy/60 mb-2" dir="rtl">{{ v.label }} ({{ v.lang }}) ← من {{ 'الأصل' if v.derived_from == 'source' else v.derived_from }}</h3>
-      {{ v.text | hl(report.alerts, 'version', v.label) }}
-    </div>
-    {% endfor %}
-  </div>
+  </ul>
 </section>
+{% endif %}
 
-<section class="space-y-4">
-  <h2 class="font-bold text-xl">التنبيهات ({{ report.alerts | length }})</h2>
-  {% if not report.alerts %}
-  <p class="bg-white rounded-2xl shadow p-5 text-green-700">لم تُكتشف تغيّرات في المعنى بالقواعد الحالية. القرار النهائي للمراجع.</p>
-  {% endif %}
-  {% for a in report.alerts %}
-  <article class="bg-white rounded-2xl shadow p-5 border-s-8 {{ {'red':'border-red-600','yellow':'border-yellow-400','info':'border-slate-300'}[a.severity.value] }}" x-data="{ why: false }">
-    <div class="flex flex-wrap gap-2 items-center mb-2">
-      {{ severity_badge(a.severity.value) }}
-      <code class="text-xs bg-paper rounded px-2">{{ a.type.value }}</code>
-      <span class="text-xs bg-navy/5 rounded px-2">{{ tier_labels[a.tier] }}</span>
-      {% if a.witnesses_agree == false %}<span class="text-xs bg-orange-100 text-orange-800 rounded px-2">👥 مختلف فيه</span>
-      {% elif a.witnesses_agree == true %}<span class="text-xs bg-green-50 text-green-800 rounded px-2">👥 اتفق الشاهدان</span>{% endif %}
-      <span class="text-xs text-navy/60">دخل في: <b>{{ a.introduced_at }}</b>{% if a.propagated_to %} · انتقل إلى: {{ a.propagated_to | join('، ') }}{% endif %} · الثقة {{ (a.confidence * 100) | round | int }}٪</span>
-    </div>
-    <p class="mb-2">{{ a.explanation_ar }}</p>
-    <div class="grid md:grid-cols-2 gap-2 text-sm mb-2">
-      {% if a.source_span.text %}<p class="bg-paper rounded-lg p-2"><span class="text-navy/50">في الأصل:</span> «{{ a.source_span.text }}»</p>{% endif %}
-      {% if a.version_span.text %}<p class="bg-paper rounded-lg p-2"><span class="text-navy/50">في {{ a.version_label }}:</span> <span dir="auto">«{{ a.version_span.text }}»</span></p>{% endif %}
-    </div>
-    <button class="text-violet text-sm underline" @click="why = !why">ليش هذا مهم؟</button>
-    <div x-show="why" x-cloak class="mt-2 bg-paper rounded-xl p-3 text-sm">
-      <p class="mb-2">{{ a.why_it_matters_ar }}</p>
-      <p class="font-semibold">الدليل:</p>
-      <ul class="list-disc ps-5">{% for e in a.evidence %}<li><code>{{ e.kind }}</code> {{ e.ref }} — <span dir="auto">{{ e.detail }}</span></li>{% endfor %}</ul>
-    </div>
-  </article>
-  {% endfor %}
-  <a href="/review/{{ report.id }}" class="inline-block bg-violet text-white rounded-xl px-6 py-3">انتقل إلى المراجعة والقرار</a>
+{% if report.locks %}
+<section class="card p-6">
+  <h2 class="font-bold mb-2">أقفال المعنى 🔒</h2>
+  {% set broken = report.alerts | selectattr('type.value', 'equalto', 'lock_violated') | map(attribute='source_span.text') | list %}
+  <div class="flex flex-wrap gap-2 text-sm">
+    {% for l in report.locks %}
+    <span class="rounded-lg px-2 py-1 {{ 'bg-red-50 border border-red-400 text-red-700' if l.span_text in broken else 'bg-green-50 border border-green-400' }}">
+      {{ '🔓' if l.span_text in broken else '🔒' }} «{{ l.span_text }}» · {{ lock_types[l.lock_type.value] }}</span>
+    {% endfor %}
+  </div>
 </section>
+{% endif %}
+
+{% if report.reader_exam and report.reader_exam.questions %}
+<section class="card p-6 overflow-x-auto lg:col-span-2">
+  <h2 class="font-bold mb-1 flex items-center gap-2">{{ module_icon('fahm', 'w-5 h-5 text-violet') }} امتحان القارئ 📝</h2>
+  <p class="text-xs text-navy/60 mb-3">أسئلة عن معنى الأصل؛ أجاب عنها قارئ يرى الأصل وحده، وقارئ منفصل لكل نسخة يرى النسخة وحدها.</p>
+  {% set ex = report.reader_exam %}
+  <table class="w-full text-sm">
+    <thead><tr class="text-navy/60"><th class="text-start p-2">السؤال</th><th class="text-start p-2">الأصل</th>
+      {% for v in report.versions %}<th class="text-start p-2">{{ v.label }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for q in ex.questions %}{% set qi = loop.index0 %}{% set s = (ex.answers.get('source') or [])[qi] if (ex.answers.get('source') or [])|length > qi else none %}
+      <tr class="border-t border-navy/10 align-top"><td class="p-2">{{ q.question_ar }}</td>
+        <td class="p-2">{{ q.options[s] if s is not none else '—' }}</td>
+        {% for v in report.versions %}{% set ans = ex.answers.get(v.label) or [] %}{% set a = ans[qi] if ans|length > qi else none %}
+        <td class="p-2 {{ 'bg-amber-50 text-amber-800 font-semibold' if a is not none and s is not none and a != s else '' }}">{{ q.options[a] if a is not none else '—' }}</td>
+        {% endfor %}</tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+</div>
+
+</div>
 {% endblock %}
