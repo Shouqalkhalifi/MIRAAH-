@@ -224,8 +224,13 @@ def report_page(request: Request, report_id: str):
 @app.get("/review/{report_id}", response_class=HTMLResponse)
 def review_page(request: Request, report_id: str):
     r, redirect = _ready_report(report_id)
-    return redirect or page(request, "review.html", roles=REVIEWER_ROLES, blockers=review.blockers(r),
-                            **_report_ctx(r))
+    if redirect:
+        return redirect
+    # tojson في القالب لا يفهم كائنات Pydantic: نمرّر قواميس جاهزة
+    saved = {"decisions": {k: d.model_dump(mode="json") for k, d in r.decisions.items()},
+             "revisions": {k: [x.model_dump(mode="json") for x in v] for k, v in r.revisions.items()}}
+    return page(request, "review.html", roles=REVIEWER_ROLES, blockers=review.blockers(r), saved=saved,
+                **_report_ctx(r))
 
 
 @app.get("/seal/{report_id}", response_class=HTMLResponse)

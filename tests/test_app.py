@@ -274,3 +274,15 @@ def test_two_witnesses_reported():
     w = rep["witnesses"]
     assert w["enabled"] and w["model_b"] == "fake-b" and w["agreement"] == 1.0
     assert "اتفاق الشاهدين" in client.get(f"/report/{rep['id']}").text
+
+
+def test_review_page_renders_after_revisions_and_decisions():
+    # منع تكرار خطأ: «Object of type Revision is not JSON serializable» في صفحة المراجعة
+    rep, reds = _analyzed()
+    cd = next(a for a in rep["alerts"] if a["type"] == "condition_dropped")
+    assert client.post("/api/revise", json={"report_id": rep["id"], "alert_id": cd["id"]}).status_code == 200
+    assert decide(rep["id"], reds[0]).status_code == 200
+    r = client.get(f"/review/{rep['id']}")
+    assert r.status_code == 200
+    assert "A traveler may break the fast in Ramadan." in r.text  # الصياغة المحفوظة
+    assert json.dumps("الشرط ضروري") in r.text  # القرار المحفوظ (tojson يهرّب الحروف العربية)

@@ -4,7 +4,7 @@
 {% block content %}
 <script>
   function reviewState() {
-    const saved = {{ report.decisions | tojson }};
+    const saved = {{ saved.decisions | tojson }};
     const ids = {{ report.alerts | map(attribute='id') | list | tojson }};
     const decisions = {};
     ids.forEach(id => {
@@ -17,7 +17,7 @@
       role: {{ (report.reviewer_role or roles[0]) | tojson }},
       referral: {{ report.referral | tojson }}, published: {{ (report.status.value == 'published') | tojson }},
       publishError: '',
-      revisions: {{ report.revisions | tojson }}, revLoading: {}, revError: {},
+      revisions: {{ saved.revisions | tojson }}, revLoading: {}, revError: {},
       async suggest(id) {
         this.revLoading[id] = true; this.revError[id] = '';
         try {
