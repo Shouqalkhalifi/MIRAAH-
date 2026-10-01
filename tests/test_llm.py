@@ -101,3 +101,11 @@ def test_live_call():
     llm = get_llm()
     out = llm.complete_json('Return {"ok": true, "n": 7}', Answer, purpose="pytest-live")
     assert out == Answer(ok=True, n=7)
+
+
+def test_cache_can_be_disabled(engine):
+    p = FakeProvider(['{"ok": true, "n": 1}', '{"ok": true, "n": 2}'])
+    llm = LLM(engine, p, {"main": "m"}, cache_enabled=False)
+    assert llm.complete_json("q", Answer).n == 1
+    assert llm.complete_json("q", Answer).n == 2  # بلا cache: استدعاء جديد
+    assert len(p.calls) == 2

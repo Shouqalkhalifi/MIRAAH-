@@ -141,11 +141,13 @@ JSON_SYSTEM_SUFFIX = (
 
 # ---------- الواجهة الموحدة ----------
 class LLM:
-    def __init__(self, engine: Engine, provider: Provider, models: dict[str, str], max_tokens: int = 16000):
+    def __init__(self, engine: Engine, provider: Provider, models: dict[str, str], max_tokens: int = 16000,
+                 cache_enabled: bool = True):
         self.engine = engine
         self.provider = provider
         self.models = models
         self.max_tokens = max_tokens
+        self.cache_enabled = cache_enabled  # يُعطَّل لقياس ثبات النتائج عبر التشغيلات
 
     def _model(self, role: str) -> str:
         m = self.models.get(role)
@@ -190,6 +192,7 @@ class LLM:
     def complete(self, user: str, system: str = "", role: str = "main", purpose: str = "",
                  use_cache: bool = True) -> str:
         """استدعاء نصي مع cache وتسجيل."""
+        use_cache = use_cache and self.cache_enabled
         text, store = self._call(user, system, role, purpose, use_cache)
         if store and use_cache:
             store()
@@ -206,7 +209,7 @@ class LLM:
         prompt = user
         last_err: Exception | None = None
         for _ in range(2):
-            text, store = self._call(prompt, sys_full, role, purpose, use_cache=True)
+            text, store = self._call(prompt, sys_full, role, purpose, use_cache=self.cache_enabled)
             try:
                 obj = schema.model_validate_json(extract_json(text))
             except (ValidationError, ValueError) as e:
@@ -244,4 +247,4 @@ def get_llm() -> LLM:
         raise LLMError(f"مزوّد غير مدعوم: {st.llm_provider}")
     provider = AnthropicProvider(st.anthropic_api_key, st.llm_timeout_seconds, st.llm_effort)
     models = {r: st.model_for(r) for r in ("main", "witness_a", "witness_b")}
-    return LLM(get_engine(), provider, models, st.llm_max_tokens)
+    return LLM(get_engine(), provider, models, st.llm_max_tokens, cache_enabled=st.llm_cache)

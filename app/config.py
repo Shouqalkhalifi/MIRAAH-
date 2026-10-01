@@ -21,6 +21,7 @@ class Settings:
     llm_max_tokens: int
     llm_timeout_seconds: float
     llm_effort: str
+    llm_cache: bool
     database_path: Path
     port: int
 
@@ -45,6 +46,7 @@ def get_settings() -> Settings:
         llm_max_tokens=int(os.getenv("LLM_MAX_TOKENS", "16000")),
         llm_timeout_seconds=float(os.getenv("LLM_TIMEOUT_SECONDS", "120")),
         llm_effort=os.getenv("LLM_EFFORT", "medium"),
+        llm_cache=os.getenv("LLM_CACHE", "on").lower() not in ("off", "0", "false"),
         database_path=db,
         port=int(os.getenv("PORT", "8000")),
     )

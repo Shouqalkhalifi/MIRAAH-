@@ -16,6 +16,7 @@
 | [rank-bm25](https://github.com/dorianbrown/rank_bm25) | الاسترجاع BM25 في الميزان | Apache-2.0 |
 | [NumPy](https://github.com/numpy/numpy) (تبعية rank-bm25) | حساب الدرجات | BSD-3-Clause |
 | [qrcode](https://github.com/lincolnloop/python-qrcode) | رمز QR في صفحة الختم (SVG) | BSD-3-Clause |
+| [sacrebleu](https://github.com/mjpost/sacrebleu) | chrF لخط الأساس في التقييم | Apache-2.0 |
 | [Tailwind CSS](https://tailwindcss.com) (CDN) | التنسيق | MIT |
 | [Alpine.js](https://alpinejs.dev) (CDN) | تفاعل الواجهة | MIT |
 | [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | الخط | SIL Open Font License 1.1 |
@@ -35,6 +36,11 @@
 | quran | النص القرآني، والترجمة Sahih International عبر quran.com | النص القرآني ملك عام، والترجمة لأغراض غير تجارية مع الإسناد |
 | hadith | صحيح البخاري، وصحيح مسلم (روابط sunnah.com) | المتون ملك عام، والترجمات الإنجليزية من عمل المشروع |
 | term | أمثلة اصطناعية | تُستبدل بضوابط من قاموس الحزمة العلمية والجمهرة |
+
+## بيانات التقييم (`data/eval/`)
+- `seeds.jsonl`: 15 بذرة **مسودة** كتبها المساعد البرمجي، تراجعها المطوّرة من مصادر الحزمة قبل اعتماد النتائج.
+- `cases.jsonl`: حالات مولّدة آلياً من البذور بنموذج Claude (تغيّرات مزروعة وصياغات سليمة)، وأربع حالات امتناع
+  لأقوال تُنسب إلى النبي ﷺ وليست في المدونة المحلية.
 
 ## البيانات الاصطناعية
 كل الأمثلة في `app/mock.py` و `data/examples/` اصطناعية، ولا تحتوي على محادثات حقيقية ولا بيانات شخصية.

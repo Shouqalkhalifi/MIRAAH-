@@ -11,7 +11,7 @@ from sqlmodel import SQLModel, create_engine
 def make_engine(path: Path | str) -> Engine:
     if str(path) != ":memory:":
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-    engine = create_engine(f"sqlite:///{path}", connect_args={"check_same_thread": False})
+    engine = create_engine(f"sqlite:///{path}", connect_args={"check_same_thread": False, "timeout": 30})
     # استيراد الجداول قبل الإنشاء حتى تُسجَّل في metadata
     from app import llm, models  # noqa: F401
 
