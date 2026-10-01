@@ -98,8 +98,15 @@ def test_live_call():
 
     if not get_settings().anthropic_api_key:
         pytest.skip("لا يوجد ANTHROPIC_API_KEY")
+    import anthropic
+
     llm = get_llm()
-    out = llm.complete_json('Return {"ok": true, "n": 7}', Answer, purpose="pytest-live")
+    try:
+        out = llm.complete_json('Return {"ok": true, "n": 7}', Answer, purpose="pytest-live")
+    except anthropic.BadRequestError as e:
+        if "credit balance is too low" in str(e):  # مشكلة حساب لا خلل في الكود: تظهر سبباً للتخطي
+            pytest.skip("رصيد Anthropic API نفد — أعد الشحن ثم أعد الاختبار")
+        raise
     assert out == Answer(ok=True, n=7)
 
 
