@@ -9,10 +9,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup, escape
 
-from app import service
+from pydantic import BaseModel, Field
+
+from app import review, service
 from app.corpus import load_corpus
 from app.examples import get_example, load_examples
-from app.models import Report, ReportStatus
+from app.models import REVIEWER_ROLES, Decision, Report, ReportStatus
 from app.service import STAGES
 from app.pipeline.segment import split_sentences
 from app.pipeline.severity import TIER_LABELS_AR
@@ -98,6 +100,41 @@ def api_status(report_id: str) -> dict:
             "stages": [label for _, label in STAGES], "error": r.error}
 
 
+class DecisionIn(Decision):
+    report_id: str
+
+
+class PublishIn(BaseModel):
+    report_id: str
+    reviewer_role: str = Field(min_length=2, max_length=40)
+
+
+def _review_call(fn, *args):
+    try:
+        return fn(*args)
+    except review.ReviewError as e:
+        raise HTTPException(e.status, str(e))
+
+
+@app.post("/api/decision", response_model=Report)
+def api_decision(body: DecisionIn):
+    """قرار المراجع على تنبيه: accept / reject / edit، والسبب إلزامي. يُسجَّل في سجل التدقيق."""
+    decision = Decision.model_validate(body.model_dump(exclude={"report_id"}))
+    return _review_call(review.decide, body.report_id, decision)
+
+
+@app.post("/api/publish", response_model=Report)
+def api_publish(body: PublishIn):
+    """ينشر التقرير ويُنشئ صفحة الختم. يُرفض ما لم تُحسم كل التنبيهات الحمراء."""
+    return _review_call(review.publish, body.report_id, body.reviewer_role)
+
+
+@app.get("/api/report/{report_id}/audit")
+def api_audit(report_id: str) -> list[dict]:
+    _get(report_id)
+    return [e.model_dump(mode="json") for e in review.audit_log(report_id)]
+
+
 @app.get("/api/examples")
 def api_examples() -> list[dict]:
     return [e.model_dump(mode="json") for e in load_examples()]
@@ -156,16 +193,17 @@ def report_page(request: Request, report_id: str):
 @app.get("/review/{report_id}", response_class=HTMLResponse)
 def review_page(request: Request, report_id: str):
     r, redirect = _ready_report(report_id)
-    return redirect or page(request, "review.html", revisions={}, **_report_ctx(r))
+    return redirect or page(request, "review.html", roles=REVIEWER_ROLES, blockers=review.blockers(r),
+                            **_report_ctx(r))
 
 
 @app.get("/seal/{report_id}", response_class=HTMLResponse)
 def seal_page(request: Request, report_id: str):
     import hashlib
 
-    r, redirect = _ready_report(report_id)
-    if redirect:
-        return redirect
+    r = _get(report_id)
+    if r.status != ReportStatus.published:
+        raise HTTPException(404, "لم يُنشر هذا التقرير بعد")
     sha = lambda t: hashlib.sha256(t.encode("utf-8")).hexdigest()  # noqa: E731
     hashes = [("source", sha(r.source.text))] + [(v.label, sha(v.text)) for v in r.versions]
     return page(request, "seal.html", report=r, chain=["source"] + [v.label for v in r.versions], hashes=hashes)

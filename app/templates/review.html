@@ -1,55 +1,93 @@
 {% extends "base.html" %}
-{% from "_macros.html" import severity_badge %}
+{% from "_macros.html" import severity_badge, light %}
 {% block title %}المراجعة والقرار{% endblock %}
 {% block content %}
 <script>
   function reviewState() {
+    const saved = {{ report.decisions | tojson }};
     const ids = {{ report.alerts | map(attribute='id') | list | tojson }};
-    const reds = {{ reds | map(attribute='id') | list | tojson }};
     const decisions = {};
-    ids.forEach(id => decisions[id] = { action: '', reason: '', saved: false });
-    return { decisions, reds, get ready() { return this.reds.every(id => this.decisions[id].saved) } };
+    ids.forEach(id => {
+      const d = saved[id];
+      decisions[id] = d ? { action: d.action, reason: d.reason, edited_text: d.edited_text || '', saved: true, error: '' }
+                        : { action: '', reason: '', edited_text: '', saved: false, error: '' };
+    });
+    return {
+      decisions, reds: {{ reds | map(attribute='id') | list | tojson }},
+      role: {{ (report.reviewer_role or roles[0]) | tojson }},
+      referral: {{ report.referral | tojson }}, published: {{ (report.status.value == 'published') | tojson }},
+      publishError: '',
+      get pending() { return this.reds.filter(id => !this.decisions[id].saved).length },
+      get ready() { return !this.referral && this.pending === 0 },
+      async save(id) {
+        const d = this.decisions[id]; d.error = '';
+        const res = await fetch('/api/decision', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ report_id: '{{ report.id }}', alert_id: id, action: d.action, reason: d.reason,
+                                 edited_text: d.action === 'edit' ? d.edited_text : null, reviewer_role: this.role }) });
+        if (res.ok) { d.saved = true; return; }
+        const err = await res.json(); d.error = typeof err.detail === 'string' ? err.detail : (err.detail?.[0]?.msg || 'تعذّر الحفظ');
+      },
+      async publish() {
+        this.publishError = '';
+        const res = await fetch('/api/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ report_id: '{{ report.id }}', reviewer_role: this.role }) });
+        if (res.ok) { location.href = '/seal/{{ report.id }}'; return; }
+        this.publishError = (await res.json()).detail;
+      }
+    };
   }
 </script>
 <div x-data="reviewState()">
-  <h1 class="text-2xl font-bold mb-2">المراجعة والقرار</h1>
-  <p class="text-navy/70 mb-6">لكل تنبيه: قبول أو رفض أو تعديل، والسبب إلزامي. القرار النهائي لك.</p>
+  <div class="flex flex-wrap items-center gap-4 mb-2">
+    <h1 class="text-2xl font-bold">المراجعة والقرار</h1>
+    <span class="text-xl font-bold">{{ light(report.alerts, report.referral) }}</span>
+    <a href="/report/{{ report.id }}" class="text-violet underline text-sm ms-auto">العودة إلى التقرير</a>
+  </div>
+  <p class="text-navy/70 mb-4">لكل تنبيه: قبول (الخلل حقيقي) أو رفض (إنذار غير صحيح) أو تعديل (صياغتك أنت). السبب إلزامي، وكل قرار يُحفظ في سجل التدقيق. القرار النهائي لك.</p>
 
+  <label class="flex items-center gap-2 mb-6 bg-white rounded-xl shadow p-3 w-fit">صفتك كمراجع (لا اسمك):
+    <select class="border rounded p-1" x-model="role" :disabled="published">
+      {% for r in roles %}<option>{{ r }}</option>{% endfor %}
+    </select>
+  </label>
+
+  {% if not report.alerts %}<p class="bg-white rounded-2xl shadow p-5 text-green-700">لا توجد تنبيهات.</p>{% endif %}
   <div class="space-y-4">
   {% for a in report.alerts %}
   <article class="bg-white rounded-2xl shadow p-5" x-data="{ get d() { return decisions['{{ a.id }}'] } }">
-    <div class="flex gap-2 items-center mb-2">{{ severity_badge(a.severity.value) }} <code class="text-xs">{{ a.type.value }}</code>
-      <span x-show="d.saved" class="text-green-600 text-sm ms-auto">✔ حُسم: <span x-text="d.action"></span></span></div>
-    <p class="mb-3">{{ a.explanation_ar }}</p>
+    <div class="flex flex-wrap gap-2 items-center mb-2">{{ severity_badge(a.severity.value) }} <code class="text-xs">{{ a.type.value }}</code>
+      <span class="text-xs text-navy/60">في {{ a.introduced_at }}</span>
+      <span x-show="d.saved" class="text-green-600 text-sm ms-auto">✔ حُسم</span></div>
+    <p class="mb-2">{{ a.explanation_ar }}</p>
+    {% if a.version_span.text %}<p class="text-sm bg-paper rounded-lg p-2 mb-3" dir="auto">«{{ a.version_span.text }}»</p>{% endif %}
 
-    {% if revisions.get(a.id) %}
-    <div class="mb-3">
-      <p class="font-semibold text-sm mb-1">صياغات آمنة مقترحة:</p>
-      <div class="grid md:grid-cols-3 gap-2">
-        {% for name, text in revisions[a.id] %}
-        <div class="bg-paper rounded-xl p-3 text-sm"><p class="text-violet font-semibold mb-1">{{ name }}</p><p dir="ltr">{{ text }}</p></div>
+    <div class="space-y-2">
+      <div class="flex flex-wrap gap-4">
+        {% for val, label in [('accept','قبول'),('reject','رفض'),('edit','تعديل')] %}
+        <label class="flex items-center gap-1"><input type="radio" value="{{ val }}" x-model="d.action" @change="d.saved = false" :disabled="published"> {{ label }}</label>
         {% endfor %}
       </div>
-    </div>
-    {% endif %}
-
-    <div class="flex flex-wrap gap-2 items-center">
-      {% for val, label in [('accept','قبول'),('reject','رفض'),('edit','تعديل')] %}
-      <label class="flex items-center gap-1"><input type="radio" value="{{ label }}" x-model="d.action" :disabled="d.saved"> {{ label }}</label>
-      {% endfor %}
-      <input class="flex-1 min-w-48 border rounded-lg p-1" placeholder="السبب (إلزامي)" x-model="d.reason" :disabled="d.saved">
-      <button class="bg-navy text-white rounded-lg px-3 py-1 disabled:opacity-40"
-              :disabled="d.saved || !d.action || d.reason.trim().length < 3" @click="d.saved = true">حفظ القرار</button>
+      <textarea x-show="d.action === 'edit'" x-cloak class="w-full border rounded-lg p-2" dir="auto" rows="2"
+                placeholder="الصياغة المعدّلة" x-model="d.edited_text" @input="d.saved = false" :disabled="published"></textarea>
+      <div class="flex flex-wrap gap-2">
+        <input class="flex-1 min-w-48 border rounded-lg p-1" placeholder="السبب (إلزامي)" x-model="d.reason" @input="d.saved = false" :disabled="published">
+        <button class="bg-navy text-white rounded-lg px-3 py-1 disabled:opacity-40"
+                :disabled="published || d.saved || !d.action || d.reason.trim().length < 3 || (d.action === 'edit' && !d.edited_text.trim())"
+                @click="save('{{ a.id }}')">حفظ القرار</button>
+      </div>
+      <p x-show="d.error" x-cloak class="text-sm text-red-600" x-text="d.error"></p>
     </div>
   </article>
   {% endfor %}
   </div>
 
-  <div class="mt-8 flex items-center gap-4">
-    <a :href="ready ? '/seal/{{ report.id }}' : null"
-       class="rounded-xl px-6 py-3 text-lg" :class="ready ? 'bg-green-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'">✅ جاهز للنشر</a>
-    <span x-show="!ready" class="text-sm text-navy/60">يتفعّل بعد حسم كل التنبيهات الحمراء.</span>
+  <div class="mt-8 flex flex-wrap items-center gap-4">
+    <button class="rounded-xl px-6 py-3 text-lg" :disabled="!ready || published" @click="publish()"
+            :class="ready && !published ? 'bg-green-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'">✅ جاهز للنشر</button>
+    <span x-show="published" x-cloak class="text-sm"><a class="text-violet underline" href="/seal/{{ report.id }}">منشور — صفحة الختم</a></span>
+    <span x-show="!published && referral" class="text-sm text-navy/60">مستوى المحتوى D: يُحال إلى مختص.</span>
+    <span x-show="!published && !referral && pending > 0" class="text-sm text-navy/60">يتفعّل بعد حسم كل التنبيهات الحمراء (باقٍ <span x-text="pending"></span>).</span>
+    <span x-show="publishError" x-cloak class="text-sm text-red-600" x-text="publishError"></span>
   </div>
-  <p class="text-xs text-navy/50 mt-4">في المرحلة 0 القرارات لا تُحفظ في الخادم بعد.</p>
 </div>
 {% endblock %}

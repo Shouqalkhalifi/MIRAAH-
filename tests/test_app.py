@@ -109,7 +109,7 @@ def test_unknown_report_404():
 
 def test_all_screens_render_with_disclaimer():
     rid = client.post("/api/analyze", json=CHAIN).json()["id"]
-    for path in ["/", "/new", f"/analyze/{rid}", f"/report/{rid}", f"/review/{rid}", f"/seal/{rid}"]:
+    for path in ["/", "/new", f"/analyze/{rid}", f"/report/{rid}", f"/review/{rid}"]:
         r = client.get(path)
         assert r.status_code == 200, path
         assert DISCLAIMER in r.text, path
@@ -147,3 +147,62 @@ def test_examples_valid_and_runnable():
     assert r.status_code == 303 and r.headers["location"].startswith("/analyze/")
     assert client.post("/examples/nope").status_code == 404
     assert "جرّب مثالاً" in client.get("/").text
+
+
+# ---------- قرار المراجع والنشر ----------
+def _analyzed():
+    rep = client.post("/api/analyze", json=CHAIN).json()
+    reds = [a["id"] for a in rep["alerts"] if a["severity"] == "red"]
+    assert reds
+    return rep, reds
+
+
+def decide(rid, aid, **kw):
+    body = {"report_id": rid, "alert_id": aid, "action": "accept", "reason": "الشرط ضروري", **kw}
+    return client.post("/api/decision", json=body)
+
+
+def test_reason_is_mandatory():
+    rep, reds = _analyzed()
+    assert decide(rep["id"], reds[0], reason="  ").status_code == 422
+    assert decide(rep["id"], reds[0], reason="").status_code == 422
+
+
+def test_edit_requires_text():
+    rep, reds = _analyzed()
+    assert decide(rep["id"], reds[0], action="edit").status_code == 422
+    r = decide(rep["id"], reds[0], action="edit", edited_text="A traveler may break the fast.")
+    assert r.status_code == 200 and r.json()["decisions"][reds[0]]["action"] == "edit"
+
+
+def test_unknown_alert_rejected():
+    rep, _ = _analyzed()
+    assert decide(rep["id"], "nope").status_code == 404
+
+
+def test_publish_locked_until_all_reds_decided_then_seal_and_audit():
+    rep, reds = _analyzed()
+    rid = rep["id"]
+    assert client.post("/api/publish", json={"report_id": rid, "reviewer_role": "مترجم"}).status_code == 409
+    assert client.get(f"/seal/{rid}").status_code == 404  # لا ختم قبل النشر
+    for aid in reds:
+        assert decide(rid, aid, reviewer_role="مترجم").status_code == 200
+    r = client.post("/api/publish", json={"report_id": rid, "reviewer_role": "مترجم"})
+    assert r.status_code == 200 and r.json()["status"] == "published"
+    # بعد النشر: القرارات مقفلة، والختم متاح، والسجل كامل
+    assert decide(rid, reds[0]).status_code == 409
+    seal = client.get(f"/seal/{rid}").text
+    assert "مترجم" in seal and "قُبل التنبيه" in seal and DISCLAIMER in seal
+    events = [e["event"] for e in client.get(f"/api/report/{rid}/audit").json()]
+    assert events == ["decision"] * len(reds) + ["publish"]
+
+
+def test_level_d_cannot_be_published():
+    body = dict(CHAIN, source=dict(CHAIN["source"], content_level="D"))
+    rep = client.post("/api/analyze", json=body).json()
+    assert rep["referral"] is True
+    for a in rep["alerts"]:
+        if a["severity"] == "red":
+            decide(rep["id"], a["id"])
+    r = client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"})
+    assert r.status_code == 409 and "مختص" in r.json()["detail"]

@@ -14,12 +14,17 @@
   <h2 class="font-bold mt-6 mb-2">السلسلة</h2>
   {{ chain_view(chain) }}
   <h2 class="font-bold mt-6 mb-2">ملخص التنبيهات والقرارات</h2>
-  <ul class="list-disc ps-5 text-sm">
-    {% for a in report.alerts %}<li>{{ a.type.value }} في {{ a.version_label }} — <i>القرار: (بيانات وهمية)</i></li>{% endfor %}
+  {% set action_ar = {'accept': 'قُبل التنبيه', 'reject': 'رُفض التنبيه', 'edit': 'عُدّلت الصياغة'} %}
+  <ul class="list-disc ps-5 text-sm space-y-1">
+    {% for a in report.alerts %}{% set d = report.decisions.get(a.id) %}
+    <li><code class="text-xs">{{ a.type.value }}</code> ({{ a.severity.value }}) في {{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }} —
+      {% if d %}<b>{{ action_ar[d.action] }}</b>: {{ d.reason }}{% else %}<i>بلا قرار</i>{% endif %}</li>
+    {% else %}<li>لا توجد تنبيهات.</li>{% endfor %}
   </ul>
   <dl class="grid grid-cols-2 gap-2 mt-6 text-sm">
-    <dt class="text-navy/60">صفة المراجع</dt><dd>مراجع لغوي (مثال)</dd>
-    <dt class="text-navy/60">التاريخ</dt><dd>{{ report.created_at.strftime('%Y-%m-%d') }}</dd>
+    <dt class="text-navy/60">صفة المراجع</dt><dd>{{ report.reviewer_role }}</dd>
+    <dt class="text-navy/60">تاريخ النشر</dt><dd>{{ report.published_at.strftime('%Y-%m-%d %H:%M UTC') if report.published_at else '' }}</dd>
+    <dt class="text-navy/60">مستوى المحتوى</dt><dd>{{ report.source.content_level.value }}</dd>
   </dl>
   <h2 class="font-bold mt-6 mb-2">بصمة SHA-256 للنصوص</h2>
   <table class="w-full text-xs"><tbody>

@@ -201,6 +201,39 @@ class Verification(BaseModel):
     note_ar: str = ""
 
 
+# ---------- قرار المراجع (6.12) ----------
+REVIEWER_ROLES = ("مترجم", "محرر", "مدقق لغوي", "مراجع شرعي", "مراجع محتوى")
+
+
+class Decision(BaseModel):
+    alert_id: str
+    action: Literal["accept", "reject", "edit"]  # قبول التنبيه / رفضه / تعديل الصياغة
+    reason: str = Field(min_length=3, max_length=1000)  # السبب إلزامي
+    edited_text: Optional[str] = Field(default=None, max_length=5000)
+    reviewer_role: str = Field(default="مراجع محتوى", min_length=2, max_length=40)  # الصفة لا الاسم
+    decided_at: datetime = Field(default_factory=_now)
+
+    @model_validator(mode="after")
+    def _edit_needs_text(self) -> "Decision":
+        self.reason = self.reason.strip()
+        if len(self.reason) < 3:
+            raise ValueError("السبب إلزامي")
+        if self.action == "edit" and not (self.edited_text and self.edited_text.strip()):
+            raise ValueError("التعديل يحتاج الصياغة المعدّلة")
+        return self
+
+
+class AuditEntry(SQLModel, table=True):
+    """سجل تدقيق إضافي فقط: كل قرار ونشر يُسجَّل ولا يُحذف."""
+    __tablename__ = "audit_log"
+    id: Optional[int] = SQLField(default=None, primary_key=True)
+    report_id: str = SQLField(index=True)
+    ts: datetime = SQLField(default_factory=_now)
+    event: str  # decision | publish
+    alert_id: str = ""
+    payload: str = "{}"
+
+
 # ---------- التقرير ----------
 def validate_chain(versions: list["Version"]) -> None:
     """كل حلقة تُشتق من الأصل أو من حلقة قبلها، والتسميات فريدة."""
@@ -228,6 +261,9 @@ class Report(BaseModel):
     verifications: list[Verification] = Field(default_factory=list)
     understanding_risks: list[UnderstandingRisk] = Field(default_factory=list)
     referral: bool = False  # مستوى D: خارج النطاق ← إحالة
+    decisions: dict[str, Decision] = Field(default_factory=dict)  # alert_id ← آخر قرار
+    published_at: Optional[datetime] = None
+    reviewer_role: str = ""
 
     @model_validator(mode="after")
     def _chain_valid(self) -> "Report":
