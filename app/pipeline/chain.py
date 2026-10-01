@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from app.models import Alert, Evidence, Report, Span
+from app.models import Alert, Evidence, Lock, Report, Span
 from app.models import AlertType as T
 from app.pipeline.align import Unit, build_units, compose, units_to_links
 from app.pipeline.fingerprint import Fingerprinted
@@ -35,6 +35,8 @@ PresenceFn = Callable[[str, str, str, str, str], Optional[str]]
 _PRESENCE_TYPES = {T.condition_dropped: "condition", T.exception_dropped: "exception"}
 # قواعد إضافية على نص الوحدة (مثل ضوابط المصطلحات): (نص الأم، نص الابن) ← تنبيهات
 ExtraRulesFn = Callable[[str, str], list[Hit]]
+# (القفل، نص وحدة الأصل، نص وحدة النسخة، لغة النسخة) ← دليل إن حُفظ القفل، وإلا None
+LockFn = Callable[[Lock, str, str, str], Optional[str]]
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
 
@@ -68,7 +70,8 @@ def _hit_in(hit: Hit, hits: list[Hit]) -> bool:
 def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
                   progress: Callable[[str], None] = lambda s: None, max_workers: int = 4,
                   presence_fn: Optional[PresenceFn] = None,
-                  extra_rules: Optional[ExtraRulesFn] = None) -> list[Alert]:
+                  extra_rules: Optional[ExtraRulesFn] = None,
+                  lock_fn: Optional[LockFn] = None) -> list[Alert]:
     src = report.source
     langs = {"source": src.lang, **{v.label: v.lang for v in report.versions}}
     texts = {"source": src.text, **{v.label: v.text for v in report.versions}}
@@ -148,6 +151,23 @@ def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
             local[lb] = [f.hit for f in cum[lb]]
         else:
             local[lb] = [h for u in local_units[lb] for h in unit_hits(pl, lb, u)]
+
+    # 4ب) الأقفال: كل قفل يُفحص في كل حلقة مقابل وحدة الأصل التي تحتويه
+    if lock_fn and report.locks:
+        from app.pipeline.locks import LOCK_TYPE_AR, lock_in_text
+
+        for li, lock in enumerate(report.locks):
+            src_idx = next((i for i, s in enumerate(sents["source"]) if lock_in_text(lock.span_text, s)), None)
+            if src_idx is None:
+                continue
+            for lb in order:
+                u = next((u for u in cum_units[lb] if src_idx in u.parent), Unit((src_idx,), ()))
+                if lock_fn(lock, _join(sents["source"], u.parent), _join(sents[lb], u.child), langs[lb]):
+                    continue
+                cum[lb].append(_Found(Hit(T.lock_violated, f"lock:{lock.lock_type.value}", before=lock.span_text,
+                                          after=LOCK_TYPE_AR[lock.lock_type.value], src_quote=lock.span_text,
+                                          match_key=f"lock-{li}", confidence=0.9), u))
+                local[lb].append(cum[lb][-1].hit)
 
     # 5) السلسلة: أول حلقة ظهر فيها الخلل
     progress("chain")

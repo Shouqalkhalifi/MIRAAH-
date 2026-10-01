@@ -222,3 +222,21 @@ def test_revise_endpoint_self_checks_and_caches():
     saved = client.get(f"/api/report/{rep['id']}").json()["revisions"][cd["id"]]
     assert len(saved) == 3
     assert client.post("/api/revise", json={"report_id": rep["id"], "alert_id": "nope"}).status_code == 404
+
+
+def test_locks_end_to_end_and_validation():
+    bad = dict(CHAIN, locks=[{"span_text": "غير موجود", "lock_type": "condition"}])
+    assert client.post("/api/analyze", json=bad).status_code == 422
+    body = dict(CHAIN, locks=[{"span_text": "للمسافر", "lock_type": "condition"}])
+    rep = client.post("/api/analyze", json=body).json()
+    lv = next(a for a in rep["alerts"] if a["type"] == "lock_violated")
+    assert lv["introduced_at"] == "en-summary" and lv["propagated_to"] == ["fr-translation"]
+    html = client.get(f"/report/{rep['id']}").text
+    assert "🔓 «للمسافر» · شرط" in html
+
+
+def test_suggest_locks_endpoint():
+    r = client.post("/api/locks/suggest", json={"text": SOURCE, "lang": "ar"})
+    assert r.status_code == 200
+    spans = {l["span_text"]: l["lock_type"] for l in r.json()}
+    assert spans.get("للمسافر") == "condition" and all(l["origin"] == "auto" for l in r.json())

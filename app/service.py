@@ -34,6 +34,11 @@ class AnalyzeRequest(BaseModel):
     @model_validator(mode="after")
     def _chain(self) -> "AnalyzeRequest":
         validate_chain(self.versions)
+        from app.pipeline.locks import lock_in_text
+
+        missing = [lk.span_text for lk in self.locks if not lock_in_text(lk.span_text, self.source.text)]
+        if missing:
+            raise ValueError(f"مقطع القفل غير موجود في الأصل: {missing[0]}")
         return self
 
 
@@ -62,6 +67,7 @@ def run_analysis(report_id: str) -> Report:
             fp_fn=lambda text, lang: fingerprint(llm, text, lang),
             presence_fn=lambda item, kind, ptext, vtext, vlang: find_in_version(llm, item, kind, ptext, vtext, vlang),
             extra_rules=fahm.term_hits,
+            lock_fn=lock_checker(llm),
             progress=progress,
         )
         progress("mizan")
@@ -102,6 +108,17 @@ def revise_alert(report_id: str, alert_id: str) -> list:
     return revisions
 
 
+def suggest_locks(text: str, lang: str = "ar") -> list:
+    from app.pipeline.locks import suggest_locks as _suggest
+
+    llm = llm_factory()
+    return _suggest(text, lambda sentence: fingerprint(llm, sentence, lang))
+
+
 def lock_checker(llm):
-    """يُستبدل في بند الأقفال؛ حتى ذلك الحين لا فحص."""
-    return None
+    from app.pipeline.locks import check_lock
+
+    def fn(lock, src_ctx, version_text, version_lang):
+        return check_lock(lock, src_ctx, version_text, version_lang,
+                          lambda item, kind, p, v, lang: find_in_version(llm, item, kind, p, v, lang))
+    return fn

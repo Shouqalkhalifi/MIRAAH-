@@ -21,6 +21,19 @@
   {{ chain_view(chain, broken_at, warn_at, inherited) }}
 </section>
 
+{% if report.locks %}
+<section class="bg-white rounded-2xl shadow p-6 mb-6">
+  <h2 class="font-bold mb-2">أقفال المعنى 🔒</h2>
+  {% set broken = report.alerts | selectattr('type.value', 'equalto', 'lock_violated') | map(attribute='source_span.text') | list %}
+  <div class="flex flex-wrap gap-2 text-sm">
+    {% for l in report.locks %}
+    <span class="rounded-lg px-2 py-1 {{ 'bg-red-50 border border-red-400 text-red-700' if l.span_text in broken else 'bg-green-50 border border-green-400' }}">
+      {{ '🔓' if l.span_text in broken else '🔒' }} «{{ l.span_text }}» · {{ lock_types[l.lock_type.value] }}</span>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 {% if report.understanding_risks %}
 <section class="bg-white rounded-2xl shadow p-6 mb-6">
   <h2 class="font-bold mb-1">مخاطر فهم محتملة 💭</h2>

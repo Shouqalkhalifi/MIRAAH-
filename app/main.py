@@ -14,9 +14,10 @@ from pydantic import BaseModel, Field
 from app import review, service
 from app.corpus import load_corpus
 from app.examples import get_example, load_examples
-from app.models import REVIEWER_ROLES, Decision, Report, ReportStatus, Revision
+from app.models import REVIEWER_ROLES, Decision, Lock, Report, ReportStatus, Revision
 from app.service import STAGES
 from app.pipeline.segment import split_sentences
+from app.pipeline.locks import LOCK_TYPE_AR
 from app.pipeline.severity import TIER_LABELS_AR
 from app.service import AnalyzeRequest
 from app.store import load_report
@@ -31,6 +32,7 @@ app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=APP_DIR / "templates")
 templates.env.globals["DISCLAIMER"] = DISCLAIMER
 templates.env.globals["tier_labels"] = TIER_LABELS_AR
+templates.env.globals["lock_types"] = LOCK_TYPE_AR
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
 
@@ -127,6 +129,17 @@ def api_decision(body: DecisionIn):
 def api_publish(body: PublishIn):
     """ينشر التقرير ويُنشئ صفحة الختم. يُرفض ما لم تُحسم كل التنبيهات الحمراء."""
     return _review_call(review.publish, body.report_id, body.reviewer_role)
+
+
+class SuggestLocksIn(BaseModel):
+    text: str = Field(min_length=1)
+    lang: str = "ar"
+
+
+@app.post("/api/locks/suggest", response_model=list[Lock])
+def api_suggest_locks(body: SuggestLocksIn):
+    """أقفال مقترحة من الأصل: الشروط والاستثناءات من البصمة، وصيغ اليقين والنسبة والدرجات والنفي والأرقام والمصطلحات."""
+    return service.suggest_locks(body.text, body.lang)
 
 
 class ReviseIn(BaseModel):

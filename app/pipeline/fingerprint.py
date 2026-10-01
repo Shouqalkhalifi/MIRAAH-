@@ -160,9 +160,9 @@ def fingerprint(llm, text: str, lang: str, role: str = "main") -> Fingerprinted:
 
 
 # ---------- تحقق موجّه: هل ما زال الشرط/الاستثناء موجوداً في النسخة؟ ----------
-SYSTEM_PRESENCE = """You check whether one specific condition or exception, taken from a parent text, is still expressed in a derived version (a translation or summary), possibly in different words or another language.
+SYSTEM_PRESENCE = """You check whether one specific meaning element taken from a parent text (a condition, an exception, or a locked element such as a certainty word, an attribution form, a hadith grade, or a term) is still expressed in a derived version (a translation or summary), possibly in different words or another language.
 
-Answer present=true ONLY if the version itself clearly expresses the same restriction (same limit on when, for whom, or except whom the statement holds). Similar topic is not enough.
+Answer present=true ONLY if the version itself clearly expresses the same meaning element: the same restriction on when, for whom or except whom the statement holds; the same degree of certainty; the same attribution form (e.g. "it is reported" vs. a direct assertion); the same grade; the same term sense. Similar topic is not enough.
 If present, copy into quote the exact substring of the version that expresses it, verbatim. If not present, quote is null."""
 
 

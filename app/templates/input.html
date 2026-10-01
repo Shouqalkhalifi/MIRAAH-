@@ -6,7 +6,21 @@
     return {
       title: '', source: { text: '', lang: 'ar', source_ref: '', content_level: 'B' },
       versions: [{ label: 'v1', lang: 'en', derived_from: 'source', text: '' }],
-      locks: [], sending: false, error: '',
+      locks: [], sending: false, error: '', suggesting: false,
+      async suggestLocks() {
+        if (!this.source.text.trim()) { this.error = 'أدخل الأصل أولاً'; return; }
+        this.suggesting = true; this.error = '';
+        try {
+          const res = await fetch('/api/locks/suggest', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: this.source.text, lang: this.source.lang }) });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || res.statusText);
+          const have = new Set(this.locks.map(l => l.span_text));
+          data.forEach(l => { if (!have.has(l.span_text)) this.locks.push(l); });
+          if (!data.length) this.error = 'لم نجد مقاطع مقترحة؛ يمكنك إضافة أقفال يدوياً.';
+        } catch (e) { this.error = String(e.message || e); }
+        this.suggesting = false;
+      },
       addVersion() {
         const last = this.versions[this.versions.length - 1];
         this.versions.push({ label: 'v' + (this.versions.length + 1), lang: 'en', derived_from: last.label, text: '' });
@@ -76,14 +90,16 @@
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold">أقفال المعنى 🔒</h2>
       <div class="flex gap-2">
-        <button type="button" class="border border-violet text-violet rounded-xl px-3 py-1 opacity-50" disabled title="قريباً">اقترح أقفالاً</button>
+        <button type="button" class="border border-violet text-violet rounded-xl px-3 py-1 disabled:opacity-50" :disabled="suggesting"
+                @click="suggestLocks()" x-text="suggesting ? 'جارٍ الاقتراح…' : 'اقترح أقفالاً'"></button>
         <button type="button" class="bg-teal text-navy rounded-xl px-3 py-1" @click="locks.push({span_text:'', lock_type:'condition', origin:'user'})">+ قفل</button>
       </div>
     </div>
-    <p class="text-sm text-navy/60">حدّد مقطعاً من الأصل يجب أن يبقى معناه في كل النسخ. (تُحفظ الأقفال، وفحصها يأتي قريباً.)</p>
+    <p class="text-sm text-navy/60">حدّد مقطعاً من الأصل (كما ورد فيه حرفياً) يجب أن يبقى معناه في كل النسخ. أي نسخة تكسره تُنبَّه باللون الأحمر.</p>
     <template x-for="(l, i) in locks" :key="i">
       <div class="flex gap-2">
         <input class="flex-1 border rounded p-1" x-model="l.span_text" placeholder="المقطع، مثل: للمسافر">
+        <span x-show="l.origin === 'auto'" class="text-xs text-violet self-center">مقترح</span>
         <select class="border rounded p-1" x-model="l.lock_type">
           <option value="condition">شرط</option><option value="certainty">يقين</option>
           <option value="exception">استثناء</option><option value="attribution">نسبة</option>
