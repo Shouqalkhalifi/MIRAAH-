@@ -298,3 +298,21 @@ def test_reason_must_not_be_the_edited_wording_and_seal_shows_both():
     assert client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"}).status_code == 200
     seal = client.get(f"/seal/{rep['id']}").text
     assert "الصياغة المعتمدة:" in seal and wording in seal and "السبب:</span> أسقط الملخص شرط السفر" in seal
+
+
+def test_provider_errors_get_a_clear_arabic_message(monkeypatch):
+    from app.service import friendly_error
+
+    class BadRequestError(Exception):
+        pass
+
+    msg = friendly_error(BadRequestError("Error code: 400 - Your credit balance is too low to access the Anthropic API"))
+    assert msg.startswith("نفد رصيد خدمة النموذج اللغوي") and "التفاصيل التقنية: BadRequestError" in msg
+    assert friendly_error(RuntimeError("boom")).startswith("حدث خطأ غير متوقع")
+
+    def no_credit():
+        raise BadRequestError("Your credit balance is too low to access the Anthropic API")
+
+    monkeypatch.setattr(service, "llm_factory", no_credit)
+    rep = client.post("/api/analyze", json=CHAIN).json()
+    assert rep["status"] == "failed" and rep["error"].startswith("نفد رصيد")

@@ -51,6 +51,27 @@ def create_report(req: AnalyzeRequest) -> Report:
     return report
 
 
+# أخطاء المزوّد المعروفة ← رسالة عربية مفهومة للمراجع (مع الإبقاء على التفاصيل التقنية بعدها)
+_PROVIDER_ERRORS = [
+    ("credit balance is too low", "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ "
+                                  "التقارير التي سبق تحليلها ما زالت متاحة."),
+    ("authentication", "مفتاح ANTHROPIC_API_KEY غير صحيح أو منتهٍ. راجع ملف .env أو إعدادات الأسرار في المنصة."),
+    ("invalid x-api-key", "مفتاح ANTHROPIC_API_KEY غير صحيح أو منتهٍ. راجع ملف .env أو إعدادات الأسرار في المنصة."),
+    ("rate_limit", "خدمة النموذج اللغوي تتلقى طلبات كثيرة الآن. أعد المحاولة بعد دقيقة."),
+    ("overloaded", "خدمة النموذج اللغوي مشغولة الآن. أعد المحاولة بعد قليل."),
+    ("connection", "تعذّر الاتصال بخدمة النموذج اللغوي. تحقق من الاتصال بالإنترنت ثم أعد المحاولة."),
+    ("timed out", "انتهت مهلة الاتصال بخدمة النموذج اللغوي. أعد المحاولة."),
+    ("ANTHROPIC_API_KEY غير موجود", "لم يُضبط مفتاح ANTHROPIC_API_KEY. أضفه إلى ملف .env أو إعدادات الأسرار في المنصة."),
+]
+
+
+def friendly_error(e: Exception) -> str:
+    technical = f"{type(e).__name__}: {e}"
+    low = technical.lower()
+    message = next((msg for key, msg in _PROVIDER_ERRORS if key.lower() in low), "حدث خطأ غير متوقع أثناء التحليل.")
+    return f"{message}\n— التفاصيل التقنية: {technical}"[:700]
+
+
 def _optional(report: Report, name: str, fn, default):
     """المراحل المساعدة (الفهم، امتحان القارئ) لا تُفشل التقرير: يُسجَّل التعذّر ظاهراً في التقرير."""
     try:
@@ -101,7 +122,7 @@ def run_analysis(report_id: str) -> Report:
         report.referral = severity.needs_referral(report.source.content_level)
         report.status, report.stage, report.error = ReportStatus.analyzed, "done", ""
     except Exception as e:  # يظهر الخطأ للمستخدم في شاشة التحليل بدل تقرير ناقص
-        report.status, report.error = ReportStatus.failed, f"{type(e).__name__}: {e}"[:500]
+        report.status, report.error = ReportStatus.failed, friendly_error(e)
     save_report(report)
     return report
 
