@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, model_validator
 from app.llm import get_llm
 from app.models import Lock, Report, ReportStatus, Source, Version, validate_chain
 from app.pipeline.align import align
-from app.pipeline import fahm, mizan, severity
+from app.pipeline import fahm, mizan, reader_exam, severity
 from app.pipeline.chain import STAGES as CHAIN_STAGES
 from app.pipeline.chain import analyze_chain
 from app.pipeline.fingerprint import find_in_version, fingerprint
@@ -19,6 +19,7 @@ from app.store import load_report, save_report
 STAGES: list[tuple[str, str]] = CHAIN_STAGES + [
     ("mizan", "الميزان: البحث عن النصوص المنسوبة في المدونة"),
     ("fahm", "الفهم: مخاطر الفهم المحتملة"),
+    ("reader_exam", "امتحان القارئ: هل يفهم قارئ النسخة ما يفهمه قارئ الأصل؟"),
 ]
 
 # يُستبدل في الاختبارات بنموذج وهمي
@@ -50,6 +51,15 @@ def create_report(req: AnalyzeRequest) -> Report:
     return report
 
 
+def _optional(report: Report, name: str, fn, default):
+    """المراحل المساعدة (الفهم، امتحان القارئ) لا تُفشل التقرير: يُسجَّل التعذّر ظاهراً في التقرير."""
+    try:
+        return fn()
+    except Exception as e:
+        report.warnings.append(f"تعذّر {name}: {type(e).__name__}")
+        return default
+
+
 def run_analysis(report_id: str) -> Report:
     report = load_report(report_id)
     if report is None:
@@ -74,7 +84,12 @@ def run_analysis(report_id: str) -> Report:
         report.verifications, mizan_alerts = mizan.check_report(report)
         report.alerts += mizan_alerts
         progress("fahm")
-        report.understanding_risks = fahm.understanding_risks(llm, report.source.text)
+        report.understanding_risks = _optional(report, "مخاطر الفهم", lambda: fahm.understanding_risks(llm, report.source.text), [])
+        progress("reader_exam")
+        exam = _optional(report, "امتحان القارئ", lambda: reader_exam.run_exam(llm, report), None)
+        if exam:
+            report.reader_exam, exam_alerts = exam
+            report.alerts += exam_alerts
         report.alerts = severity.apply_severity(report.alerts, report.source.content_level)
         report.referral = severity.needs_referral(report.source.content_level)
         report.status, report.stage, report.error = ReportStatus.analyzed, "done", ""

@@ -204,6 +204,18 @@ class Verification(BaseModel):
     note_ar: str = ""
 
 
+# ---------- امتحان القارئ (6.7) ----------
+class ExamQuestion(BaseModel):
+    id: str = ""
+    question_ar: str = Field(min_length=3)
+    options: list[str] = Field(min_length=2, max_length=6)
+
+
+class ReaderExam(BaseModel):
+    questions: list[ExamQuestion] = Field(default_factory=list)
+    answers: dict[str, list[Optional[int]]] = Field(default_factory=dict)  # label ← رقم الخيار لكل سؤال
+
+
 # ---------- الصياغة الآمنة (6.10) ----------
 class Revision(BaseModel):
     style: Literal["precise", "balanced", "clear"]
@@ -275,6 +287,8 @@ class Report(BaseModel):
     referral: bool = False  # مستوى D: خارج النطاق ← إحالة
     decisions: dict[str, Decision] = Field(default_factory=dict)  # alert_id ← آخر قرار
     revisions: dict[str, list[Revision]] = Field(default_factory=dict)  # alert_id ← الصياغات المقترحة
+    reader_exam: Optional[ReaderExam] = None
+    warnings: list[str] = Field(default_factory=list)  # مراحل اختيارية تعذّرت (لا تُفشل التقرير)
     published_at: Optional[datetime] = None
     reviewer_role: str = ""
 

@@ -21,6 +21,33 @@
   {{ chain_view(chain, broken_at, warn_at, inherited) }}
 </section>
 
+{% if report.warnings %}
+<section class="bg-yellow-50 border border-yellow-300 rounded-2xl p-4 mb-6 text-sm">
+  {% for w in report.warnings %}<p>⚠️ {{ w }} — بقية التقرير سليم، ويمكن إعادة التحليل لاحقاً.</p>{% endfor %}
+</section>
+{% endif %}
+
+{% if report.reader_exam and report.reader_exam.questions %}
+<section class="bg-white rounded-2xl shadow p-6 mb-6 overflow-x-auto">
+  <h2 class="font-bold mb-1">امتحان القارئ 📝</h2>
+  <p class="text-xs text-navy/60 mb-3">أسئلة عن معنى الأصل؛ أجاب عنها قارئ يرى الأصل وحده، وقارئ منفصل لكل نسخة يرى النسخة وحدها.</p>
+  {% set ex = report.reader_exam %}
+  <table class="w-full text-sm">
+    <thead><tr class="text-navy/60"><th class="text-start p-2">السؤال</th><th class="text-start p-2">الأصل</th>
+      {% for v in report.versions %}<th class="text-start p-2">{{ v.label }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for q in ex.questions %}{% set qi = loop.index0 %}{% set s = (ex.answers.get('source') or [])[qi] if (ex.answers.get('source') or [])|length > qi else none %}
+      <tr class="border-t align-top"><td class="p-2">{{ q.question_ar }}</td>
+        <td class="p-2">{{ q.options[s] if s is not none else '—' }}</td>
+        {% for v in report.versions %}{% set ans = ex.answers.get(v.label) or [] %}{% set a = ans[qi] if ans|length > qi else none %}
+        <td class="p-2 {{ 'bg-yellow-50 text-yellow-800 font-semibold' if a is not none and s is not none and a != s else '' }}">{{ q.options[a] if a is not none else '—' }}</td>
+        {% endfor %}</tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
 {% if report.locks %}
 <section class="bg-white rounded-2xl shadow p-6 mb-6">
   <h2 class="font-bold mb-2">أقفال المعنى 🔒</h2>

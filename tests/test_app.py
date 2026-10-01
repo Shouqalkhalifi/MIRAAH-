@@ -12,6 +12,7 @@ from app.main import DISCLAIMER, app
 from app.pipeline.align import SYSTEM_ALIGN
 from app.pipeline.fingerprint import SYSTEM_PRESENCE
 from app.pipeline.revise import SYSTEM_REVISE
+from app.pipeline.reader_exam import SYSTEM_ANSWER, SYSTEM_QUESTIONS
 
 client = TestClient(app)
 
@@ -42,6 +43,11 @@ class RouterProvider:
             else:
                 pairs = [{"version": [0], "parent": [0]}]
             reply = {"pairs": pairs}
+        elif system.startswith(SYSTEM_QUESTIONS[:40]):
+            reply = {"questions": [{"question_ar": "لمن تجوز الرخصة؟", "options": ["للمسافر", "لكل المسلمين"]}]}
+        elif system.startswith(SYSTEM_ANSWER[:40]):
+            text = user.split("<<<\n", 1)[1].split("\n>>>", 1)[0].lower()
+            reply = {"answers": [1 if ("muslims" in text or "musulmans" in text) else 0]}
         elif system.startswith(SYSTEM_REVISE[:40]):
             reply = {"precise": "A traveler may break the fast in Ramadan.",
                      "balanced": "Travelers may break their fast in Ramadan.",
@@ -240,3 +246,22 @@ def test_suggest_locks_endpoint():
     assert r.status_code == 200
     spans = {l["span_text"]: l["lock_type"] for l in r.json()}
     assert spans.get("للمسافر") == "condition" and all(l["origin"] == "auto" for l in r.json())
+
+
+def test_reader_exam_end_to_end():
+    rep = client.post("/api/analyze", json=CHAIN).json()
+    assert rep["warnings"] == []
+    rd = next(a for a in rep["alerts"] if a["type"] == "reader_divergence")
+    assert rd["introduced_at"] == "en-summary" and rd["propagated_to"] == ["fr-translation"]
+    assert "امتحان القارئ" in client.get(f"/report/{rep['id']}").text
+
+
+def test_optional_stage_failure_becomes_warning_not_failure(monkeypatch):
+    from app.pipeline import reader_exam
+
+    def boom(*a):
+        raise RuntimeError("x")
+
+    monkeypatch.setattr(reader_exam, "run_exam", boom)
+    rep = client.post("/api/analyze", json=CHAIN).json()
+    assert rep["status"] == "analyzed" and any("امتحان القارئ" in w for w in rep["warnings"])
