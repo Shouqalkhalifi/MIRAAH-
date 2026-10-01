@@ -16,6 +16,27 @@
   {{ chain_view(chain, broken_at, warn_at, inherited) }}
 </section>
 
+{% if report.verifications %}
+<section class="bg-white rounded-2xl shadow p-6 mb-6">
+  <h2 class="font-bold mb-1">الميزان ⚖️ النصوص المنسوبة</h2>
+  <p class="text-xs text-navy/60 mb-3">بحث في المدونة المحلية فقط. ما لا يوجد فيها لا يُحكم عليه، بل يُحال إلى المراجع.</p>
+  {% set badge = {'supported': ('bg-green-600 text-white', 'مدعوم'), 'partially_supported': ('bg-yellow-400 text-navy', 'مدعوم جزئياً'),
+                  'conflicting': ('bg-red-600 text-white', 'متعارض'), 'unsupported': ('bg-red-600 text-white', 'غير مدعوم'),
+                  'unverified': ('bg-slate-500 text-white', 'غير متحقق')} %}
+  <ul class="space-y-2 text-sm">
+    {% for v in report.verifications %}
+    <li class="bg-paper rounded-xl p-3 flex flex-wrap gap-2 items-start">
+      <span class="text-xs rounded px-2 py-0.5 {{ badge[v.status][0] }}">{{ badge[v.status][1] }}</span>
+      <span class="text-navy/60">{{ 'الأصل' if v.label == 'source' else v.label }}:</span>
+      <span dir="auto" class="flex-1">«{{ v.quote }}»</span>
+      <span class="w-full text-xs text-navy/70">{{ v.note_ar }}{% if v.item_id %} — <code>{{ v.item_id }}</code>
+        {% if v.source_url %}<a class="text-violet underline" href="{{ v.source_url }}" target="_blank" rel="noopener">{{ v.source_name }}</a>{% else %}{{ v.source_name }}{% endif %}{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
 <section class="bg-white rounded-2xl shadow p-6 mb-6" x-data="{ tab: 0 }">
   <h2 class="font-bold mb-3">عرض متقابل</h2>
   <div class="flex gap-2 mb-4 flex-wrap">

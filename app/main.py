@@ -13,7 +13,7 @@ from app import service
 from app.corpus import load_corpus
 from app.examples import get_example, load_examples
 from app.models import Report, ReportStatus
-from app.pipeline.chain import STAGES
+from app.service import STAGES
 from app.pipeline.segment import split_sentences
 from app.service import AnalyzeRequest
 from app.store import load_report

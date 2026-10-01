@@ -13,6 +13,9 @@
 | [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) | استدعاء نماذج Claude | MIT |
 | [httpx](https://github.com/encode/httpx) | عميل HTTP (الاختبارات) | BSD-3-Clause |
 | [pytest](https://github.com/pytest-dev/pytest) | الاختبارات | MIT |
+| [rank-bm25](https://github.com/dorianbrown/rank_bm25) | الاسترجاع BM25 في الميزان | Apache-2.0 |
+| [NumPy](https://github.com/numpy/numpy) (تبعية rank-bm25) | حساب الدرجات | BSD-3-Clause |
+| [qrcode](https://github.com/lincolnloop/python-qrcode) | رمز QR في صفحة الختم (SVG) | BSD-3-Clause |
 | [Tailwind CSS](https://tailwindcss.com) (CDN) | التنسيق | MIT |
 | [Alpine.js](https://alpinejs.dev) (CDN) | تفاعل الواجهة | MIT |
 | [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | الخط | SIL Open Font License 1.1 |

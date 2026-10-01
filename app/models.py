@@ -61,8 +61,11 @@ class AlertType(str, Enum):
     length_drop = "length_drop"
     sentence_dropped = "sentence_dropped"
     lock_violated = "lock_violated"
+    # الميزان (6.5)
+    unverified_attribution = "unverified_attribution"  # لم يُعثر عليه في المدونة
+    source_conflict = "source_conflict"  # وُجد لكن درجته ضعيفة/مخالفة، أو الآية المرقّمة لا تطابق
+    quote_wording_differs = "quote_wording_differs"  # تطابق جزئي مع النص المعتمد
     # من المراحل اللاحقة
-    unverified_attribution = "unverified_attribution"
     reader_divergence = "reader_divergence"
     witness_disagreement = "witness_disagreement"
 
@@ -170,6 +173,26 @@ class Alert(BaseModel):
         return self
 
 
+# ---------- الميزان (6.5) ----------
+SupportStatus = Literal["supported", "partially_supported", "unsupported", "conflicting", "unverified"]
+
+
+class Verification(BaseModel):
+    label: str  # "source" أو label النسخة
+    sentence_index: int
+    attributed_to: Literal["prophet", "allah"]
+    cue: str
+    quote: str  # النص المنسوب كما ورد
+    status: SupportStatus
+    score: float = 0.0
+    item_id: Optional[str] = None
+    item_text: str = ""
+    item_grade: Optional[str] = None
+    source_name: str = ""
+    source_url: str = ""
+    note_ar: str = ""
+
+
 # ---------- التقرير ----------
 def validate_chain(versions: list["Version"]) -> None:
     """كل حلقة تُشتق من الأصل أو من حلقة قبلها، والتسميات فريدة."""
@@ -194,6 +217,7 @@ class Report(BaseModel):
     stage: str = ""  # مرحلة التحليل الحالية (لشريط التقدم)
     error: str = ""
     source_sentence_count: int = 0
+    verifications: list[Verification] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _chain_valid(self) -> "Report":
