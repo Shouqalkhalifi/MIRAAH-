@@ -16,6 +16,19 @@
   {{ chain_view(chain, broken_at, warn_at, inherited) }}
 </section>
 
+{% if report.understanding_risks %}
+<section class="bg-white rounded-2xl shadow p-6 mb-6">
+  <h2 class="font-bold mb-1">مخاطر فهم محتملة 💭</h2>
+  <p class="text-xs text-navy/60 mb-3">احتمالات للمراجعة، لا أحكام. لا تفترض شيئاً عن هوية القارئ.</p>
+  <ul class="space-y-2 text-sm">
+    {% for r in report.understanding_risks %}
+    <li class="bg-paper rounded-xl p-3"><p>{{ r.risk_ar }}</p>
+      <p class="text-xs text-navy/70 mt-1">في الأصل: «{{ r.quote }}» — {{ r.reason_ar }}</p></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
 {% if report.verifications %}
 <section class="bg-white rounded-2xl shadow p-6 mb-6">
   <h2 class="font-bold mb-1">الميزان ⚖️ النصوص المنسوبة</h2>

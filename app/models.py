@@ -173,6 +173,13 @@ class Alert(BaseModel):
         return self
 
 
+# ---------- الفهم (6.6) ----------
+class UnderstandingRisk(BaseModel):
+    risk_ar: str  # صياغة احتمالية: «قد يُفهم...»
+    quote: str  # مقطع حرفي من الأصل
+    reason_ar: str = ""
+
+
 # ---------- الميزان (6.5) ----------
 SupportStatus = Literal["supported", "partially_supported", "unsupported", "conflicting", "unverified"]
 
@@ -218,6 +225,7 @@ class Report(BaseModel):
     error: str = ""
     source_sentence_count: int = 0
     verifications: list[Verification] = Field(default_factory=list)
+    understanding_risks: list[UnderstandingRisk] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _chain_valid(self) -> "Report":

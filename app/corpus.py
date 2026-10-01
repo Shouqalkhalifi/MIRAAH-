@@ -22,11 +22,16 @@ class CorpusItem(BaseModel):
     source_name: str = Field(min_length=1)
     source_url: str = ""
     license_note: str = Field(min_length=1)
+    # للمصطلحات فقط (ضابط الاستخدام): صيغ المصطلح في النص الأم، والترجمات التي تخالف ضابطه في النسخة
+    trigger_forms: list[str] = Field(default_factory=list)
+    avoid_renderings: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _grade_for_hadith(self) -> "CorpusItem":
         if self.type == "hadith" and self.grade is None:
             raise ValueError("عنصر الحديث يجب أن يحمل درجته (grade)")
+        if self.type == "term" and bool(self.trigger_forms) != bool(self.avoid_renderings):
+            raise ValueError("ضابط المصطلح يحتاج trigger_forms و avoid_renderings معاً")
         return self
 
 

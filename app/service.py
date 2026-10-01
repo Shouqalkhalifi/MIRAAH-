@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, model_validator
 from app.llm import get_llm
 from app.models import Lock, Report, ReportStatus, Source, Version, validate_chain
 from app.pipeline.align import align
-from app.pipeline import mizan
+from app.pipeline import fahm, mizan
 from app.pipeline.chain import STAGES as CHAIN_STAGES
 from app.pipeline.chain import analyze_chain
 from app.pipeline.fingerprint import find_in_version, fingerprint
@@ -18,6 +18,7 @@ from app.store import load_report, save_report
 # مراحل التحليل كما تظهر في شريط التقدم
 STAGES: list[tuple[str, str]] = CHAIN_STAGES + [
     ("mizan", "الميزان: البحث عن النصوص المنسوبة في المدونة"),
+    ("fahm", "الفهم: مخاطر الفهم المحتملة"),
 ]
 
 # يُستبدل في الاختبارات بنموذج وهمي
@@ -60,11 +61,14 @@ def run_analysis(report_id: str) -> Report:
             align_fn=lambda p, c, pl, cl: align(llm, p, c, pl, cl),
             fp_fn=lambda text, lang: fingerprint(llm, text, lang),
             presence_fn=lambda item, kind, ptext, vtext, vlang: find_in_version(llm, item, kind, ptext, vtext, vlang),
+            extra_rules=fahm.term_hits,
             progress=progress,
         )
         progress("mizan")
         report.verifications, mizan_alerts = mizan.check_report(report)
         report.alerts += mizan_alerts
+        progress("fahm")
+        report.understanding_risks = fahm.understanding_risks(llm, report.source.text)
         report.status, report.stage, report.error = ReportStatus.analyzed, "done", ""
     except Exception as e:  # يظهر الخطأ للمستخدم في شاشة التحليل بدل تقرير ناقص
         report.status, report.error = ReportStatus.failed, f"{type(e).__name__}: {e}"[:500]

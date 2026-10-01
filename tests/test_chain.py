@@ -125,3 +125,15 @@ def test_presence_check_keeps_real_drop():
     alerts = analyze_chain(chain_report(THREE_LINKS), fake_align, fake_fp,
                            presence_fn=lambda *a: None)
     assert by_type(alerts)[T.condition_dropped].introduced_at == "en-summary"
+
+
+def test_term_rule_through_chain_keeps_corpus_evidence():
+    from app.pipeline.fahm import term_hits
+
+    r = Report(source=Source(text="يُكره الكلام أثناء الخطبة."),
+               versions=[Version(label="en", lang="en", text="Talking during the sermon is forbidden.")])
+    plain = lambda t, l: Fingerprinted(fp=MeaningFingerprint())  # noqa: E731
+    alerts = analyze_chain(r, fake_align, plain, extra_rules=term_hits)
+    a = by_type(alerts)[T.term_narrowing]
+    assert a.introduced_at == "en" and a.evidence[0].kind == "corpus" and a.evidence[0].ref == "t-makruh"
+    assert a.version_span.text == "forbidden"

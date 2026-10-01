@@ -6,11 +6,11 @@ term_narrowing و lock_violated في المرحلة 2.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from app.models import AlertType as T
-from app.models import MeaningFingerprint, Severity
+from app.models import Evidence, MeaningFingerprint, Severity
 from app.pipeline.fingerprint import Fingerprinted
 from app.text.normalize import tokens
 
@@ -47,6 +47,7 @@ class Hit:
     ver_quote: str = ""
     match_key: str = ""  # لمطابقة الخلل نفسه عبر حلقات السلسلة
     confidence: float = 0.85
+    evidence: list[Evidence] = field(default_factory=list)  # دليل إضافي (مثل عنصر المدونة)
 
     @property
     def severity(self) -> Severity:
@@ -217,6 +218,8 @@ TEMPLATES: dict[T, tuple[str, str]] = {
                           "سقوط النفي أو زيادته قد يقلب المعنى إلى ضده. قد تكون الصياغة مختلفة فقط، فراجعها."),
     T.number_mismatch: ("الأرقام في الأم: {before}، وفي النسخة: {after}.",
                         "الأرقام (عدد الأيام، المقادير، الركعات) جزء من الحكم. أي اختلاف فيها يغيّر ما يُطلب من القارئ."),
+    T.term_narrowing: ("تُرجم المصطلح «{before}» بلفظ «{after}»، وهذا يخالف ضابط استخدامه في المدونة.",
+                       "للمصطلح الشرعي حدود. ترجمته بلفظ أشد أو أوسع أو أضيق يغيّر الحكم في ذهن القارئ."),
     T.length_drop: ("النسخة أقصر من أمّها بنحو {before}٪.",
                     "الاختصار الشديد مظنّة سقوط قيود أو تفاصيل مهمة. راجع ما حُذف."),
     T.sentence_dropped: ("هذه الجملة من الأصل ليس لها مقابل في النسخة.",

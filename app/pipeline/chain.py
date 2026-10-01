@@ -33,6 +33,8 @@ FingerprintFn = Callable[[str, str], Fingerprinted]
 # (العبارة، النوع، نص الأم، نص النسخة، لغة النسخة) ← اقتباس من النسخة إن وُجدت فيها، وإلا None
 PresenceFn = Callable[[str, str, str, str, str], Optional[str]]
 _PRESENCE_TYPES = {T.condition_dropped: "condition", T.exception_dropped: "exception"}
+# قواعد إضافية على نص الوحدة (مثل ضوابط المصطلحات): (نص الأم، نص الابن) ← تنبيهات
+ExtraRulesFn = Callable[[str, str], list[Hit]]
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
 
@@ -65,7 +67,8 @@ def _hit_in(hit: Hit, hits: list[Hit]) -> bool:
 
 def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
                   progress: Callable[[str], None] = lambda s: None, max_workers: int = 4,
-                  presence_fn: Optional[PresenceFn] = None) -> list[Alert]:
+                  presence_fn: Optional[PresenceFn] = None,
+                  extra_rules: Optional[ExtraRulesFn] = None) -> list[Alert]:
     src = report.source
     langs = {"source": src.lang, **{v.label: v.lang for v in report.versions}}
     texts = {"source": src.text, **{v.label: v.text for v in report.versions}}
@@ -123,6 +126,8 @@ def analyze_chain(report: Report, align_fn: AlignFn, fp_fn: FingerprintFn,
     progress("compare")
     def unit_hits(pl: str, lb: str, u: Unit) -> list[Hit]:
         hits = compare_unit(fp(pl, u.parent), fp(lb, u.child))
+        if extra_rules and u.parent and u.child:
+            hits += extra_rules(_join(sents[pl], u.parent), _join(sents[lb], u.child))
         if presence_fn is None or not u.child:
             return hits
         # الشرط/الاستثناء «الساقط» قد يكون استخراجاً غير متسق بين اللغتين: تحقق موجّه قبل التنبيه
@@ -171,7 +176,8 @@ def _make_alert(report: Report, f: _Found, label: str, sents: dict[str, list[str
     exp, why = explain(h)
     src_text = h.src_quote or _join(sents["source"], u.parent)
     ver_text = h.ver_quote or _join(sents[label], u.child)
-    evidence = [Evidence(kind="fingerprint", ref=h.field, detail=f"{h.before or '—'} → {h.after or '—'}")]
+    evidence = list(h.evidence) or [Evidence(kind="fingerprint", ref=h.field,
+                                             detail=f"{h.before or '—'} → {h.after or '—'}")]
     if u.parent:
         evidence.append(Evidence(kind="text_span", ref=f"source:{','.join(map(str, u.parent))}",
                                  detail=_join(sents["source"], u.parent)))
