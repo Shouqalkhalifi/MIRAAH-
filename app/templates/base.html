@@ -13,11 +13,11 @@
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="apple-touch-icon" href="/static/favicon-180.png">
 </head>
-<body>
+<body{% if request.url.path == '/' %} class="is-home"{% endif %}>
 {% set path = request.url.path %}
   <header class="topbar">
     <div class="topbar-in">
-      <a href="/" class="brand" aria-label="مِرآة — مقابلة جديدة">مِرآة <small dir="ltr">MIRAAH</small></a>
+      <a href="/" class="brand" aria-label="مِرآة — مقابلة جديدة"><img src="/static/favicon.svg" alt="" width="34" height="34">مِرآة <small dir="ltr">MIRAAH</small></a>
       <nav class="topnav" aria-label="التنقل">
         <a href="/" {% if path in ['/', '/new'] %}aria-current="page"{% endif %}>مقابلة جديدة</a>
         <a href="/reverse" {% if path.startswith('/reverse') %}aria-current="page"{% endif %}>قابِل ما قرأت</a>

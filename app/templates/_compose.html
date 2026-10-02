@@ -49,7 +49,7 @@
   }
 </script>
 
-{% if examples is defined and examples %}
+{% if examples is defined and examples and not hide_try %}
 <div class="try">
   <span class="muted">جرّب:</span>
   {% for ex in examples %}
@@ -58,7 +58,7 @@
 </div>
 {% endif %}
 
-<form class="compose" x-data="compose()" @submit.prevent="submit()" novalidate>
+<form class="compose" x-data="compose()" @submit.prevent="submit()" @miraah-source.window="source.text = $event.detail" novalidate>
   {# الأصل #}
   <section class="compose-col" aria-labelledby="src-h">
     <h2 id="src-h">الأصل</h2>

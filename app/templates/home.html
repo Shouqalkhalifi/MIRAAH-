@@ -1,3 +1,117 @@
 {% extends "base.html" %}
 {% block title %}مقابلة جديدة{% endblock %}
-{% block content %}{% include "_modes.html" %}{% include "_compose.html" %}{% endblock %}
+{% block content %}
+<section class="hero" aria-labelledby="hero-h">
+  <p class="hero-kicker"><span class="dot" aria-hidden="true"></span> الترجمة والتحقق في المحتوى الإسلامي</p>
+  <h1 id="hero-h" class="hero-title">تتبّع <span class="hl">أثر المعنى</span><br>من الأصل العربي إلى كل ترجمة</h1>
+  <p class="hero-sub">تكشف مِرآة أين سقط شرط، أو ارتفعت درجة يقين، أو نُسب قول إلى النبي ﷺ بلا مصدر، وفي أي حلقة دخل الخلل. والقرار للمراجع.</p>
+
+  <form class="hero-bar" x-data="{ t: '' }"
+        @submit.prevent="if (t.trim()) { $dispatch('miraah-source', t); t = ''; } document.getElementById('compose').scrollIntoView({ behavior: 'smooth' });">
+    <svg class="hero-bar-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8l4 4v12H4V4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <label class="sr-only" for="hero-in">الصق النص العربي الأصلي</label>
+    <input id="hero-in" x-model="t" dir="rtl" placeholder="الصق النص العربي الأصلي وابدأ المقابلة…" autocomplete="off">
+    <button class="hero-go" aria-label="ابدأ المقابلة">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </form>
+  <div class="hero-hints"><span>اضغط Enter للبدء</span><span>مصادر موثّقة محلياً</span><span>لا تُصدر فتوى</span></div>
+
+  {% if examples is defined and examples %}
+  <div class="try chips">
+    <span class="muted">جرّب:</span>
+    {% for ex in examples %}
+    <form method="post" action="/examples/{{ ex.name }}"><button class="chip">{{ ex.title }}</button></form>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+{# عرض توضيحي ثابت من المثال الاصطناعي «رخصة الفطر للمسافر» #}
+<section class="demo" aria-labelledby="demo-h" x-data="demoWires()" x-init="draw()" @resize.window.debounce.100ms="draw()">
+  <h2 id="demo-h" class="sr-only">مثال توضيحي لتقرير مِرآة</h2>
+  <ol class="demo-chain" aria-label="سلسلة النسخ">
+    <li class="ok"><span class="k"></span>الأصل العربي</li>
+    <li class="ok"><span class="k"></span><bdi dir="ltr">en-translation</bdi></li>
+    <li class="bad"><span class="k"></span><bdi dir="ltr">en-summary</bdi> <em>هنا دخل الخلل</em></li>
+    <li class="after"><span class="k"></span><bdi dir="ltr">fr-translation</bdi></li>
+  </ol>
+
+  <div class="demo-grid" x-ref="grid">
+    <svg class="demo-wires" x-ref="svg" aria-hidden="true"></svg>
+
+    <article class="panel">
+      <header class="panel-h"><span>المصدر العربي</span><small dir="ltr">Arabic Source</small></header>
+      <div class="panel-b ar-source">
+        <p><span data-w="1">يجوز <mark class="m-ok">للمسافر</mark> أن يفطر في رمضان.</span></p>
+        <p><span data-w="2">ويجب عليه قضاء ما أفطره من أيام.</span></p>
+      </div>
+      <footer class="panel-f"><span class="pill">مستوى المحتوى B</span><span class="pill">المرجع: يُضاف المصدر الرسمي</span></footer>
+    </article>
+
+    <article class="panel">
+      <header class="panel-h"><span>النسخة المترجمة</span><small dir="ltr">en-summary</small></header>
+      <div class="panel-b latin" dir="ltr">
+        <p><span data-w="1" data-to="1"><mark class="m-red">Muslims</mark> may break the fast in Ramadan.</span>
+          <span class="bubble b-red" dir="rtl">تحذير: سقط الشرط «للمسافر»<small dir="ltr">Constraint loss</small></span></p>
+        <p><span data-w="2" data-to="2" class="gap">— sentence missing —</span>
+          <span class="bubble b-yel" dir="rtl">تنبيه: جملة القضاء بلا مقابل<small dir="ltr">Sentence dropped</small></span></p>
+      </div>
+      <footer class="panel-f"><span class="pill">راجع 2 من 2 جملة</span></footer>
+    </article>
+
+    <aside class="panel panel-alerts">
+      <header class="panel-h"><span>تنبيهات المراجعة والتحقق</span></header>
+      <ul class="alerts">
+        <li class="a-red"><span class="ab">أثر</span><div><b>سقط الشرط</b><small>خاص بالمسافر ← عام لكل المسلمين</small></div></li>
+        <li class="a-yel"><span class="ab">أثر</span><div><b>اتّسع النطاق</b><small>من «المسافر» إلى «Muslims»</small></div></li>
+        <li class="a-grn"><span class="ab">ميزان</span><div><b>لا نسبة غير موثّقة</b><small>لم يُنسب قول إلى النبي ﷺ</small></div></li>
+        <li class="a-pur"><span class="ab">فهم</span><div><b>مخاطر فهم محتملة</b><small>قد يُفهم أن الفطر مباح للجميع</small></div></li>
+      </ul>
+      <div class="light"><span class="lamp red"></span><b>لا تنشر</b><span class="muted t14">· حتى يُحسم التنبيه الخطير</span></div>
+      <div class="panel-acts">
+        <a href="#compose" class="btn btn-primary">حلّل بمِرآة</a>
+        <form method="post" action="/examples/traveler-fasting"><button class="btn btn-quiet">افتح التقرير الكامل</button></form>
+      </div>
+    </aside>
+  </div>
+  <p class="demo-note t14 muted">مثال توضيحي اصطناعي. التقرير الحقيقي يربط كل تنبيه بموضعه وبالمصدر، ويقترح صياغة آمنة.</p>
+</section>
+
+<section class="pillars" aria-label="وحدات مِرآة">
+  <div class="pillar"><span class="pi pi-ink">أثر</span><h3>ATHAR · السلسلة</h3><p>يقارن كل حلقة بأمها وبالأصل، ويحدد أول حلقة انكسر فيها المعنى.</p></div>
+  <div class="pillar"><span class="pi pi-pur">ميزان</span><h3>MIZAN · المصادر</h3><p>يبحث عن كل نسبة في مدونة محلية موثّقة، وإن لم يجدها قال «غير متحقق».</p></div>
+  <div class="pillar"><span class="pi pi-tq">فهم</span><h3>FAHM · المصطلحات</h3><p>يفحص المصطلحات بضوابطها، ويمتحن ما يفهمه قارئ الأصل وقارئ النسخة.</p></div>
+</section>
+
+<section id="compose" class="compose-card">
+  {% include "_modes.html" %}
+  {% with hide_try = true %}{% include "_compose.html" %}{% endwith %}
+</section>
+
+<script>
+  function demoWires() {
+    return {
+      draw() {
+        const svg = this.$refs.svg, grid = this.$refs.grid;
+        svg.innerHTML = '';
+        if (window.innerWidth < 1024) return;
+        const g = grid.getBoundingClientRect();
+        svg.setAttribute('viewBox', `0 0 ${g.width} ${g.height}`);
+        grid.querySelectorAll('[data-to]').forEach(to => {
+          const from = grid.querySelector(`[data-w="${to.dataset.to}"]:not([data-to])`);
+          if (!from) return;
+          const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+          const pa = from.closest('.panel').getBoundingClientRect(), pb = to.closest('.panel').getBoundingClientRect();
+          const x1 = pa.left - g.left, y1 = a.top - g.top + Math.min(a.height / 2, 20);
+          const x2 = pb.right - g.left, y2 = b.top - g.top + Math.min(b.height / 2, 16);
+          const mx = (x1 + x2) / 2, bad = to.dataset.to === '1' ? '#E5484D' : '#D9A21B';
+          svg.insertAdjacentHTML('beforeend',
+            `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${bad}" stroke-width="1.6" stroke-dasharray="4 4"/>` +
+            `<circle cx="${x1}" cy="${y1}" r="4" fill="${bad}"/><circle cx="${x2}" cy="${y2}" r="4" fill="${bad}"/>`);
+        });
+      }
+    };
+  }
+</script>
+{% endblock %}
