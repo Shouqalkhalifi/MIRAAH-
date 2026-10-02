@@ -316,3 +316,11 @@ class ReportRow(SQLModel, table=True):
     created_at: datetime = SQLField(default_factory=_now)
     status: str = ReportStatus.draft.value
     data: str  # Report.model_dump_json()
+
+
+class ReverseRow(SQLModel, table=True):
+    """نتيجة «قابِل ما قرأت» لا تُحفظ إلا إذا اختار المستخدم حفظها."""
+    __tablename__ = "reverse_saved"
+    id: str = SQLField(primary_key=True)
+    created_at: datetime = SQLField(default_factory=_now)
+    data: str  # ReverseResult.model_dump_json()

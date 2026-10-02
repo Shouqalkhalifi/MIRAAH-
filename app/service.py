@@ -165,3 +165,37 @@ def lock_checker(llm):
         return check_lock(lock, src_ctx, version_text, version_lang,
                           lambda item, kind, p, v, lang: find_in_version(llm, item, kind, p, v, lang))
     return fn
+
+
+# ---------- «قابِل ما قرأت» ----------
+def reverse_trace(text: str, save: bool = False):
+    """يقابل ما كتبه المستخدم بمصادر المكتبة. لا يُحفظ نصه (ولا يدخل cache النموذج) إلا إذا اختار الحفظ."""
+    import uuid
+
+    from sqlmodel import Session
+
+    from app.db import get_engine
+    from app.models import ReverseRow
+    from app.pipeline.reverse import run_reverse
+
+    llm = llm_factory()
+    llm.cache_enabled = False  # الخصوصية: نص المستخدم لا يُخزَّن في cache الاستجابات
+    result = run_reverse(llm, text, presence_fn=lambda item, kind, p, v, lang: find_in_version(llm, item, kind, p, v, lang))
+    if save:
+        result.id = uuid.uuid4().hex[:12]
+        with Session(get_engine()) as s:
+            s.add(ReverseRow(id=result.id, data=result.model_dump_json()))
+            s.commit()
+    return result
+
+
+def load_reverse(rid: str):
+    from sqlmodel import Session
+
+    from app.db import get_engine
+    from app.models import ReverseRow
+    from app.pipeline.reverse import ReverseResult
+
+    with Session(get_engine()) as s:
+        row = s.get(ReverseRow, rid)
+    return ReverseResult.model_validate_json(row.data) if row else None

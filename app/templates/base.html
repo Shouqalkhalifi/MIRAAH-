@@ -20,6 +20,7 @@
       <a href="/" class="brand" aria-label="مِرآة — مقابلة جديدة">مِرآة <small dir="ltr">MIRAAH</small></a>
       <nav class="topnav" aria-label="التنقل">
         <a href="/" {% if path in ['/', '/new'] %}aria-current="page"{% endif %}>مقابلة جديدة</a>
+        <a href="/reverse" {% if path.startswith('/reverse') %}aria-current="page"{% endif %}>قابِل ما قرأت</a>
         <a href="/docs">التوثيق</a>
       </nav>
     </div>

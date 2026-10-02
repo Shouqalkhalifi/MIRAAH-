@@ -4,7 +4,7 @@ import re
 
 from app.library import load_library
 from app.pipeline import reverse as rv
-from app.pipeline.fingerprint import SYSTEM_FP
+from app.pipeline.fingerprint import SYSTEM_FP, SYSTEM_PRESENCE
 
 ISSUES = load_library()
 
@@ -18,14 +18,20 @@ class FakeLLM:
 
     def complete_json(self, prompt, schema, system="", **kw):
         self.calls.append(kw.get("purpose"))
+        return schema.model_validate_json(json.dumps(self.reply(system, prompt), ensure_ascii=False))
+
+    def reply(self, system, prompt):
+        """الرد حسب التعليمات (يُستعمل أيضاً مزوّداً وهمياً خلف طبقة LLM الحقيقية)."""
         text = prompt.split("<<<\n", 1)[-1].rsplit("\n>>>", 1)[0].lower()
-        if system == rv.SYSTEM_CLASSIFY:
+        if system.startswith(SYSTEM_PRESENCE[:60]):
+            reply = {"present": False, "quote": None}
+        elif system.startswith(rv.SYSTEM_CLASSIFY[:60]):
             kind = "question" if text.strip().endswith("?") else ("out_of_scope" if "weather" in text else "claim")
             reply = {"kind": kind}
-        elif system == rv.SYSTEM_MATCH:
+        elif system.startswith(rv.SYSTEM_MATCH[:60]):
             ids = re.findall(r"^- (I\d+):", prompt, re.M)
             reply = {"issue_id": ids[0] if ids else None, "confidence": self.confidence}
-        elif system == SYSTEM_FP:
+        elif system.startswith(SYSTEM_FP[:60]):
             ruling = next((r for w, r in [("obligatory", "obligatory"), ("forbidden", "forbidden"),
                                           ("recommended", "recommended"), ("permissible", "permissible")] if w in text), "none")
             fp = {"ruling": ruling,
@@ -34,11 +40,11 @@ class FakeLLM:
                   "consensus_claim": "ijma" if ("all scholars agree" in text or "consensus" in text) else "none",
                   "scope": {"quantifier": "all" if "everyone" in text else "unspecified"}}
             reply = {"fingerprint": fp}
-        elif system == rv.SYSTEM_EXPLAIN:
+        elif system.startswith(rv.SYSTEM_EXPLAIN[:60]):
             reply = {"explanation_ar": self.explanation, "diff_quote": self.diff}
         else:
             raise AssertionError(f"unexpected system prompt: {system[:40]}")
-        return schema.model_validate_json(json.dumps(reply, ensure_ascii=False))
+        return reply
 
 
 def run(text, **kw):

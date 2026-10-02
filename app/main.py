@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, Form, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -41,6 +41,7 @@ templates.env.globals["meta"] = meta
 templates.env.globals["ui"] = ui
 templates.env.globals["sentences"] = split_sentences
 templates.env.globals["reviewer_roles"] = REVIEWER_ROLES
+templates.env.globals["footer_ar"] = "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى"
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
 
@@ -151,6 +152,20 @@ def api_publish(body: PublishIn):
     return _review_call(review.publish, body.report_id, body.reviewer_role)
 
 
+class ReverseIn(BaseModel):
+    text: str = Field(min_length=3, max_length=1000)
+    save: bool = False  # لا يُحفظ النص إلا باختيار المستخدم
+
+
+@app.post("/api/reverse")
+def api_reverse(body: ReverseIn):
+    """«قابِل ما قرأت»: يقابل عبارة أو سؤالاً بنص المصدر في مكتبة مِرآة. لا يُصدر فتوى ولا يرجّح."""
+    try:
+        return service.reverse_trace(body.text, body.save).model_dump(mode="json")
+    except Exception as e:
+        raise HTTPException(503, service.friendly_error(e).split("\n")[0])
+
+
 class SuggestLocksIn(BaseModel):
     text: str = Field(min_length=1)
     lang: str = "ar"
@@ -195,6 +210,34 @@ def api_examples() -> list[dict]:
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return page(request, "home.html", examples=load_examples())
+
+
+@app.get("/reverse", response_class=HTMLResponse)
+def reverse_page(request: Request):
+    return page(request, "reverse.html", result=None, text="", error="")
+
+
+@app.post("/reverse", response_class=HTMLResponse)
+def reverse_submit(request: Request, text: str = Form(""), save: str | None = Form(None)):
+    text = text.strip()
+    if not 3 <= len(text) <= 1000:
+        return page(request, "reverse.html", result=None, text=text,
+                    error="اكتب ما قرأته أو سؤالك في 3 أحرف إلى 1000 حرف.")
+    try:
+        result = service.reverse_trace(text, bool(save))
+    except Exception as e:
+        return page(request, "reverse.html", result=None, text=text, error=service.friendly_error(e).split("\n")[0])
+    if result.id:
+        return RedirectResponse(f"/reverse/{result.id}", status_code=303)
+    return page(request, "reverse.html", result=result, text=text, error="")
+
+
+@app.get("/reverse/{rid}", response_class=HTMLResponse)
+def reverse_saved(request: Request, rid: str):
+    result = service.load_reverse(rid)
+    if result is None:
+        raise HTTPException(404, "لم تُحفظ هذه المقابلة، أو حُذفت.")
+    return page(request, "reverse.html", result=result, text=result.text, error="")
 
 
 @app.post("/examples/{name}")
