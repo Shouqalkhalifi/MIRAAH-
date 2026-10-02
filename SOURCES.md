@@ -17,6 +17,7 @@
 | [NumPy](https://github.com/numpy/numpy) (تبعية rank-bm25) | حساب الدرجات | BSD-3-Clause |
 | [qrcode](https://github.com/lincolnloop/python-qrcode) | رمز QR في صفحة الختم (SVG) | BSD-3-Clause |
 | [sacrebleu](https://github.com/mjpost/sacrebleu) | chrF لخط الأساس في التقييم | Apache-2.0 |
+| [python-multipart](https://github.com/Kludex/python-multipart) | استقبال نموذج «قابِل ما قرأت» | Apache-2.0 |
 | [Alpine.js](https://alpinejs.dev) (CDN) | تفاعل الواجهة | MIT |
 | [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | خط الواجهة | SIL Open Font License 1.1 |
 | [Amiri](https://fonts.google.com/specimen/Amiri) (Google Fonts) | النص العربي الأصلي وحده (نسخي) | SIL Open Font License 1.1 |
@@ -44,6 +45,10 @@
 - `seeds.jsonl`: 15 بذرة **مسودة** كتبها المساعد البرمجي، تراجعها المطوّرة من مصادر الحزمة قبل اعتماد النتائج.
 - `cases.jsonl`: حالات مولّدة آلياً من البذور بنموذج Claude (تغيّرات مزروعة وصياغات سليمة)، وأربع حالات امتناع
   لأقوال تُنسب إلى النبي ﷺ وليست في المدونة المحلية.
+
+## مكتبة «قابِل ما قرأت» (`data/library/issues.jsonl`)
+- حالياً مسألتان **تجريبيتان وهميتان** (`I01` و`I02`) عن ممارستين خياليتين، موسومتان `TODO` و`reviewed: false`،
+  لاختبار البرمجة فقط. المسائل الحقيقية تملؤها المطوّرة من الدرر السنية وكوانبيديا والجمهرة، مع رابط كل مصدر.
 
 ## الأصول البصرية
 - أيقونة الموقع (`app/static/favicon.*`): من عمل المشروع، تُولَّد بـ `scripts/make_favicon.py` بألوان الهوية.
