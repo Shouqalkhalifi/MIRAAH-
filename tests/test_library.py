@@ -14,16 +14,17 @@ def write(tmp_path, *rows):
     return p
 
 
-def test_shipped_library_is_binbaz_fasting_book():
+def test_shipped_library_is_binbaz_books():
     issues = load_library()
-    assert [i.id for i in issues] == [f"BZ0{n}" for n in range(1, 10)]
+    assert [i.id for i in issues] == [f"BZ0{n}" for n in range(1, 10)] + [f"HJ{n:02d}" for n in range(1, 13)]
+    books = {"BZ": "https://binbaz.org.sa/books/pdf/215#page=", "HJ": "https://binbaz.org.sa/books/pdf/610#page="}
     for i in issues:
         assert not i.reviewed  # تنتظر مراجعة المطوّرة على صفحات الكتاب
-        assert all(s.url.startswith("https://binbaz.org.sa/books/pdf/215#page=") for s in i.sources)
+        assert all(s.url.startswith(books[i.id[:2]]) for s in i.sources)
         assert all(not s.translation_en for s in i.sources)  # لا ترجمة معتمدة، فلا تُخترع
         assert "TODO" not in i.title_ar
     khilaf = {i.id for i in issues if i.position.khilaf}
-    assert khilaf == {"BZ03", "BZ08"}
+    assert khilaf == {"BZ03", "BZ08", "HJ11", "HJ12"}
 
 
 def test_shipped_quotes_are_verbatim_from_their_sources():
