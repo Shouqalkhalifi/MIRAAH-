@@ -15,12 +15,13 @@
 | [pytest](https://github.com/pytest-dev/pytest) | الاختبارات | MIT |
 | [rank-bm25](https://github.com/dorianbrown/rank_bm25) | الاسترجاع BM25 في الميزان | Apache-2.0 |
 | [NumPy](https://github.com/numpy/numpy) (تبعية rank-bm25) | حساب الدرجات | BSD-3-Clause |
-| [qrcode](https://github.com/lincolnloop/python-qrcode) | رمز QR في صفحة الختم (SVG) | BSD-3-Clause |
 | [sacrebleu](https://github.com/mjpost/sacrebleu) | chrF لخط الأساس في التقييم | Apache-2.0 |
 | [python-multipart](https://github.com/Kludex/python-multipart) | استقبال نموذج «قابِل ما قرأت» | Apache-2.0 |
+| [fpdf2](https://github.com/py-pdf/fpdf2) | توليد تقرير PDF الداخلي (`app/pdf.py`) | LGPL-3.0 |
+| [uharfbuzz](https://github.com/harfbuzz/uharfbuzz) (عبر fpdf2) | تشكيل الحروف العربية واتجاهها في PDF | Apache-2.0 |
 | [Alpine.js](https://alpinejs.dev) (CDN) | تفاعل الواجهة | MIT |
 | [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | خط الواجهة | SIL Open Font License 1.1 |
-| [Amiri](https://fonts.google.com/specimen/Amiri) (Google Fonts) | النص العربي الأصلي وحده (نسخي) | SIL Open Font License 1.1 |
+| [Amiri](https://fonts.google.com/specimen/Amiri) (Google Fonts) | النص العربي الأصلي وحده (نسخي)، وخط تقرير PDF: ملفات TTF في `app/static/fonts/` مع نص الترخيص `OFL-Amiri.txt` (من github.com/google/fonts/tree/main/ofl/amiri) | SIL Open Font License 1.1 |
 | [Literata](https://fonts.google.com/specimen/Literata) (Google Fonts) | النصوص اللاتينية | SIL Open Font License 1.1 |
 
 ## الخدمات والبنية
