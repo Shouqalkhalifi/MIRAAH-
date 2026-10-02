@@ -377,13 +377,23 @@
     {% if report.locks %}
     <section>
       <h2>أقفال المعنى</h2>
-      {% set broken = report.alerts | selectattr('type.value', 'equalto', 'lock_violated') | map(attribute='source_span.text') | list %}
+      {% set lk = ui.lock_rows(report) %}
       <ul class="rows">
-        {% for l in report.locks %}
-        <li><span class="tag {{ 'tone-rubric' if l.span_text in broken else 'tone-verified' }}">{{ 'انكسر' if l.span_text in broken else 'صح' }}</span>
-          «{{ l.span_text }}» · قفل {{ lock_types[l.lock_type.value] }}</li>
+        {% for r in lk.rows %}
+        <li><span class="tag tone-{{ r.tone }}">{{ r.tag }}</span>
+          «{{ r.lock.span_text }}» · قفل {{ lock_types[r.lock.lock_type.value] }}
+          {% if r.where %}<span class="t14 muted"> · في {% for w in r.where %}<bdi dir="ltr">{{ w.label }}</bdi>{% if w.state == 'fixed' %} (حُفظ بعد التصحيح){% elif w.state == 'still' %} (ما زال منكسراً){% endif %}{{ '، ' if not loop.last }}{% endfor %}</span>{% endif %}</li>
         {% endfor %}
       </ul>
+      {% if lk.stale %}
+      <div x-data="{ busy: false, err: '' }">
+        <p class="t14 muted">صحّحتَ حلقةً كسرت قفلاً. افحص الأقفال على النص المصحَّح قبل التصدير.</p>
+        <button type="button" class="btn btn-primary" :disabled="busy"
+                @click="busy = true; err = ''; fetch('/api/report/{{ report.id }}/reexam', { method: 'POST' }).then(r => { if (!r.ok) throw 0; location.reload() }).catch(() => { err = 'تعذّر الفحص الآن. أعد المحاولة.'; busy = false })"
+                x-text="busy ? 'يفحص الأقفال على النص المصحَّح…' : 'أعد فحص الأقفال على النص المصحَّح'">أعد فحص الأقفال على النص المصحَّح</button>
+        <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
+      </div>
+      {% endif %}
     </section>
     {% endif %}
   </div>

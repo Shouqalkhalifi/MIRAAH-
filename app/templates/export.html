@@ -91,6 +91,15 @@
     {% endfor %}
   </section>
 
+  {% if d.locks %}
+  <section>
+    <h2>أقفال المعنى</h2>
+    {% for lk in d.locks %}
+    <p><b>[{{ lk.status_ar }}]</b> «{{ lk.span_text }}» · قفل {{ lk.lock_type_ar }}{% if lk.where %} · في {% for w in lk.where %}<bdi>{{ w.label }}</bdi>{{ '، ' if not loop.last }}{% endfor %}{% endif %}</p>
+    {% endfor %}
+  </section>
+  {% endif %}
+
   <footer>{{ d.disclaimer }}.</footer>
 </main>
 </body>

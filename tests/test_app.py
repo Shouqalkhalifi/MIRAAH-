@@ -347,6 +347,30 @@ def test_locks_end_to_end_and_validation():
     assert re.search(r'<span class="tag tone-rubric">انكسر</span>\s*«للمسافر» · قفل شرط', html)
 
 
+def test_locks_are_rechecked_on_the_corrected_text():
+    body = dict(CHAIN, locks=[{"span_text": "للمسافر", "lock_type": "condition"}])
+    rep = client.post("/api/analyze", json=body).json()
+    rid = rep["id"]
+    fix = next(a for a in rep["alerts"] if a["version_label"] == "en-summary" and a["severity"] == "red"
+               and a["version_span"]["text"])
+    assert decide(rid, fix["id"], action="edit", reason="",
+                  edited_text="A traveler may break the fast in Ramadan.").status_code == 200
+    html = client.get(f"/report/{rid}").text
+    assert "أعد فحص الأقفال على النص المصحَّح" in html
+
+    client.post(f"/api/report/{rid}/reexam")
+    saved = client.get(f"/api/report/{rid}").json()["locks_corrected"]
+    assert saved["en-summary"]["still_broken"] == []
+    html = client.get(f"/report/{rid}").text
+    assert re.search(r'<span class="tag tone-verified">حُفظ بعد التصحيح</span>\s*«للمسافر»', html)
+    assert "أعد فحص الأقفال على النص المصحَّح" not in html
+
+    assert decide(rid, fix["id"], action="edit", reason="", edited_text="Muslims may break the fast.").status_code == 200
+    client.post(f"/api/report/{rid}/reexam")
+    html = client.get(f"/report/{rid}").text
+    assert re.search(r'<span class="tag tone-rubric">ما زال منكسراً بعد التصحيح</span>\s*«للمسافر»', html)
+
+
 def test_suggest_locks_endpoint():
     r = client.post("/api/locks/suggest", json={"text": SOURCE, "lang": "ar"})
     assert r.status_code == 200

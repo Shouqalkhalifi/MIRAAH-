@@ -6,7 +6,7 @@ from typing import Callable
 from pydantic import BaseModel, Field, model_validator
 
 from app.llm import get_llm
-from app.models import MAX_VERSIONS, Lock, Report, ReportStatus, Source, Version, WitnessStats, validate_chain
+from app.models import MAX_VERSIONS, AlertType, Lock, Report, ReportStatus, Source, Version, WitnessStats, validate_chain
 from app.pipeline.align import align
 from app.pipeline import fahm, mizan, reader_exam, severity
 from app.pipeline.chain import STAGES as CHAIN_STAGES
@@ -128,29 +128,45 @@ def run_analysis(report_id: str) -> Report:
 
 
 def reexam_corrected(report_id: str) -> Report:
-    """يعيد امتحان القارئ على كل حلقة طُبّق فيها تصحيح، بالأسئلة نفسها، ليُرى هل عاد الفهم إلى فهم الأصل."""
+    """يعيد امتحان القارئ وفحص الأقفال المكسورة على كل حلقة طُبّق فيها تصحيح، ليُرى هل عاد المعنى إلى معنى الأصل."""
     from app.export import approved_text
+    from app.models import LockRecheck
 
     report = load_report(report_id)
     if report is None:
         raise KeyError(report_id)
-    exam = report.reader_exam
-    if not exam or not exam.questions:
-        return report
+    exam = report.reader_exam if report.reader_exam and report.reader_exam.questions else None
     llm = None
     for v in report.versions:
         text, applied = approved_text(report, v.label, v.text)
         if not applied:
-            exam.corrected.pop(v.label, None)
-            exam.corrected_text.pop(v.label, None)
+            if exam:
+                exam.corrected.pop(v.label, None)
+                exam.corrected_text.pop(v.label, None)
+            report.locks_corrected.pop(v.label, None)
             continue
-        if exam.corrected_text.get(v.label) == text:
-            continue
-        llm = llm or llm_factory()
-        exam.corrected[v.label] = reader_exam.answer(llm, text, v.lang, exam.questions)
-        exam.corrected_text[v.label] = text
+        if exam and exam.corrected_text.get(v.label) != text:
+            llm = llm or llm_factory()
+            exam.corrected[v.label] = reader_exam.answer(llm, text, v.lang, exam.questions)
+            exam.corrected_text[v.label] = text
+        broken = broken_locks(report, v.label)
+        prev = report.locks_corrected.get(v.label)
+        if broken and (prev is None or prev.text != text):
+            llm = llm or llm_factory()
+            check = lock_checker(llm)
+            report.locks_corrected[v.label] = LockRecheck(
+                text=text, still_broken=[l.span_text for l in broken
+                                         if not check(l, report.source.text, text, v.lang)])
+        elif not broken:
+            report.locks_corrected.pop(v.label, None)
     save_report(report)
     return report
+
+
+def broken_locks(report: Report, label: str) -> list:
+    spans = {a.source_span.text for a in report.alerts
+             if a.type == AlertType.lock_violated and a.version_label == label and a.source_span}
+    return [l for l in report.locks if l.span_text in spans]
 
 
 def revise_alert(report_id: str, alert_id: str) -> list:

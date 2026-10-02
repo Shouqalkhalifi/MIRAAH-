@@ -189,3 +189,35 @@ def status_line(report) -> dict:
         n = len(yellow)
         return {"tone": "saffron", "text": f"يُنظر · {n} {'موضع' if n == 1 else 'مواضع'}"}
     return {"tone": "verified", "text": "بلغ مقابلة"}
+
+
+def lock_rows(report) -> dict:
+    """حالة كل قفل في كل حلقة كسرته: منكسر، أو محفوظ بعد التصحيح، أو ما زال منكسراً بعد التصحيح.
+    stale = حلقة صُحّحت ولم يُعد فحص أقفالها على نصها الحالي."""
+    from app.export import approved_text
+
+    texts = {v.label: approved_text(report, v.label, v.text) for v in report.versions}
+    rows, stale = [], False
+    for lock in report.locks:
+        labels = [a.version_label for a in report.alerts
+                  if a.type == T.lock_violated and a.source_span and a.source_span.text == lock.span_text]
+        where = []
+        for lb in labels:
+            text, applied = texts.get(lb, ("", False))
+            rc = report.locks_corrected.get(lb)
+            if applied and rc and rc.text == text:
+                state = "still" if lock.span_text in rc.still_broken else "fixed"
+            else:
+                state = "broken"
+                stale = stale or applied
+            where.append({"label": lb, "state": state})
+        if not where:
+            tag = ("verified", "صح")
+        elif all(w["state"] == "fixed" for w in where):
+            tag = ("verified", "حُفظ بعد التصحيح")
+        elif any(w["state"] == "still" for w in where):
+            tag = ("rubric", "ما زال منكسراً بعد التصحيح")
+        else:
+            tag = ("rubric", "انكسر")
+        rows.append({"lock": lock, "tone": tag[0], "tag": tag[1], "where": where})
+    return {"rows": rows, "stale": stale}

@@ -237,6 +237,12 @@ class ReaderExam(BaseModel):
     corrected_text: dict[str, str] = Field(default_factory=dict)
 
 
+class LockRecheck(BaseModel):
+    """فحص الأقفال المكسورة في حلقة على نصها بعد التصحيحات المعتمدة."""
+    text: str
+    still_broken: list[str] = Field(default_factory=list)  # span_text لكل قفل لم يُحفظ بعد التصحيح
+
+
 # ---------- الصياغة الآمنة (6.10) ----------
 class Revision(BaseModel):
     style: Literal["precise", "balanced", "clear"]
@@ -310,6 +316,7 @@ class Report(BaseModel):
     decisions: dict[str, Decision] = Field(default_factory=dict)  # alert_id ← آخر قرار
     revisions: dict[str, list[Revision]] = Field(default_factory=dict)  # alert_id ← الصياغات المقترحة
     reader_exam: Optional[ReaderExam] = None
+    locks_corrected: dict[str, LockRecheck] = Field(default_factory=dict)  # label ← فحص الأقفال بعد التصحيح
     witnesses: WitnessStats = Field(default_factory=WitnessStats)
     warnings: list[str] = Field(default_factory=list)  # مراحل اختيارية تعذّرت (لا تُفشل التقرير)
     approved_at: Optional[datetime] = None

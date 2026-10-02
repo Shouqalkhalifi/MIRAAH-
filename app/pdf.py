@@ -145,4 +145,12 @@ def render(d: dict) -> bytes:
             lines.append(("بلا قرار (ليس تنبيهاً خطيراً)", 10, (154, 107, 0), False, True))
         _box(p, lines, accent=SEVERITY.get(a["severity"]))
 
+    if d.get("locks"):
+        _heading(p, "أقفال المعنى")
+        for lk in d["locks"]:
+            ok = not lk["status_ar"].startswith(("انكسر", "ما زال"))
+            where = "، ".join(w["label"] for w in lk["where"])
+            _write(p, "\u200f" + f"[{lk['status_ar']}] «{lk['span_text']}» · قفل {lk['lock_type_ar']}"
+                   + (f" · في {where}" if where else ""), 11, NAVY if ok else SEVERITY["red"])
+
     return bytes(p.output())

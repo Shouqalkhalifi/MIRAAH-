@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 from app import ui
 from app.models import Report
+from app.pipeline.locks import LOCK_TYPE_AR
 
 TITLE = "تقرير مقابلة – للاستخدام الداخلي، وليس شهادة اعتماد عامة"
 RIYADH = timezone(timedelta(hours=3), "Asia/Riyadh")  # الرياض بلا توقيت صيفي، فلا حاجة إلى tzdata
@@ -70,5 +71,8 @@ def build(r: Report, disclaimer: str) -> dict:
                    "content_level": r.source.content_level.value},
         "chain": chain,
         "alerts": alerts,
+        "locks": [{"span_text": x["lock"].span_text, "lock_type": x["lock"].lock_type.value,
+                   "lock_type_ar": LOCK_TYPE_AR[x["lock"].lock_type.value], "status_ar": x["tag"],
+                   "where": x["where"]} for x in ui.lock_rows(r)["rows"]],
         "disclaimer": disclaimer,
     }
