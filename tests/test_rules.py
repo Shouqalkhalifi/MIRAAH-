@@ -154,6 +154,30 @@ def test_number_mismatch():
     assert types(F(numbers=["6", "3"]), F(numbers=["3", "6"])) == []
 
 
+def L(lang, **kw) -> Fingerprinted:
+    f = F(**kw)
+    f.lang = lang
+    return f
+
+
+def test_cross_language_lexical_negation_is_not_flagged():
+    # «يجوز للمسافر أن يفطر» ← "permissible for a traveler not to fast": لم ينقلب المعنى
+    claim = "a traveler may break the fast in ramadan"
+    assert types(L("ar", negations=0, claim=claim), L("en", negations=1, claim=claim)) == []
+    # انقلب النفي في خلاصة المعنى أيضاً ← تنبيه
+    assert types(L("ar", negations=1, claim="selling what one does not own is not allowed"),
+                 L("en", negations=0, claim="selling what one owns is allowed")) == [T.negation_mismatch]
+    # في اللغة نفسها يبقى العدّ بالقواعد وحده
+    assert types(L("en", negations=0, claim=claim), L("en", negations=1, claim=claim)) == [T.negation_mismatch]
+
+
+def test_arabic_dual_translated_as_two_is_not_a_number_change():
+    # «ما بين الجمعتين» ← "between the two Fridays"
+    assert types(L("ar", numbers=[]), L("en", numbers=["2"])) == []
+    assert types(L("ar", numbers=["3"]), L("en", numbers=["2"])) == [T.number_mismatch]
+    assert types(L("en", numbers=[]), L("en", numbers=["2"])) == [T.number_mismatch]
+
+
 # --- length_drop ---
 def test_length_drop_same_language():
     h = length_drop("one two three four five six seven eight nine ten", "one two three", "en", "en")

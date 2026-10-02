@@ -22,11 +22,13 @@ _WORD = re.compile(r"[\w']+", re.UNICODE)
 
 
 def _strip_ar_prefix(tok: str, vocab) -> str:
-    """يزيل و/ف/ب الملتصقة إن كان الباقي في المعجم (ولا، فلم، بلا...)."""
+    """يزيل و/ف/ب/ل الملتصقة إن كان الباقي في المعجم (ولا، فلم، بلا، لغير...)."""
     if tok in vocab:
         return tok
-    if len(tok) > 2 and tok[0] in "وفب" and tok[1:] in vocab:
-        return tok[1:]
+    for pre in ("وب", "ول", "فل", "و", "ف", "ب", "ل"):
+        rest = tok[len(pre):]
+        if tok.startswith(pre) and len(rest) >= 2 and rest in vocab:
+            return rest
     return tok
 
 
@@ -37,18 +39,19 @@ def count_negations(text: str) -> int:
     if fr_ne and "que" in toks and not _FR_NEG_PARTNERS & set(toks):
         fr_ne = 0  # «ne ... que» حصر بمعنى "only"، لا نفي
     n = fr_ne
-    # النفي الذي يليه استثناء حصرٌ لا نفي: «لا ... إلا» / "not ... except|unless" (يقابلهما "only")
+    # النفي الذي يليه استثناء أو غاية قيدٌ لا نفي: «لا ... إلا/حتى» / "not ... except|unless|until"
+    # (يقابلها "only ... / only when")، فتُترجم إحداهما بالأخرى دون أن يتغيّر المعنى
     pending_ar = pending_en = 0
     for tok in toks:
         if tok.endswith("n't") or tok in _NEG_EN:
             n += 1
             pending_en += 1
-        elif tok in ("except", "unless") and pending_en:
+        elif tok in ("except", "unless", "until") and pending_en:
             n -= 1
             pending_en -= 1
         elif tok == "sans" or (tok == "jamais" and not fr_ne):
             n += 1
-        elif tok in ("الا", "سوي") and pending_ar:
+        elif tok in ("الا", "سوي", "حتي") and pending_ar:
             n -= 1
             pending_ar -= 1
         elif _strip_ar_prefix(tok, _NEG_AR) in _NEG_AR or (tok == "ما" and "الا" in toks):
@@ -133,6 +136,7 @@ class Fingerprinted(BaseModel):
     fp: MeaningFingerprint
     condition_quotes: list[Optional[str]] = Field(default_factory=list)
     exception_quotes: list[Optional[str]] = Field(default_factory=list)
+    lang: str = ""  # لغة النص: العدّ بالقواعد لا يُقارن بين لغتين إلا بحذر
 
 
 def verify_quote(quote: Optional[str], text: str) -> Optional[str]:
@@ -165,7 +169,9 @@ def apply_rules(raw: FingerprintLLM, text: str) -> Fingerprinted:
 def fingerprint(llm, text: str, lang: str, role: str = "main") -> Fingerprinted:
     prompt = f"Passage ({lang}):\n<<<\n{text}\n>>>"
     raw = llm.complete_json(prompt, FingerprintLLM, system=SYSTEM_FP, role=role, purpose="fingerprint")
-    return apply_rules(raw, text)
+    out = apply_rules(raw, text)
+    out.lang = lang
+    return out
 
 
 # ---------- تحقق موجّه: هل ما زال الشرط/الاستثناء موجوداً في النسخة؟ ----------

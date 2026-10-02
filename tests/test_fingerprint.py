@@ -104,3 +104,14 @@ def test_hasr_in_english_and_french_not_counted_as_negation():
     # نفي حقيقي يبقى
     assert count_negations("Il ne racontait pas") == 1
     assert count_negations("He did not narrate.") == 1
+
+
+def test_negation_with_attached_lam_and_until():
+    # من حالات الإنذار الكاذب في eval/results.md
+    assert count_negations("يُستحب صيام يوم عرفة لغير الحاج") == 1
+    assert count_negations("someone who is not on pilgrimage") == 1
+    # «لا ... حتى» و "not ... until|unless" قيدٌ يقابل "only when"
+    assert count_negations("لا تجب الزكاة في المال حتى يبلغ النصاب") == 0
+    assert count_negations("Wealth is not subject to zakat unless it reaches the nisab") == 0
+    assert count_negations("Zakat is not due until the nisab is reached") == 0
+    assert count_negations("ليتني أصوم") == 0

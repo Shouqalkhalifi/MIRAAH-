@@ -6,12 +6,13 @@ term_narrowing و lock_violated في المرحلة 2.
 from __future__ import annotations
 
 import re
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Optional
 
 from app.models import AlertType as T
 from app.models import Evidence, MeaningFingerprint, Severity
-from app.pipeline.fingerprint import Fingerprinted
+from app.pipeline.fingerprint import Fingerprinted, count_negations
 from app.text.normalize import tokens
 
 DEFAULT_SEVERITY: dict[T, Severity] = {
@@ -171,13 +172,23 @@ def compare_unit(p: Optional[Fingerprinted], c: Optional[Fingerprinted]) -> list
     for g in sorted(p_grades - c_grades):
         hits.append(Hit(T.hadith_grade_dropped, "hadith_mentions.grade_stated", g, "", match_key=g))
 
-    if pf.negations != cf.negations:  # محسوبة بالقواعد؛ الصياغة قد تغيّرها فالثقة أقل
+    cross = bool(p.lang and c.lang and p.lang != c.lang)
+    # محسوبة بالقواعد. بين لغتين يُعبَّر عن النفي كثيراً بلفظ مقابل («يفطر» = "not fast")، فلا يُنبَّه
+    # إلا إن انقلب النفي في خلاصة المعنى أيضاً (claim بالإنجليزية في البصمتين)
+    if pf.negations != cf.negations and (
+            not cross or count_negations(pf.claim) != count_negations(cf.claim)):
         hits.append(Hit(T.negation_mismatch, "negations", str(pf.negations), str(cf.negations), confidence=0.6))
 
-    if sorted(pf.numbers) != sorted(cf.numbers):
+    if sorted(pf.numbers) != sorted(cf.numbers) and not (cross and _only_dual(pf.numbers, cf.numbers)):
         hits.append(Hit(T.number_mismatch, "numbers", "، ".join(pf.numbers) or "لا شيء",
                         "، ".join(cf.numbers) or "لا شيء", confidence=0.9))
     return hits
+
+
+def _only_dual(a: list[str], b: list[str]) -> bool:
+    """الفرق «2» وحده: المثنى العربي («الجمعتين») يُترجم "the two Fridays" بلا لفظ عدد في الأصل."""
+    diff = (Counter(a) - Counter(b)) + (Counter(b) - Counter(a))
+    return bool(diff) and set(diff) == {"2"}
 
 
 def length_drop(parent_text: str, child_text: str, parent_lang: str, child_lang: str) -> Optional[Hit]:
