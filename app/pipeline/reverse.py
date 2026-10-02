@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 
 from app.library import RULING_AR, RULING_TO_FP, Issue, default_library
 from app.models import MeaningFingerprint, Verification
-from app.pipeline import mizan
+from app.pipeline import fahm, mizan
 from app.pipeline.fingerprint import fingerprint, verify_quote
 from app.pipeline.rules import phrases_match
 from app.text.normalize import normalize_ar
@@ -32,6 +32,7 @@ MAX_CHARS = 1000
 PERSONAL_AR = "مِرآة لا تجيب عن حالات شخصية ولا تُصدر فتوى. اعرض سؤالك على مفتٍ أو جهة إفتاء معتمدة."
 OUT_OF_SCOPE_AR = "هذا خارج نطاق مِرآة: هي تقابل ما يُكتب عن المسائل الإسلامية بمصادرها في مكتبتها."
 NO_REFERENCE_AR = "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة."
+NOTES_ONLY_AR = "المسألة ليست في مكتبة مِرآة، لكن في نصك ما تقابله مدونتها:"
 KHILAF_REFERRAL_AR = "هذه مسألة خلافية تذكر المصادر فيها أكثر من قول. للترجيح في حالتك ارجع إلى مختص."
 OVERCLAIM_AR = "زيادة: ادعاء اتفاق غير ثابت"
 FOOTER_AR = "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى"
@@ -48,6 +49,14 @@ class Finding(BaseModel):
     mark: Literal["لحق", "زيادة", "تغيّر", "يُنظر"]
     text_ar: str
     tone: Literal["rubric", "saffron"] = "saffron"
+
+
+class TermNote(BaseModel):
+    """ضابط مصطلح من المدونة (قاموس الحزمة العلمية) ورد في نص القارئ."""
+    id: str
+    rule_ar: str
+    source_name: str
+    avoided: Optional[str] = None  # ترجمة يمنعها الضابط وردت في النص
 
 
 class ReverseResult(BaseModel):
@@ -68,6 +77,7 @@ class ReverseResult(BaseModel):
     diff_quote: Optional[str] = None  # موضع الاختلاف في نص المستخدم (حرفي)
     fingerprint: Optional[MeaningFingerprint] = None
     verifications: list[Verification] = Field(default_factory=list)
+    terms: list[TermNote] = Field(default_factory=list)
     referral_ar: Optional[str] = None
     elapsed_ms: int = 0
 
@@ -281,22 +291,39 @@ def run_reverse(llm, text: str, issues=None, presence_fn: Optional[PresenceFn] =
     kind = classify(llm, text)
     if kind == "personal":  # عبارة ثابتة وإحالة، دون أي تحليل
         return done(kind=kind, verdict="referral", headline_ar=PERSONAL_AR, tone="ink", referral_ar=PERSONAL_AR)
+
+    # فحوص حتمية من المدونة تعمل وإن لم تكن المسألة في المكتبة: آية أو حديث منسوب، ومصطلح من قاموس الحزمة
+    notes = dict(verifications=mizan.verify(text, "reader", 0), terms=term_notes(text))
+    has_notes = bool(notes["verifications"] or notes["terms"])
     if kind == "out_of_scope":
-        return done(kind=kind, verdict="out_of_scope", headline_ar=OUT_OF_SCOPE_AR, tone="muted")
+        return done(kind=kind, verdict="out_of_scope", headline_ar=NOTES_ONLY_AR if has_notes else OUT_OF_SCOPE_AR,
+                    tone="ink" if has_notes else "muted", **notes)
 
     issue, conf, cand_ids = retrieve(llm, text, issues)
     if issue is None:
-        return done(kind=kind, verdict="no_reference", headline_ar=NO_REFERENCE_AR, tone="muted",
-                    match_confidence=conf, candidates=cand_ids, referral_ar=NO_REFERENCE_AR)
+        return done(kind=kind, verdict="no_reference", headline_ar=NOTES_ONLY_AR if has_notes else NO_REFERENCE_AR,
+                    tone="ink" if has_notes else "muted", match_confidence=conf, candidates=cand_ids,
+                    referral_ar=NO_REFERENCE_AR, **notes)
 
     referral = KHILAF_REFERRAL_AR if issue.position.khilaf else None
     if kind == "question":  # نصوص المصدر وترجمتها المعتمدة فقط، بلا حكم من النموذج
         return done(kind=kind, verdict="sources_only", headline_ar="نصوص المصدر في هذه المسألة", tone="ink",
-                    issue=issue, match_confidence=conf, candidates=cand_ids, referral_ar=referral)
+                    issue=issue, match_confidence=conf, candidates=cand_ids, referral_ar=referral, **notes)
 
     fp = fingerprint(llm, text, lang).fp
     verdict, headline, tone, findings = compare(fp, issue, text, lang, presence_fn)
     explanation, removed, diff = explain(llm, text, issue, headline, issues)
     return done(kind=kind, verdict=verdict, headline_ar=headline, tone=tone, issue=issue, match_confidence=conf,
                 candidates=cand_ids, findings=findings, explanation_ar=explanation, explanation_removed=removed,
-                diff_quote=diff, fingerprint=fp, verifications=mizan.verify(text, "reader", 0), referral_ar=referral)
+                diff_quote=diff, fingerprint=fp, referral_ar=referral, **notes)
+
+
+_ABOUT_TERM = re.compile(r"معني|تعريف|ترجم|يعني|مفهوم|ما هو|ما هي|\bmean|\btranslat|\bdefin|\bwhat (is|does)\b",
+                         re.IGNORECASE)
+
+
+def term_notes(text: str) -> list[TermNote]:
+    """ضابط المصطلح يظهر إن ورد فيه ما يمنعه الضابط، أو سُئل عن معنى المصطلح أو ترجمته (لا لكل ذكر عابر له)."""
+    about = bool(_ABOUT_TERM.search(normalize_ar(text)))
+    return [TermNote(id=item.id, rule_ar=item.text_ar, source_name=item.source_name, avoided=bad)
+            for item, bad in fahm.terms_mentioned(text) if bad or about]

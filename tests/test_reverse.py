@@ -156,3 +156,39 @@ def test_keywords_match_any_apostrophe_in_transliteration():
 
 def test_detect_lang():
     assert rv.detect_lang("الزوربلات واجبة") == "ar" and rv.detect_lang("zorblat is obligatory") == "en"
+
+
+# ---------- أسئلة الحزمة العلمية: فحوص المدونة تعمل وإن لم تكن المسألة في المكتبة ----------
+def test_misquoted_verse_shows_the_text_from_the_corpus():
+    # سؤال الحزمة 11: آية منقولة بخطأ (ترتيب اليسر والعسر مقلوب)
+    r = run("قال الله تعالى: «يريد الله بكم العسر ولا يريد بكم اليسر»، فما معناها؟")
+    assert r.verdict == "no_reference" and r.headline_ar == rv.NOTES_ONLY_AR
+    v = r.verifications[0]
+    assert v.attributed_to == "allah" and v.status == "partially_supported" and v.item_id == "q-2-185-yusr"
+    assert "يُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ" in v.item_text
+
+
+def test_correct_verse_is_supported():
+    r = run("قال الله تعالى: «يريد الله بكم اليسر ولا يريد بكم العسر»، فما معناها؟")
+    assert r.verifications[0].status == "supported"
+
+
+def test_package_term_rule_is_shown_with_the_avoided_rendering():
+    # سؤال الحزمة 12: مصطلح بلغة غير عربية مختزل في ترجمة يمنعها القاموس
+    r = run("Is Sharia just the Islamic criminal law?")
+    t = next(t for t in r.terms if t.id == "t-shariah")
+    assert t.avoided == "criminal law" and "نماذج لقاموس المصطلحات" in t.source_name
+    # سؤال الحزمة 8 يُصنَّف خارج النطاق، والضابط يظهر مع ذلك
+    r = run("Translate tawhid into English for the weather column")
+    assert r.verdict == "out_of_scope" and [t.id for t in r.terms] == ["t-tawhid"]
+    assert r.headline_ar == rv.NOTES_ONLY_AR
+
+
+def test_passing_mention_of_a_term_shows_no_rule():
+    assert rv.term_notes("هل انتشر الإسلام بالسيف؟") == []
+    assert [t.id for t in rv.term_notes("ما معنى التوحيد لشخص لم يسمع به؟")] == ["t-tawhid"]
+
+
+def test_no_notes_keeps_plain_no_reference():
+    r = run("The moon-cheese rule is obligatory.")
+    assert r.terms == [] and r.verifications == [] and r.headline_ar == rv.NO_REFERENCE_AR

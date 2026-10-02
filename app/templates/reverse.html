@@ -106,7 +106,32 @@
   </section>
   {% endif %}
 
-  {% for v in r.verifications %}<p class="rv-alert">«<bdi>{{ v.quote }}</bdi>» · {{ v.note_ar }}</p>{% endfor %}
+  {% if r.verifications or r.terms %}
+  <section class="rv-card" aria-labelledby="rv-notes">
+    <h2 id="rv-notes" class="rv-h">من مدونة مِرآة</h2>
+    {% for v in r.verifications %}
+    <div class="rv-note">
+      <p class="rv-alert">«<bdi>{{ v.quote }}</bdi>» (منسوب إلى {{ 'الله تعالى' if v.attributed_to == 'allah' else 'النبي ﷺ' }}) · {{ v.note_ar }}</p>
+      {% if v.item_text and v.status != 'supported' %}
+      <blockquote class="rv-quote">
+        <p class="rv-sub">النص كما في المدونة</p>
+        <p class="ar-source" dir="rtl">{{ v.item_text }}</p>
+        <footer class="rv-pills"><span class="rv-pill">{{ v.source_name }}</span>
+          {% if v.source_url %}<a class="rv-pill rv-pill-link" href="{{ v.source_url }}" target="_blank" rel="noopener">افتح المصدر ↗</a>{% endif %}</footer>
+      </blockquote>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% for t in r.terms %}
+    <blockquote class="rv-quote">
+      <p class="rv-sub">ضابط المصطلح</p>
+      <p dir="rtl">{{ t.rule_ar }}</p>
+      {% if t.avoided %}<p class="rv-alert">في نصك «<bdi>{{ t.avoided }}</bdi>»، والضابط لا يختزل المصطلح فيها.</p>{% endif %}
+      <footer class="rv-pills"><span class="rv-pill">{{ t.source_name }}</span></footer>
+    </blockquote>
+    {% endfor %}
+  </section>
+  {% endif %}
 </section>
 
 <p class="rv-bridge">هل أنت كاتب هذا النص أو مترجمه؟ <a href="/new">راجِعه قبل النشر</a>: تقارن نسختك بالأصل وتصحّحها بنفسك.</p>

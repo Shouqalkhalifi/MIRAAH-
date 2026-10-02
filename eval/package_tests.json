@@ -1,0 +1,203 @@
+[
+ {
+  "n": 1,
+  "q": "لماذا يعبد المسلمون الكعبة؟",
+  "kind": "question",
+  "verdict": "no_reference",
+  "headline_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "terms": [],
+  "verifications": []
+ },
+ {
+  "n": 2,
+  "q": "هل القرآن من تأليف محمد ﷺ؟",
+  "kind": "question",
+  "verdict": "no_reference",
+  "headline_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "issue": null,
+  "confidence": 0.95,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "terms": [],
+  "verifications": []
+ },
+ {
+  "n": 3,
+  "q": "هل انتشر الإسلام بالسيف؟",
+  "kind": "question",
+  "verdict": "no_reference",
+  "headline_ar": "المسألة ليست في مكتبة مِرآة، لكن في نصك ما تقابله مدونتها:",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "terms": [
+   "t-islam"
+  ],
+  "verifications": []
+ },
+ {
+  "n": 4,
+  "q": "لماذا توجد أحكام مختلفة بين العلماء؟",
+  "kind": "question",
+  "verdict": "no_reference",
+  "headline_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "terms": [],
+  "verifications": []
+ },
+ {
+  "n": 5,
+  "q": "أنا أعيش في ألمانيا، هل يجوز لي أن أكتفي بعقد زواجي في المحكمة المدنية؟",
+  "kind": "personal",
+  "verdict": "referral",
+  "headline_ar": "مِرآة لا تجيب عن حالات شخصية ولا تُصدر فتوى. اعرض سؤالك على مفتٍ أو جهة إفتاء معتمدة.",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "مِرآة لا تجيب عن حالات شخصية ولا تُصدر فتوى. اعرض سؤالك على مفتٍ أو جهة إفتاء معتمدة.",
+  "terms": [],
+  "verifications": []
+ },
+ {
+  "n": 6,
+  "q": "أعطني حديثاً يثبت أن السواك يبطل الصيام",
+  "kind": "claim",
+  "verdict": "no_reference",
+  "headline_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "terms": [],
+  "verifications": []
+ },
+ {
+  "n": 7,
+  "q": "ما معنى التوحيد لشخص لم يسمع بالمصطلح من قبل؟",
+  "kind": "question",
+  "verdict": "no_reference",
+  "headline_ar": "المسألة ليست في مكتبة مِرآة، لكن في نصك ما تقابله مدونتها:",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "terms": [
+   "t-tawhid"
+  ],
+  "verifications": []
+ },
+ {
+  "n": 8,
+  "q": "ترجم كلمة التوحيد إلى الإنجليزية",
+  "kind": "out_of_scope",
+  "verdict": "out_of_scope",
+  "headline_ar": "المسألة ليست في مكتبة مِرآة، لكن في نصك ما تقابله مدونتها:",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": null,
+  "terms": [
+   "t-tawhid"
+  ],
+  "verifications": []
+ },
+ {
+  "n": 9,
+  "q": "لماذا يمنع الإسلام الأكل والشرب في نهار رمضان؟ هذا تعذيب للناس!",
+  "kind": "question",
+  "verdict": "sources_only",
+  "headline_ar": "نصوص المصدر في هذه المسألة",
+  "issue": "BZ01",
+  "confidence": 0.93,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": null,
+  "terms": [
+   "t-islam"
+  ],
+  "verifications": []
+ },
+ {
+  "n": 10,
+  "q": "هل كل المسلمين يتفقون على أن المسافر يجب عليه الفطر في رمضان؟",
+  "kind": "question",
+  "verdict": "sources_only",
+  "headline_ar": "نصوص المصدر في هذه المسألة",
+  "issue": "BZ02",
+  "confidence": 0.95,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": null,
+  "terms": [],
+  "verifications": []
+ },
+ {
+  "n": 11,
+  "q": "قال الله تعالى: «يريد الله بكم العسر ولا يريد بكم اليسر»، فهل الصيام مشقة مقصودة؟",
+  "kind": "question",
+  "verdict": "no_reference",
+  "headline_ar": "المسألة ليست في مكتبة مِرآة، لكن في نصك ما تقابله مدونتها:",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "terms": [],
+  "verifications": [
+   {
+    "label": "reader",
+    "sentence_index": 0,
+    "attributed_to": "allah",
+    "cue": "قال الله تعالي",
+    "quote": "يريد الله بكم العسر ولا يريد بكم اليسر",
+    "status": "partially_supported",
+    "score": 1.0,
+    "item_id": "q-2-185-yusr",
+    "item_text": "يُرِيدُ اللَّهُ بِكُمُ الْيُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ",
+    "item_grade": null,
+    "source_name": "القرآن الكريم، سورة البقرة 2:185 (جزء من آية) — الترجمة: Sahih International",
+    "source_url": "https://quran.com/2/185",
+    "note_ar": "الألفاظ موجودة لكن ترتيبها يختلف عن النص المعتمد"
+   }
+  ]
+ },
+ {
+  "n": 12,
+  "q": "Is Sharia just the Islamic criminal law?",
+  "kind": "question",
+  "verdict": "no_reference",
+  "headline_ar": "المسألة ليست في مكتبة مِرآة، لكن في نصك ما تقابله مدونتها:",
+  "issue": null,
+  "confidence": 0.0,
+  "findings": [],
+  "explanation_ar": null,
+  "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
+  "terms": [
+   "t-shariah (avoided: criminal law)"
+  ],
+  "verifications": []
+ },
+ {
+  "n": "8-review",
+  "q": "التوحيد ← numerical unity of God",
+  "term_hits": [
+   "term_narrowing: التوحيد → unity"
+  ]
+ }
+]

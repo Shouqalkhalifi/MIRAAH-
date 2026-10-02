@@ -49,6 +49,23 @@ def term_hits(parent_text: str, child_text: str, rules: list[CorpusItem] | None 
     return hits
 
 
+def _names(item: CorpusItem) -> list[str]:
+    """«التوحيد (Tawhid / Oneness of God): ...» ← ["التوحيد", "Tawhid", "Oneness of God"] مع صيغه في trigger_forms."""
+    ar = item.text_ar.split("(", 1)[0].strip() if "(" in item.text_ar else ""
+    head = item.text_en.split(":", 1)[0] if ":" in item.text_en else ""
+    return [*item.trigger_forms, *([ar] if ar else []), *(n.strip() for n in head.split("/") if len(n.strip()) > 2)]
+
+
+def terms_mentioned(text: str, items: list[CorpusItem] | None = None) -> list[tuple[CorpusItem, Optional[str]]]:
+    """المصطلحات المذكورة في نص (بالعربية أو باسمها الإنجليزي)، مع أي ترجمة يمنعها ضابطها وردت فيه."""
+    out = []
+    for item in [i for i in load_corpus() if i.type == "term"] if items is None else items:
+        if any(_find(f, text) for f in _names(item)):
+            bad = next((_find(r, text) for r in item.avoid_renderings if _find(r, text)), None)
+            out.append((item, bad))
+    return out
+
+
 # ---------- مخاطر الفهم المحتملة ----------
 SYSTEM_RISKS = """You review a short passage of Islamic content in Arabic for POSSIBLE misunderstandings a general reader might form. You are not a mufti: never issue a ruling, never add knowledge, sources or rulings from memory, and never assume anything about the reader's religion, identity, gender, nationality or background.
 

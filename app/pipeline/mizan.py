@@ -83,6 +83,25 @@ def containment(query: list[str], doc: list[str]) -> float:
     return sum(1 for t in query if t in d) / len(query)
 
 
+def in_order(quote: str, item: CorpusItem) -> bool:
+    """كلمات الاقتباس الموجودة في النص المعتمد تأتي فيه بالترتيب نفسه (تُتجاهل الكلمات الزائدة)."""
+    q = tokens(quote)
+    for doc in (tokens(item.text_ar), tokens(item.text_en)):
+        common = [t for t in q if t in set(doc)]
+        if not common:
+            continue
+        pos, ok = 0, True
+        for t in common:
+            try:
+                pos = doc.index(t, pos) + 1
+            except ValueError:
+                ok = False
+                break
+        if ok:
+            return True
+    return False
+
+
 @lru_cache(maxsize=1)
 def default_mizan() -> Mizan:
     return Mizan(load_corpus())
@@ -130,8 +149,10 @@ def verify(text: str, label: str, sentence_index: int, mizan: Mizan | None = Non
             stated = _stated_grade(text)
             if it.grade in ("daif", "mawdu") or (stated and it.grade and stated != it.grade):
                 v.status, v.note_ar = "conflicting", f"وُجد النص في المدونة ودرجته فيها: {it.grade}"
-            elif best.containment >= SUPPORTED_AT:
+            elif best.containment >= SUPPORTED_AT and in_order(quote or text, it):
                 v.status, v.note_ar = "supported", "النص موجود في المدونة المحلية"
+            elif best.containment >= SUPPORTED_AT:  # الألفاظ نفسها بترتيب آخر قد تقلب المعنى (اليسر ↔ العسر)
+                v.status, v.note_ar = "partially_supported", "الألفاظ موجودة لكن ترتيبها يختلف عن النص المعتمد"
             else:
                 v.status, v.note_ar = "partially_supported", "تطابق جزئي: الصياغة تختلف عن النص المعتمد"
         elif to == "allah":
