@@ -223,3 +223,11 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .rv-details summary { cursor: pointer; min-height: 44px; display: list-item; color: var(--muted); }
 .rv-foot { position: sticky; bottom: 0; margin: 2rem -1rem -3rem; padding: .7rem 1rem; background: var(--ink); color: var(--white); font-size: var(--t14); text-align: center; border-top: 3px solid var(--identity); }
 @media (max-width: 1023px) { .rv-grid { grid-template-columns: 1fr; gap: 1.25rem; } }
+
+/* الشريط العلوي على الشاشات الضيقة: أسماء الروابط في سطر واحد */
+.topnav a { white-space: nowrap; }
+@media (max-width: 520px) {
+  .topbar-in { gap: .5rem; padding-inline: .75rem; }
+  .brand small { display: none; }
+  .topnav a { padding: .5rem .5rem; font-size: var(--t14); }
+}

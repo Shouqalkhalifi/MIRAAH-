@@ -159,6 +159,11 @@ def retrieve(llm, text: str, issues) -> tuple[Optional[Issue], float, list[str]]
 PresenceFn = Callable[[str, str, str, str, str], Optional[str]]
 
 
+def _iso(s: str) -> str:
+    """يعزل عبارة (قد تكون لاتينية) داخل جملة عربية: FSI … PDI، فلا يختل ترتيب العرض."""
+    return "\N{FIRST STRONG ISOLATE}" + s + "\N{POP DIRECTIONAL ISOLATE}"
+
+
 def compare(fp: MeaningFingerprint, issue: Issue, text: str, lang: str,
             presence_fn: Optional[PresenceFn]) -> tuple[Verdict, str, str, list[Finding]]:
     """يقارن بصمة العبارة بموقف المصدر بقواعد حتمية. يعيد (الحكم، العنوان، النبرة، الملاحظات)."""
@@ -190,14 +195,14 @@ def compare(fp: MeaningFingerprint, issue: Issue, text: str, lang: str,
 
     for c in pos.conditions:
         if not kept(c, fp.conditions + ([fp.scope.restricted_to] if fp.scope.restricted_to else []), "condition"):
-            findings.append(Finding(mark="لحق", text_ar=f"سقط شرط يذكره المصدر: {c}"))
+            findings.append(Finding(mark="لحق", text_ar=f"سقط شرط يذكره المصدر: {_iso(c)}"))
             missing.append("شرط")
     for e in pos.exceptions:
         if not kept(e, fp.exceptions, "exception"):
-            findings.append(Finding(mark="لحق", text_ar=f"سقط استثناء يذكره المصدر: {e}"))
+            findings.append(Finding(mark="لحق", text_ar=f"سقط استثناء يذكره المصدر: {_iso(e)}"))
             missing.append("استثناء")
     if pos.scope and fp.scope.quantifier == "all" and not fp.scope.restricted_to:
-        findings.append(Finding(mark="تغيّر", text_ar=f"اتسع النطاق: المصدر يقصره على {pos.scope}."))
+        findings.append(Finding(mark="تغيّر", text_ar=f"اتسع النطاق: المصدر يقصره على {_iso(pos.scope)}."))
         missing.append("نطاق")
     if fp.consensus_claim == "ijma":
         findings.append(Finding(mark="زيادة", tone="rubric", text_ar="تدّعي العبارة الإجماع، والمصدر لا يذكره."))

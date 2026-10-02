@@ -3,8 +3,7 @@
 {% block content %}
 {% set ruling_ar = {'obligatory': 'واجب', 'recommended': 'مستحب', 'permissible': 'مباح', 'disliked': 'مكروه', 'forbidden': 'محرّم', 'none': 'لا يذكر حكماً'} %}
 {% set type_ar = {'quran': 'قرآن', 'hadith': 'حديث', 'fiqh': 'فقه', 'term': 'مصطلح'} %}
-{% include "_modes.html" %}
-
+{% macro rv_form() %}
 <form method="post" action="/reverse" class="rv-form" x-data="{ text: {{ text | tojson | forceescape }}, sending: false }" @submit="sending = true">
   <label class="lbl" for="rv-text">الصق ما قرأته أو اكتب سؤالك</label>
   <textarea id="rv-text" name="text" class="field" rows="3" dir="auto" maxlength="1000" x-model="text"
@@ -18,6 +17,10 @@
     </span>
   </div>
 </form>
+{% endmacro %}
+{% include "_modes.html" %}
+
+{% if not result %}{{ rv_form() }}{% endif %}
 {% if error %}<p class="banner rubric" role="alert">{{ error }}</p>{% endif %}
 
 {% if result %}{% set r = result %}
@@ -90,5 +93,11 @@
 </section>
 {% endif %}
 
+{% if result %}
+<details class="rv-details" style="margin-top:2rem"{% if error %} open{% endif %}>
+  <summary>قابِل نصاً آخر</summary>
+  {{ rv_form() }}
+</details>
+{% endif %}
 <p class="rv-foot" role="note">{{ footer_ar }}</p>
 {% endblock %}
