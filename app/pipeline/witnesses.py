@@ -30,6 +30,7 @@ TYPE_AR = {
     T.attribution_upgraded: "جزم بعد تمريض", T.new_prophetic_attribution: "نسبة جديدة إلى النبي ﷺ",
     T.ruling_shift: "تغيّر الحكم", T.scope_widened: "اتساع النطاق", T.scope_narrowed: "تضييق النطاق",
     T.hasr_lost: "سقوط الحصر", T.consensus_inflated: "تضخيم دعوى الإجماع", T.hadith_grade_dropped: "حذف درجة الحديث",
+    T.disagreement_collapsed: "انهيار الخلاف إلى قطع", T.attribution_generalized: "تعميم النسبة إلى الإسلام",
 }
 
 

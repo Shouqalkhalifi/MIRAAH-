@@ -114,6 +114,27 @@ def test_consensus_deflated_not_flagged():
     assert types(F(consensus_claim="ijma"), F(consensus_claim="majority")) == []
 
 
+# --- disagreement_collapsed (الحزمة العلمية: لا يُعرض الخلافي بصيغة القطع) ---
+def test_disagreement_collapsed_into_a_definite_ruling():
+    hits = compare_unit(F(disagreement_stated=True, certainty="unstated"),
+                        F(certainty="unstated"))
+    assert [h.type for h in hits] == [T.disagreement_collapsed] and hits[0].severity == Severity.red
+
+
+def test_disagreement_kept_is_fine():
+    assert types(F(disagreement_stated=True), F(disagreement_stated=True)) == []
+
+
+# --- attribution_generalized ---
+@pytest.mark.parametrize("before", ["scholar", "companion", "author"])
+def test_opinion_attributed_to_islam_itself(before):
+    assert types(F(attribution={"to": before}), F(attribution={"to": "religion"})) == [T.attribution_generalized]
+
+
+def test_religion_to_religion_not_flagged():
+    assert types(F(attribution={"to": "religion"}), F(attribution={"to": "religion"})) == []
+
+
 # --- hadith_grade_dropped ---
 def test_hadith_grade_dropped():
     p = F(hadith_mentions=[{"snippet": "x", "grade_stated": "daif"}])

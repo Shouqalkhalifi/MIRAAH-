@@ -54,6 +54,8 @@ class AlertType(str, Enum):
     scope_narrowed = "scope_narrowed"
     hasr_lost = "hasr_lost"
     consensus_inflated = "consensus_inflated"
+    disagreement_collapsed = "disagreement_collapsed"
+    attribution_generalized = "attribution_generalized"
     hadith_grade_dropped = "hadith_grade_dropped"
     negation_mismatch = "negation_mismatch"
     number_mismatch = "number_mismatch"
@@ -102,7 +104,7 @@ class Lock(BaseModel):
 
 # ---------- بصمة المعنى (6.2) ----------
 class Attribution(BaseModel):
-    to: Literal["allah", "prophet", "companion", "scholar", "author", "none"] = "none"
+    to: Literal["allah", "prophet", "companion", "scholar", "religion", "author", "none"] = "none"
     form: Literal["assertive", "tamrid", "none"] = "none"
 
 
@@ -130,6 +132,7 @@ class MeaningFingerprint(BaseModel):
     quran_refs: list[str] = Field(default_factory=list)
     hadith_mentions: list[HadithMention] = Field(default_factory=list)
     consensus_claim: Literal["none", "some_scholars", "majority", "ijma"] = "none"
+    disagreement_stated: bool = False  # «اختلف العلماء»، «في المسألة خلاف»
     key_terms: list[str] = Field(default_factory=list)
 
 

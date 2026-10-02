@@ -25,6 +25,8 @@ DEFAULT_SEVERITY: dict[T, Severity] = {
     T.scope_narrowed: Severity.yellow,
     T.hasr_lost: Severity.yellow,
     T.consensus_inflated: Severity.red,
+    T.disagreement_collapsed: Severity.red,
+    T.attribution_generalized: Severity.red,
     T.hadith_grade_dropped: Severity.red,
     T.negation_mismatch: Severity.red,
     T.number_mismatch: Severity.red,
@@ -157,6 +159,13 @@ def compare_unit(p: Optional[Fingerprinted], c: Optional[Fingerprinted]) -> list
     if pr >= 1 and cr > pr:
         hits.append(Hit(T.consensus_inflated, "consensus_claim", pf.consensus_claim, cf.consensus_claim))
 
+    # الحزمة العلمية: «لا تُعرض المسائل الخلافية والاجتهادية بصيغة القطع»
+    if pf.disagreement_stated and not cf.disagreement_stated:
+        hits.append(Hit(T.disagreement_collapsed, "disagreement_stated", "true", cf.certainty))
+
+    if pf.attribution.to in ("scholar", "companion", "author") and cf.attribution.to == "religion":
+        hits.append(Hit(T.attribution_generalized, "attribution.to", pf.attribution.to, "religion"))
+
     p_grades = {h.grade_stated for h in pf.hadith_mentions} - {"none"}
     c_grades = {h.grade_stated for h in cf.hadith_mentions} - {"none"}
     for g in sorted(p_grades - c_grades):
@@ -189,7 +198,7 @@ _AR = {
     "forbidden": "محرّم", "none": "لا شيء", "all": "عام للجميع", "some": "بعض الناس", "specific": "فئة محددة",
     "unspecified": "غير محدد", "some_scholars": "بعض العلماء", "majority": "الجمهور", "ijma": "الإجماع",
     "prophet": "النبي ﷺ", "allah": "الله تعالى", "companion": "صحابي", "scholar": "عالم أو قول مأثور",
-    "author": "كلام الكاتب", "sahih": "صحيح", "hasan": "حسن", "daif": "ضعيف",
+    "author": "كلام الكاتب", "religion": "الإسلام نفسه", "sahih": "صحيح", "hasan": "حسن", "daif": "ضعيف",
 }
 
 TEMPLATES: dict[T, tuple[str, str]] = {
@@ -213,6 +222,10 @@ TEMPLATES: dict[T, tuple[str, str]] = {
                   "أداة الحصر تقصر الحكم على أمر واحد. سقوطها يفتح الباب لغيره."),
     T.consensus_inflated: ("ارتفعت دعوى الاتفاق من «{before}» إلى «{after}».",
                            "القول بأن المسألة إجماع أو قول الجمهور يختلف عن كونها قول بعض العلماء. المبالغة فيه تُخفي خلافاً معتبراً."),
+    T.disagreement_collapsed: ("الأصل يذكر أن في المسألة خلافاً بين العلماء، والنسخة تعرضها بلا خلاف (درجة اليقين فيها: «{after}»).",
+                               "المسألة الخلافية إذا عُرضت قولاً واحداً ظن القارئ أنها محسومة. الحزمة العلمية للتحدي تمنع عرض الاجتهادي بصيغة القطع."),
+    T.attribution_generalized: ("القول في الأصل منسوب إلى «{before}»، والنسخة تنسبه إلى الإسلام نفسه.",
+                                "رأي عالم أو كاتب ليس حكماً للإسلام كله. تعميم النسبة يحمّل الدين قولاً لم يثبت أنه قوله."),
     T.hadith_grade_dropped: ("حُذفت درجة الحديث المذكورة في الأم («{before}»).",
                              "درجة الحديث تبيّن مدى ثبوته. حذفها قد يجعل القارئ يظن الضعيف صحيحاً."),
     T.negation_mismatch: ("عدد أدوات النفي {before} في الأم و{after} في النسخة (عدٌّ آلي بالقواعد).",

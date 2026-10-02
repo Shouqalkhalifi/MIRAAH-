@@ -92,7 +92,7 @@ SYSTEM_FP = """You extract a "meaning fingerprint" from a short passage of Islam
 Describe ONLY what the passage itself says. Never add knowledge, rulings, sources, grades or context from memory. If a field is not expressed, use its empty/none value.
 
 Fields:
-- attribution.to: who the passage attributes its statement to: "allah" (Quran / Allah said), "prophet" (the Prophet ﷺ said or did), "companion", "scholar" (an imam, a named or unnamed scholar, "some scholars", a proverb or saying of the predecessors), "author" (the writer's own statement, not attributed to anyone), "none".
+- attribution.to: who the passage attributes its statement to: "allah" (Quran / Allah said), "prophet" (the Prophet ﷺ said or did), "companion", "scholar" (an imam, a named or unnamed scholar, "some scholars", a proverb or saying of the predecessors), "religion" (the statement is presented as the position of Islam itself: الإسلام يحرّم، في الإسلام، الشريعة تقول، "Islam forbids", "in Islam"), "author" (the writer's own statement, not attributed to anyone), "none".
 - attribution.form: "tamrid" when the attribution uses weakening/reporting wording (رُوي، يُروى، قيل، يُذكر، يُحكى، "it is reported", "it is said", "reportedly"); "assertive" when attributed directly (قال، ثبت، صح، "said", "it is established", or a plain statement of fact about the person); "none" when attribution.to is "author" or "none".
 - claim: one short neutral English paraphrase of the core statement (max 15 words).
 - ruling: the legal category stated by the wording: يجب/فرض/must/obligatory -> "obligatory"; يستحب/يسن/recommended -> "recommended"; يجوز/يباح/may/permissible -> "permissible"; يكره/disliked -> "disliked"; يحرم/لا يجوز/forbidden/must not -> "forbidden"; otherwise "none".
@@ -107,6 +107,7 @@ Fields:
 - quran_refs: Quran references explicitly cited in the passage (e.g. "2:185"), else [].
 - hadith_mentions: each hadith quoted or mentioned: a short verbatim snippet and grade_stated only if the passage itself states the grade, else "none".
 - consensus_claim: "ijma" (إجماع، consensus, all scholars agree), "majority" (الجمهور، most scholars), "some_scholars" (بعض العلماء، some scholars), else "none".
+- disagreement_stated: true if the passage says scholars differ or the issue is disputed (اختلف العلماء، في المسألة خلاف، قولان، "scholars differ", "there is disagreement"), else false.
 - key_terms: important Islamic terms used, lowercase transliteration (e.g. "sunnah", "makruh", "qada").
 
 Also return condition_quotes and exception_quotes: for each item of conditions / exceptions (same order), the exact substring of the passage that expresses it, copied verbatim in the passage language; null if there is none.
