@@ -1,53 +1,68 @@
 # SOURCES — المصادر والمكتبات وتراخيصها
 
+سجل لكل مصدر خارجي: نوعه (عنوان القسم)، ومصدره، والغرض منه، وتاريخ إدخاله إلى المشروع (من سجل git)، وترخيصه.
+التواريخ كلها في 2026، وكل ما قبل 4 أكتوبر سابق للهاكاثون (انظر [BASELINE.md](BASELINE.md)).
+
+## أدوات الذكاء الاصطناعي في التطوير (إفصاح)
+
+| الأداة | الغرض | التاريخ | الشروط |
+|---|---|---|---|
+| **Claude Code** (Anthropic) | مساعد برمجي: كتابة الكود والاختبارات والوثائق بتوجيه المطوّرة ومراجعتها | منذ 10-01 | شروط Anthropic |
+| **Cursor** (وكيل البرمجة) | مساعد برمجي: الشيء نفسه داخل المحرر | منذ 10-01 | شروط Cursor |
+| نماذج Claude عبر Anthropic API | محرك التحليل داخل المنتج (القسم «الخدمات» أدناه)، وتوليد حالات التقييم | منذ 10-01 | شروط Anthropic التجارية |
+
 ## المكتبات البرمجية
 
-| المكتبة | الاستخدام | الترخيص |
-|---|---|---|
-| [FastAPI](https://github.com/fastapi/fastapi) | الخادم والواجهة البرمجية | MIT |
-| [Uvicorn](https://github.com/encode/uvicorn) | خادم ASGI | BSD-3-Clause |
-| [Pydantic](https://github.com/pydantic/pydantic) | التحقق من البيانات | MIT |
-| [SQLModel](https://github.com/fastapi/sqlmodel) | SQLite (التقارير، cache، سجل الاستدعاءات) | MIT |
-| [Jinja2](https://github.com/pallets/jinja) | قوالب HTML | BSD-3-Clause |
-| [python-dotenv](https://github.com/theskumar/python-dotenv) | قراءة `.env` | BSD-3-Clause |
-| [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) | استدعاء نماذج Claude | MIT |
-| [httpx](https://github.com/encode/httpx) | عميل HTTP (الاختبارات) | BSD-3-Clause |
-| [pytest](https://github.com/pytest-dev/pytest) | الاختبارات | MIT |
-| [rank-bm25](https://github.com/dorianbrown/rank_bm25) | الاسترجاع BM25 في الميزان | Apache-2.0 |
-| [NumPy](https://github.com/numpy/numpy) (تبعية rank-bm25) | حساب الدرجات | BSD-3-Clause |
-| [sacrebleu](https://github.com/mjpost/sacrebleu) | chrF لخط الأساس في التقييم | Apache-2.0 |
-| [python-multipart](https://github.com/Kludex/python-multipart) | استقبال نموذج «قابِل ما قرأت» | Apache-2.0 |
-| [fpdf2](https://github.com/py-pdf/fpdf2) | توليد تقرير PDF الداخلي (`app/pdf.py`) | LGPL-3.0 |
-| [uharfbuzz](https://github.com/harfbuzz/uharfbuzz) (عبر fpdf2) | تشكيل الحروف العربية واتجاهها في PDF | Apache-2.0 |
-| [Alpine.js](https://alpinejs.dev) (CDN) | تفاعل الواجهة | MIT |
-| [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | خط الواجهة | SIL Open Font License 1.1 |
-| [Amiri](https://fonts.google.com/specimen/Amiri) (Google Fonts) | النص العربي الأصلي وحده (نسخي)، وخط تقرير PDF: ملفات TTF في `app/static/fonts/` مع نص الترخيص `OFL-Amiri.txt` (من github.com/google/fonts/tree/main/ofl/amiri) | SIL Open Font License 1.1 |
-| [Literata](https://fonts.google.com/specimen/Literata) (Google Fonts) | النصوص اللاتينية | SIL Open Font License 1.1 |
+| المكتبة | الغرض | التاريخ | الترخيص |
+|---|---|---|---|
+| [FastAPI](https://github.com/fastapi/fastapi) | الخادم والواجهة البرمجية | 10-01 | MIT |
+| [Uvicorn](https://github.com/encode/uvicorn) | خادم ASGI | 10-01 | BSD-3-Clause |
+| [Pydantic](https://github.com/pydantic/pydantic) | التحقق من البيانات | 10-01 | MIT |
+| [SQLModel](https://github.com/fastapi/sqlmodel) | SQLite (التقارير، cache، سجل الاستدعاءات) | 10-01 | MIT |
+| [Jinja2](https://github.com/pallets/jinja) | قوالب HTML | 10-01 | BSD-3-Clause |
+| [python-dotenv](https://github.com/theskumar/python-dotenv) | قراءة `.env` | 10-01 | BSD-3-Clause |
+| [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) | استدعاء نماذج Claude | 10-01 | MIT |
+| [httpx](https://github.com/encode/httpx) | عميل HTTP (الاختبارات) | 10-01 | BSD-3-Clause |
+| [pytest](https://github.com/pytest-dev/pytest) | الاختبارات | 10-01 | MIT |
+| [rank-bm25](https://github.com/dorianbrown/rank_bm25) | الاسترجاع BM25 في الميزان | 10-01 | Apache-2.0 |
+| [NumPy](https://github.com/numpy/numpy) (تبعية rank-bm25) | حساب الدرجات | 10-01 | BSD-3-Clause |
+| [sacrebleu](https://github.com/mjpost/sacrebleu) | chrF لخط الأساس في التقييم | 10-01 | Apache-2.0 |
+| [python-multipart](https://github.com/Kludex/python-multipart) | استقبال نموذج «تحقّق مما قرأت» | 10-02 | Apache-2.0 |
+| [fpdf2](https://github.com/py-pdf/fpdf2) | توليد تقرير PDF الداخلي (`app/pdf.py`) | 10-02 | LGPL-3.0 |
+| [uharfbuzz](https://github.com/harfbuzz/uharfbuzz) (عبر fpdf2) | تشكيل الحروف العربية واتجاهها في PDF | 10-02 | Apache-2.0 |
+| [Alpine.js](https://alpinejs.dev) (CDN) | تفاعل الواجهة | 10-01 | MIT |
+| [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | خط الواجهة | 10-01 | SIL Open Font License 1.1 |
+| [Amiri](https://fonts.google.com/specimen/Amiri) (Google Fonts) | النص العربي الأصلي (نسخي)، وخط تقرير PDF: ملفات TTF في `app/static/fonts/` مع نص الترخيص `OFL-Amiri.txt` (من github.com/google/fonts/tree/main/ofl/amiri) | 10-02 | SIL Open Font License 1.1 |
+| [Literata](https://fonts.google.com/specimen/Literata) (Google Fonts) | النصوص اللاتينية | 10-02 | SIL Open Font License 1.1 |
 
 ## الخدمات والبنية
 
-| العنصر | الاستخدام | الترخيص / الشروط |
-|---|---|---|
-| Anthropic API: `claude-sonnet-5-5` (الشاهد الأول) و `claude-haiku-4-5` (الشاهد الثاني) | المحاذاة، وبصمة المعنى، والتحقق الموجّه، والصياغات الآمنة، وامتحان القارئ، ومخاطر الفهم | شروط استخدام Anthropic التجارية. أسماء النماذج في `.env` |
-| صورة Docker `python:3.11-slim` | تشغيل التطبيق | PSF License (Python) وتراخيص حزم Debian |
-| [ruff](https://github.com/astral-sh/ruff) (أداة فحص أثناء التطوير، ليست في المتطلبات) | فحص الكود غير المستخدم | MIT |
+| العنصر | الغرض | التاريخ | الترخيص / الشروط |
+|---|---|---|---|
+| Anthropic API: `claude-sonnet-5-5` (الشاهد الأول) و `claude-haiku-4-5` (الشاهد الثاني) | المحاذاة، وبصمة المعنى، والتحقق الموجّه، والصياغات الآمنة، وامتحان القارئ، ومخاطر الفهم | 10-01 | شروط استخدام Anthropic التجارية. أسماء النماذج في `.env` |
+| صورة Docker `python:3.11-slim` | تشغيل التطبيق | 10-01 | PSF License (Python) وتراخيص حزم Debian |
+| [ruff](https://github.com/astral-sh/ruff) (أداة فحص أثناء التطوير، ليست في المتطلبات) | فحص الكود غير المستخدم | 10-02 | MIT |
+
+## المرجع العلمي للتحدي
+
+«الحزمة والبيانات المرجعية العلمية للتحدي» (نسخة 1448/3/20) من الجهة المنظِّمة: منها مستويات المحتوى (A–D)، والمعايير
+الإلزامية (التمييز بين القطعي والاجتهادي، عدم الإفتاء، مقاومة الهلوسة...)، ونماذج قاموس المصطلحات، وقائمة المصادر
+المعتمدة. أُدخلت في 10-02. الاستخدام: داخل التحدي وبشروطه.
 
 ## بيانات المدونة (`data/corpus/`)
 
-> المرحلة 0: العناصر الحالية **أمثلة للشكل فقط** (3 لكل نوع) وتحتاج مراجعة. تُستبدل بعناصر موثّقة من الحزمة العلمية.
-
-| النوع | المصدر | الترخيص / الملاحظة |
-|---|---|---|
-| quran | النص القرآني، والترجمة Sahih International عبر quran.com | النص القرآني ملك عام، والترجمة لأغراض غير تجارية مع الإسناد |
-| hadith | صحيح البخاري، وصحيح مسلم (روابط sunnah.com) | المتون ملك عام، والترجمات الإنجليزية من عمل المشروع |
-| term | أمثلة اصطناعية | تُستبدل بضوابط من قاموس الحزمة العلمية والجمهرة |
+| النوع | المصدر | التاريخ | الترخيص / الملاحظة |
+|---|---|---|---|
+| quran | النص القرآني، والترجمة Sahih International عبر quran.com (3 عناصر) | 10-01 | النص القرآني ملك عام، والترجمة لأغراض غير تجارية مع الإسناد. **يلزم** مقابلتها بمصحف مجمع الملك فهد أو quranpedia.net من قائمة الحزمة |
+| hadith | صحيح البخاري، وصحيح مسلم (روابط sunnah.com، 3 عناصر) | 10-01 | المتون ملك عام، والترجمات الإنجليزية من عمل المشروع. **يلزم** مقابلتها بالدرر السنية (dorar.net/hadith) من قائمة الحزمة |
+| term | 10 ضوابط من «نماذج لقاموس المصطلحات الأساسية» في الحزمة العلمية (الإسلام، التوحيد، العبادة، النبوة، الوحي، الشريعة، الحديث، السنة، الفتوى، الدعوة)، وضابطان من عمل المشروع (المكروه، الإجماع) موسومان بذلك | 10-01، واستُبدلت في 10-02 | الضابط منقول من وثيقة المنظِّمين؛ وقائمة «الترجمات التي تُتجنّب» (`avoid_renderings`) اشتقاق من المشروع يحتاج مراجعة |
 
 ## بيانات التقييم (`data/eval/`)
-- `seeds.jsonl`: 15 بذرة **مسودة** كتبها المساعد البرمجي، تراجعها المطوّرة من مصادر الحزمة قبل اعتماد النتائج.
-- `cases.jsonl`: حالات مولّدة آلياً من البذور بنموذج Claude (تغيّرات مزروعة وصياغات سليمة)، وأربع حالات امتناع
-  لأقوال تُنسب إلى النبي ﷺ وليست في المدونة المحلية.
+- `seeds.jsonl` (10-01): 15 بذرة **مسودة** كتبها المساعد البرمجي، تراجعها المطوّرة من مصادر الحزمة قبل اعتماد النتائج.
+- `cases.jsonl` (10-01): حالات مولّدة آلياً من البذور بنموذج Claude (تغيّرات مزروعة وصياغات سليمة)، وأربع حالات
+  امتناع لأقوال تُنسب إلى النبي ﷺ وليست في المدونة المحلية.
 
-## مكتبة «قابِل ما قرأت» (`data/library/issues.jsonl`)
+## مكتبة «تحقّق مما قرأت» (`data/library/issues.jsonl`، 10-02)
 - **المصدر**: الشيخ عبد العزيز بن باز، كتاب «أسئلة مهمة تتعلق بالصيام»، ملف PDF من موقعه الرسمي:
   https://binbaz.org.sa/books/pdf/215 (قدّمته المطوّرة مصدراً موثوقاً). الاستخدام: اقتباسات قصيرة حرفية لغرض المراجعة
   مع الإحالة إلى الصفحة؛ الحقوق لأصحابها، ولا يُعاد نشر الكتاب.
@@ -63,6 +78,7 @@
   آلياً من كل مقتطف مقابل طبقة النص بمقارنة تتسامح مع تبديل الحروف (تطابق 93–100٪، وكل فرق راجع إلى تقطّع كلمة في
   طبقة النص). لا آيات ولا أحاديث. الكتاب تلخيص لفتاوى الشيخ، لا نص الفتاوى نفسها؛ وأرقام صفحات «مجموع الفتاوى» في
   `source_note` إن احتجتِ إلى الرجوع للأصل.
+- ملاحظة: موقع الشيخ ابن باز ليس ضمن قائمة المصادر في الحزمة العلمية؛ اختارته المطوّرة مصدراً موثوقاً، ويُذكر ذلك صراحة.
 - المسألتان الوهميتان `I01` و`I02` نُقلتا إلى `tests/fixtures/placeholder_issues.jsonl` للاختبارات فقط.
 
 ## الأصول البصرية

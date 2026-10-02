@@ -167,6 +167,12 @@ def test_cross_language_lexical_negation_is_not_flagged():
     # انقلب النفي في خلاصة المعنى أيضاً ← تنبيه
     assert types(L("ar", negations=1, claim="selling what one does not own is not allowed"),
                  L("en", negations=0, claim="selling what one owns is allowed")) == [T.negation_mismatch]
+    # «إذا لم يستطع القيام» ← "if he is able to stand": "unable" في خلاصة الأصل نفيٌ انقلب
+    assert types(L("ar", negations=1, claim="a sick person may pray sitting if unable to stand"),
+                 L("en", negations=0, claim="a sick person may pray sitting if able to stand")) == [T.negation_mismatch]
+    # «يُعذر الجاهل» ← "someone who does not know ... can be excused": المعنى نفسه
+    assert types(L("ar", negations=0, claim="an ignorant person may be excused in some issues"),
+                 L("en", negations=1, claim="one who does not know may be excused in some issues")) == []
     # في اللغة نفسها يبقى العدّ بالقواعد وحده
     assert types(L("en", negations=0, claim=claim), L("en", negations=1, claim=claim)) == [T.negation_mismatch]
 

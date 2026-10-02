@@ -588,6 +588,7 @@
     "id": "s01-condition_dropped",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "condition_dropped",
      "reader_divergence",
@@ -596,13 +597,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.25,
-    "warnings": []
+    "seconds": 2.18
    },
    "s01-scope_widened": {
     "id": "s01-scope_widened",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "condition_dropped",
      "reader_divergence",
@@ -611,13 +612,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 4.66,
-    "warnings": []
+    "seconds": 0.52
    },
    "s01-ruling_shift": {
     "id": "s01-ruling_shift",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "reader_divergence",
      "ruling_shift"
@@ -625,13 +626,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 3.19,
-    "warnings": []
+    "seconds": 0.47
    },
    "s02-number_mismatch": {
     "id": "s02-number_mismatch",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "number_mismatch",
      "reader_divergence"
@@ -639,13 +640,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.44,
-    "warnings": []
+    "seconds": 0.63
    },
    "s02-ruling_shift": {
     "id": "s02-ruling_shift",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "reader_divergence",
      "ruling_shift"
@@ -653,13 +654,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.21,
-    "warnings": []
+    "seconds": 0.22
    },
    "s02-consensus_inflated": {
     "id": "s02-consensus_inflated",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "consensus_inflated",
      "reader_divergence",
@@ -668,27 +669,26 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.23,
-    "warnings": []
+    "seconds": 0.22
    },
    "s03-negation_mismatch": {
     "id": "s03-negation_mismatch",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
-     "negation_mismatch",
      "ruling_shift"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 4.09,
-    "warnings": []
+    "seconds": 0.4
    },
    "s03-condition_dropped": {
     "id": "s03-condition_dropped",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "condition_dropped",
      "reader_divergence"
@@ -696,33 +696,32 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.13,
-    "warnings": []
+    "seconds": 0.43
    },
    "s04-attribution_upgraded": {
     "id": "s04-attribution_upgraded",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
-     "number_mismatch",
-     "reader_divergence"
+     "reader_divergence",
+     "scope_widened"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 1.75,
-    "warnings": []
+    "seconds": 0.27
    },
    "s04-new_prophetic_attribution": {
     "id": "s04-new_prophetic_attribution",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "attribution_upgraded",
      "new_prophetic_attribution",
-     "number_mismatch",
      "reader_divergence",
-     "scope_narrowed",
+     "scope_widened",
      "unverified_attribution"
     ],
     "verifications": [
@@ -730,45 +729,43 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.16,
-    "warnings": []
+    "seconds": 0.14
    },
    "s05-certainty_raised": {
     "id": "s05-certainty_raised",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "certainty_raised",
      "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
+     "reader_divergence"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 0.24,
-    "warnings": []
+    "witness_agreement": 0.0,
+    "seconds": 0.2
    },
    "s05-scope_widened": {
     "id": "s05-scope_widened",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "certainty_raised",
      "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
+     "reader_divergence"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 2.54,
-    "warnings": []
+    "witness_agreement": 0.0,
+    "seconds": 0.7
    },
    "s06-hasr_lost": {
     "id": "s06-hasr_lost",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "hasr_lost"
     ],
@@ -778,28 +775,29 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.24,
-    "warnings": []
+    "seconds": 0.37
    },
    "s07-consensus_inflated": {
     "id": "s07-consensus_inflated",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "consensus_inflated",
+     "disagreement_collapsed",
      "reader_divergence",
      "witness_disagreement"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.29,
-    "warnings": []
+    "seconds": 0.1
    },
    "s07-condition_dropped": {
     "id": "s07-condition_dropped",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "condition_dropped",
      "reader_divergence"
@@ -807,13 +805,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.22,
-    "warnings": []
+    "seconds": 5.07
    },
    "s08-term_narrowing": {
     "id": "s08-term_narrowing",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "reader_divergence",
      "ruling_shift",
@@ -822,13 +820,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.15,
-    "warnings": []
+    "seconds": 0.06
    },
    "s08-ruling_shift": {
     "id": "s08-ruling_shift",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "reader_divergence",
      "ruling_shift",
@@ -837,13 +835,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.15,
-    "warnings": []
+    "seconds": 0.08
    },
    "s09-condition_dropped": {
     "id": "s09-condition_dropped",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "condition_dropped",
      "negation_mismatch",
@@ -852,13 +850,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 1.78,
-    "warnings": []
+    "seconds": 0.31
    },
    "s09-negation_mismatch": {
     "id": "s09-negation_mismatch",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "negation_mismatch",
      "reader_divergence"
@@ -866,13 +864,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.09,
-    "warnings": []
+    "seconds": 0.2
    },
    "s10-ruling_shift": {
     "id": "s10-ruling_shift",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "reader_divergence",
      "ruling_shift",
@@ -881,13 +879,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.25,
-    "warnings": []
+    "seconds": 0.08
    },
    "s10-term_narrowing": {
     "id": "s10-term_narrowing",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "reader_divergence",
      "ruling_shift",
@@ -896,13 +894,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.15,
-    "warnings": []
+    "seconds": 0.37
    },
    "s11-number_mismatch": {
     "id": "s11-number_mismatch",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "number_mismatch",
      "reader_divergence"
@@ -910,13 +908,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.39,
-    "warnings": []
+    "seconds": 0.08
    },
    "s12-hadith_grade_dropped": {
     "id": "s12-hadith_grade_dropped",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "hadith_grade_dropped",
      "reader_divergence"
@@ -924,13 +922,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.07,
-    "warnings": []
+    "seconds": 0.14
    },
    "s13-exception_dropped": {
     "id": "s13-exception_dropped",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "condition_dropped",
      "reader_divergence",
@@ -939,13 +937,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.26,
-    "warnings": []
+    "seconds": 0.52
    },
    "s13-scope_widened": {
     "id": "s13-scope_widened",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "condition_dropped",
      "reader_divergence",
@@ -954,13 +952,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 2.76,
-    "warnings": []
+    "seconds": 0.29
    },
    "s14-negation_mismatch": {
     "id": "s14-negation_mismatch",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "negation_mismatch",
      "reader_divergence",
@@ -969,13 +967,13 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.24,
-    "warnings": []
+    "seconds": 0.42
    },
    "s14-ruling_shift": {
     "id": "s14-ruling_shift",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "negation_mismatch",
      "reader_divergence",
@@ -984,15 +982,16 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.24,
-    "warnings": []
+    "seconds": 0.11
    },
    "s15-negation_mismatch": {
     "id": "s15-negation_mismatch",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
-     "negation_mismatch"
+     "negation_mismatch",
+     "reader_divergence"
     ],
     "verifications": [
      "supported",
@@ -1000,182 +999,175 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.15,
-    "warnings": []
+    "seconds": 0.11
    },
    "s01-faithful": {
     "id": "s01-faithful",
     "status": "analyzed",
     "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
+    "warnings": [],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.11,
-    "warnings": []
+    "seconds": 1.14
    },
    "s02-faithful": {
     "id": "s02-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.27,
-    "warnings": []
+    "seconds": 0.22
    },
    "s03-faithful": {
     "id": "s03-faithful",
     "status": "analyzed",
     "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
+    "warnings": [],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.16,
-    "warnings": []
+    "seconds": 0.09
    },
    "s04-faithful": {
     "id": "s04-faithful",
     "status": "analyzed",
     "error": "",
-    "predicted": [
-     "number_mismatch"
-    ],
+    "warnings": [],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.19,
-    "warnings": []
+    "seconds": 0.28
    },
    "s05-faithful": {
     "id": "s05-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "certainty_raised",
      "negation_mismatch",
-     "ruling_shift",
-     "scope_narrowed"
+     "ruling_shift"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 0.35,
-    "warnings": []
+    "witness_agreement": 0.0,
+    "seconds": 0.34
    },
    "s06-faithful": {
     "id": "s06-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [],
     "verifications": [
      "supported"
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.47,
-    "warnings": []
+    "seconds": 0.11
    },
    "s07-faithful": {
     "id": "s07-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.61,
-    "warnings": []
+    "seconds": 0.13
    },
    "s08-faithful": {
     "id": "s08-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 0.25,
-    "warnings": []
+    "witness_agreement": 1.0,
+    "seconds": 0.24
    },
    "s09-faithful": {
     "id": "s09-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.17,
-    "warnings": []
+    "seconds": 0.21
    },
    "s10-faithful": {
     "id": "s10-faithful",
     "status": "analyzed",
     "error": "",
-    "predicted": [],
+    "warnings": [],
+    "predicted": [
+     "scope_narrowed"
+    ],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.88,
-    "warnings": []
+    "seconds": 0.23
    },
    "s11-faithful": {
     "id": "s11-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 0.17,
-    "warnings": []
+    "witness_agreement": 0.5,
+    "seconds": 0.93
    },
    "s12-faithful": {
     "id": "s12-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 0.31,
-    "warnings": []
+    "witness_agreement": 1.0,
+    "seconds": 0.13
    },
    "s13-faithful": {
     "id": "s13-faithful",
     "status": "analyzed",
     "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
+    "warnings": [],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.12,
-    "warnings": []
+    "seconds": 0.13
    },
    "s14-faithful": {
     "id": "s14-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.12,
-    "warnings": []
+    "seconds": 0.17
    },
    "s15-faithful": {
     "id": "s15-faithful",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "quote_wording_differs",
      "unverified_attribution"
@@ -1187,13 +1179,13 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.21,
-    "warnings": []
+    "seconds": 0.38
    },
    "a01": {
     "id": "a01",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "new_prophetic_attribution",
      "reader_divergence",
@@ -1204,13 +1196,13 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.2,
-    "warnings": []
+    "seconds": 0.19
    },
    "a02": {
     "id": "a02",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "new_prophetic_attribution",
      "reader_divergence",
@@ -1221,13 +1213,13 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.37,
-    "warnings": []
+    "seconds": 0.16
    },
    "a03": {
     "id": "a03",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "new_prophetic_attribution",
      "reader_divergence",
@@ -1238,13 +1230,13 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.12,
-    "warnings": []
+    "seconds": 0.28
    },
    "a04": {
     "id": "a04",
     "status": "analyzed",
     "error": "",
+    "warnings": [],
     "predicted": [
      "unverified_attribution"
     ],
@@ -1254,1366 +1246,7 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.2,
-    "warnings": []
-   }
-  },
-  {
-   "s01-condition_dropped": {
-    "id": "s01-condition_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 25.32,
-    "warnings": []
-   },
-   "s01-scope_widened": {
-    "id": "s01-scope_widened",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 21.34,
-    "warnings": []
-   },
-   "s01-ruling_shift": {
-    "id": "s01-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 14.91,
-    "warnings": []
-   },
-   "s02-number_mismatch": {
-    "id": "s02-number_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "number_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 15.02,
-    "warnings": []
-   },
-   "s02-ruling_shift": {
-    "id": "s02-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 13.59,
-    "warnings": []
-   },
-   "s02-consensus_inflated": {
-    "id": "s02-consensus_inflated",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "consensus_inflated",
-     "reader_divergence",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 13.79,
-    "warnings": []
-   },
-   "s03-negation_mismatch": {
-    "id": "s03-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 16.06,
-    "warnings": []
-   },
-   "s03-condition_dropped": {
-    "id": "s03-condition_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 25.28,
-    "warnings": []
-   },
-   "s04-attribution_upgraded": {
-    "id": "s04-attribution_upgraded",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "number_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.39,
-    "warnings": []
-   },
-   "s04-new_prophetic_attribution": {
-    "id": "s04-new_prophetic_attribution",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "attribution_upgraded",
-     "new_prophetic_attribution",
-     "number_mismatch",
-     "reader_divergence",
-     "scope_narrowed",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 21.68,
-    "warnings": []
-   },
-   "s05-certainty_raised": {
-    "id": "s05-certainty_raised",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "certainty_raised",
-     "condition_dropped",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 18.02,
-    "warnings": []
-   },
-   "s05-scope_widened": {
-    "id": "s05-scope_widened",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "certainty_raised",
-     "condition_dropped",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 19.66,
-    "warnings": []
-   },
-   "s06-hasr_lost": {
-    "id": "s06-hasr_lost",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "hasr_lost"
-    ],
-    "verifications": [
-     "supported",
-     "supported"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 13.32,
-    "warnings": []
-   },
-   "s07-consensus_inflated": {
-    "id": "s07-consensus_inflated",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "consensus_inflated",
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 15.98,
-    "warnings": []
-   },
-   "s07-condition_dropped": {
-    "id": "s07-condition_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "witness_disagreement"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.65,
-    "warnings": []
-   },
-   "s08-term_narrowing": {
-    "id": "s08-term_narrowing",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 17.51,
-    "warnings": []
-   },
-   "s08-ruling_shift": {
-    "id": "s08-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 17.83,
-    "warnings": []
-   },
-   "s09-condition_dropped": {
-    "id": "s09-condition_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "negation_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 26.8,
-    "warnings": []
-   },
-   "s09-negation_mismatch": {
-    "id": "s09-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 17.68,
-    "warnings": []
-   },
-   "s10-ruling_shift": {
-    "id": "s10-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.55,
-    "warnings": []
-   },
-   "s10-term_narrowing": {
-    "id": "s10-term_narrowing",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 19.53,
-    "warnings": []
-   },
-   "s11-number_mismatch": {
-    "id": "s11-number_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "number_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 11.56,
-    "warnings": []
-   },
-   "s12-hadith_grade_dropped": {
-    "id": "s12-hadith_grade_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "hadith_grade_dropped",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 17.63,
-    "warnings": []
-   },
-   "s13-exception_dropped": {
-    "id": "s13-exception_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 20.87,
-    "warnings": []
-   },
-   "s13-scope_widened": {
-    "id": "s13-scope_widened",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 23.92,
-    "warnings": []
-   },
-   "s14-negation_mismatch": {
-    "id": "s14-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 19.39,
-    "warnings": []
-   },
-   "s14-ruling_shift": {
-    "id": "s14-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "negation_mismatch",
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 20.63,
-    "warnings": []
-   },
-   "s15-negation_mismatch": {
-    "id": "s15-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
-    "verifications": [
-     "supported",
-     "supported"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 15.08,
-    "warnings": []
-   },
-   "s01-faithful": {
-    "id": "s01-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 15.12,
-    "warnings": []
-   },
-   "s02-faithful": {
-    "id": "s02-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 13.25,
-    "warnings": []
-   },
-   "s03-faithful": {
-    "id": "s03-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 20.92,
-    "warnings": []
-   },
-   "s04-faithful": {
-    "id": "s04-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "number_mismatch",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 24.56,
-    "warnings": []
-   },
-   "s05-faithful": {
-    "id": "s05-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "certainty_raised",
-     "negation_mismatch",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 21.46,
-    "warnings": []
-   },
-   "s06-faithful": {
-    "id": "s06-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [
-     "supported"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 15.79,
-    "warnings": []
-   },
-   "s07-faithful": {
-    "id": "s07-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 21.58,
-    "warnings": []
-   },
-   "s08-faithful": {
-    "id": "s08-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 18.66,
-    "warnings": []
-   },
-   "s09-faithful": {
-    "id": "s09-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 20.51,
-    "warnings": []
-   },
-   "s10-faithful": {
-    "id": "s10-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 15.85,
-    "warnings": []
-   },
-   "s11-faithful": {
-    "id": "s11-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 25.84,
-    "warnings": []
-   },
-   "s12-faithful": {
-    "id": "s12-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 13.62,
-    "warnings": []
-   },
-   "s13-faithful": {
-    "id": "s13-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 16.89,
-    "warnings": []
-   },
-   "s14-faithful": {
-    "id": "s14-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 14.06,
-    "warnings": []
-   },
-   "s15-faithful": {
-    "id": "s15-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "quote_wording_differs",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "supported",
-     "partially_supported",
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 14.64,
-    "warnings": []
-   },
-   "a01": {
-    "id": "a01",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.45,
-    "warnings": []
-   },
-   "a02": {
-    "id": "a02",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 16.59,
-    "warnings": []
-   },
-   "a03": {
-    "id": "a03",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 16.78,
-    "warnings": []
-   },
-   "a04": {
-    "id": "a04",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified",
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 20.82,
-    "warnings": []
-   }
-  },
-  {
-   "s01-condition_dropped": {
-    "id": "s01-condition_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 23.28,
-    "warnings": []
-   },
-   "s01-scope_widened": {
-    "id": "s01-scope_widened",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 22.96,
-    "warnings": []
-   },
-   "s01-ruling_shift": {
-    "id": "s01-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 30.39,
-    "warnings": []
-   },
-   "s02-number_mismatch": {
-    "id": "s02-number_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "number_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 25.17,
-    "warnings": []
-   },
-   "s02-ruling_shift": {
-    "id": "s02-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 14.59,
-    "warnings": []
-   },
-   "s02-consensus_inflated": {
-    "id": "s02-consensus_inflated",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "consensus_inflated",
-     "reader_divergence",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 12.46,
-    "warnings": []
-   },
-   "s03-negation_mismatch": {
-    "id": "s03-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 15.52,
-    "warnings": []
-   },
-   "s03-condition_dropped": {
-    "id": "s03-condition_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 22.16,
-    "warnings": []
-   },
-   "s04-attribution_upgraded": {
-    "id": "s04-attribution_upgraded",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "number_mismatch",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 20.07,
-    "warnings": []
-   },
-   "s04-new_prophetic_attribution": {
-    "id": "s04-new_prophetic_attribution",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "attribution_upgraded",
-     "new_prophetic_attribution",
-     "number_mismatch",
-     "reader_divergence",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 22.56,
-    "warnings": []
-   },
-   "s05-certainty_raised": {
-    "id": "s05-certainty_raised",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "certainty_raised",
-     "condition_dropped",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 21.77,
-    "warnings": []
-   },
-   "s05-scope_widened": {
-    "id": "s05-scope_widened",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "certainty_raised",
-     "condition_dropped",
-     "reader_divergence",
-     "scope_narrowed"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 20.09,
-    "warnings": []
-   },
-   "s06-hasr_lost": {
-    "id": "s06-hasr_lost",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "hasr_lost"
-    ],
-    "verifications": [
-     "supported",
-     "supported"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 14.99,
-    "warnings": []
-   },
-   "s07-consensus_inflated": {
-    "id": "s07-consensus_inflated",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "consensus_inflated",
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.45,
-    "warnings": []
-   },
-   "s07-condition_dropped": {
-    "id": "s07-condition_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "witness_disagreement"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 20.36,
-    "warnings": []
-   },
-   "s08-term_narrowing": {
-    "id": "s08-term_narrowing",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 16.88,
-    "warnings": []
-   },
-   "s08-ruling_shift": {
-    "id": "s08-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 15.61,
-    "warnings": []
-   },
-   "s09-condition_dropped": {
-    "id": "s09-condition_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "negation_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 21.54,
-    "warnings": []
-   },
-   "s09-negation_mismatch": {
-    "id": "s09-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 20.61,
-    "warnings": []
-   },
-   "s10-ruling_shift": {
-    "id": "s10-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.16,
-    "warnings": []
-   },
-   "s10-term_narrowing": {
-    "id": "s10-term_narrowing",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.5,
-    "warnings": []
-   },
-   "s11-number_mismatch": {
-    "id": "s11-number_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "number_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 16.38,
-    "warnings": []
-   },
-   "s12-hadith_grade_dropped": {
-    "id": "s12-hadith_grade_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "hadith_grade_dropped",
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 17.16,
-    "warnings": []
-   },
-   "s13-exception_dropped": {
-    "id": "s13-exception_dropped",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 23.95,
-    "warnings": []
-   },
-   "s13-scope_widened": {
-    "id": "s13-scope_widened",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 19.02,
-    "warnings": []
-   },
-   "s14-negation_mismatch": {
-    "id": "s14-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 14.16,
-    "warnings": []
-   },
-   "s14-ruling_shift": {
-    "id": "s14-ruling_shift",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 15.6,
-    "warnings": []
-   },
-   "s15-negation_mismatch": {
-    "id": "s15-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [
-     "supported",
-     "supported"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 17.55,
-    "warnings": []
-   },
-   "s01-faithful": {
-    "id": "s01-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 16.26,
-    "warnings": []
-   },
-   "s02-faithful": {
-    "id": "s02-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 13.32,
-    "warnings": []
-   },
-   "s03-faithful": {
-    "id": "s03-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.48,
-    "warnings": []
-   },
-   "s04-faithful": {
-    "id": "s04-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "number_mismatch",
-     "scope_widened"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 19.36,
-    "warnings": []
-   },
-   "s05-faithful": {
-    "id": "s05-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "certainty_raised",
-     "negation_mismatch",
-     "ruling_shift"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 22.39,
-    "warnings": []
-   },
-   "s06-faithful": {
-    "id": "s06-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [
-     "supported"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.13,
-    "warnings": []
-   },
-   "s07-faithful": {
-    "id": "s07-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 19.8,
-    "warnings": []
-   },
-   "s08-faithful": {
-    "id": "s08-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 16.5,
-    "warnings": []
-   },
-   "s09-faithful": {
-    "id": "s09-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 17.33,
-    "warnings": []
-   },
-   "s10-faithful": {
-    "id": "s10-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "scope_narrowed"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 20.14,
-    "warnings": []
-   },
-   "s11-faithful": {
-    "id": "s11-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 12.86,
-    "warnings": []
-   },
-   "s12-faithful": {
-    "id": "s12-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "witness_disagreement"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 15.48,
-    "warnings": []
-   },
-   "s13-faithful": {
-    "id": "s13-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "negation_mismatch"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 18.93,
-    "warnings": []
-   },
-   "s14-faithful": {
-    "id": "s14-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 14.03,
-    "warnings": []
-   },
-   "s15-faithful": {
-    "id": "s15-faithful",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "quote_wording_differs",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "supported",
-     "partially_supported",
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 14.56,
-    "warnings": []
-   },
-   "a01": {
-    "id": "a01",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "new_prophetic_attribution",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 12.65,
-    "warnings": [
-     "تعذّر امتحان القارئ: BadRequestError"
-    ]
-   },
-   "a02": {
-    "id": "a02",
-    "status": "failed",
-    "error": "BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfbVFMgrdnZgqn7tQPFTP'}",
-    "predicted": [],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": null,
-    "seconds": 8.64,
-    "warnings": []
-   },
-   "a03": {
-    "id": "a03",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "new_prophetic_attribution",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 7.89,
-    "warnings": [
-     "تعذّر امتحان القارئ: BadRequestError"
-    ]
-   },
-   "a04": {
-    "id": "a04",
-    "status": "analyzed",
-    "error": "",
-    "predicted": [
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified",
-     "unverified"
-    ],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 5.45,
-    "warnings": [
-     "تعذّر مخاطر الفهم: BadRequestError",
-     "تعذّر امتحان القارئ: BadRequestError"
-    ]
+    "seconds": 0.19
    }
   }
  ],
@@ -2857,155 +1490,148 @@
  "metrics": {
   "attribution_upgraded": {
    "tp": 0,
-   "fn": 3,
+   "fn": 1,
    "fp": 0,
-   "support": 3,
+   "support": 1,
    "recall": 0.0,
    "precision": null
   },
   "certainty_raised": {
-   "tp": 3,
+   "tp": 1,
    "fn": 0,
-   "fp": 6,
-   "support": 3,
+   "fp": 2,
+   "support": 1,
    "recall": 1.0,
    "precision": 0.3333333333333333
   },
   "condition_dropped": {
-   "tp": 12,
+   "tp": 4,
    "fn": 0,
-   "fp": 4,
-   "support": 12,
+   "fp": 1,
+   "support": 4,
    "recall": 1.0,
-   "precision": 0.75
+   "precision": 0.8
   },
   "consensus_inflated": {
-   "tp": 6,
+   "tp": 2,
    "fn": 0,
    "fp": 0,
-   "support": 6,
+   "support": 2,
    "recall": 1.0,
    "precision": 1.0
   },
   "exception_dropped": {
    "tp": 0,
-   "fn": 3,
+   "fn": 1,
    "fp": 0,
-   "support": 3,
+   "support": 1,
    "recall": 0.0,
    "precision": null
   },
   "hadith_grade_dropped": {
-   "tp": 3,
+   "tp": 1,
    "fn": 0,
    "fp": 0,
-   "support": 3,
+   "support": 1,
    "recall": 1.0,
    "precision": 1.0
   },
   "hasr_lost": {
-   "tp": 3,
+   "tp": 1,
    "fn": 0,
    "fp": 0,
-   "support": 3,
+   "support": 1,
    "recall": 1.0,
    "precision": 1.0
   },
   "negation_mismatch": {
-   "tp": 12,
-   "fn": 0,
-   "fp": 15,
-   "support": 12,
-   "recall": 1.0,
-   "precision": 0.4444444444444444
+   "tp": 3,
+   "fn": 1,
+   "fp": 2,
+   "support": 4,
+   "recall": 0.75,
+   "precision": 0.6
   },
   "new_prophetic_attribution": {
-   "tp": 3,
+   "tp": 1,
    "fn": 0,
    "fp": 0,
-   "support": 3,
+   "support": 1,
    "recall": 1.0,
    "precision": 1.0
   },
   "number_mismatch": {
-   "tp": 6,
+   "tp": 2,
    "fn": 0,
-   "fp": 9,
-   "support": 6,
+   "fp": 0,
+   "support": 2,
    "recall": 1.0,
-   "precision": 0.4
+   "precision": 1.0
   },
   "quote_wording_differs": {
    "tp": 0,
    "fn": 0,
-   "fp": 3,
+   "fp": 1,
    "support": 0,
    "recall": null,
    "precision": 0.0
   },
   "ruling_shift": {
-   "tp": 15,
+   "tp": 5,
    "fn": 0,
-   "fp": 6,
-   "support": 15,
+   "fp": 1,
+   "support": 5,
    "recall": 1.0,
-   "precision": 0.7142857142857143
+   "precision": 0.8333333333333334
   },
   "scope_narrowed": {
    "tp": 0,
    "fn": 0,
-   "fp": 5,
+   "fp": 1,
    "support": 0,
    "recall": null,
    "precision": 0.0
   },
   "scope_widened": {
-   "tp": 7,
-   "fn": 2,
-   "fp": 4,
-   "support": 9,
-   "recall": 0.7777777777777778,
-   "precision": 0.6363636363636364
+   "tp": 2,
+   "fn": 1,
+   "fp": 2,
+   "support": 3,
+   "recall": 0.6666666666666666,
+   "precision": 0.5
   },
   "term_narrowing": {
-   "tp": 6,
+   "tp": 2,
    "fn": 0,
-   "fp": 3,
-   "support": 6,
+   "fp": 1,
+   "support": 2,
    "recall": 1.0,
    "precision": 0.6666666666666666
   },
   "unverified_attribution": {
-   "tp": 8,
+   "tp": 4,
    "fn": 0,
-   "fp": 3,
-   "support": 8,
+   "fp": 1,
+   "support": 4,
    "recall": 1.0,
-   "precision": 0.7272727272727273
+   "precision": 0.8
   }
  },
  "cost": {
-  "calls": 1211,
-  "live_calls": 810,
-  "cache_hits": 396,
-  "failed_calls": 5,
-  "errors": [
-   "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anth"
-  ],
+  "calls": 403,
+  "live_calls": 1,
+  "cache_hits": 402,
+  "failed_calls": 0,
+  "errors": [],
   "by_model": {
    "claude-sonnet-5-5": [
-    931296,
-    120780,
-    623
-   ],
-   "claude-haiku-4-5": [
-    486019,
-    45312,
-    187
+    774,
+    355,
+    1
    ]
   },
-  "usd": 3.783
+  "usd": 0.0051
  },
- "start": "2026-10-01T11:58:48.554352+00:00",
- "first_run_cached": true
+ "start": "2026-10-02T13:09:58.093643+00:00",
+ "first_run_cached": false
 }

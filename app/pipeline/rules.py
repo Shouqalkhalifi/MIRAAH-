@@ -175,14 +175,22 @@ def compare_unit(p: Optional[Fingerprinted], c: Optional[Fingerprinted]) -> list
     cross = bool(p.lang and c.lang and p.lang != c.lang)
     # محسوبة بالقواعد. بين لغتين يُعبَّر عن النفي كثيراً بلفظ مقابل («يفطر» = "not fast")، فلا يُنبَّه
     # إلا إن انقلب النفي في خلاصة المعنى أيضاً (claim بالإنجليزية في البصمتين)
-    if pf.negations != cf.negations and (
-            not cross or count_negations(pf.claim) != count_negations(cf.claim)):
+    if pf.negations != cf.negations and (not cross or _polarity(pf.claim) != _polarity(cf.claim)):
         hits.append(Hit(T.negation_mismatch, "negations", str(pf.negations), str(cf.negations), confidence=0.6))
 
     if sorted(pf.numbers) != sorted(cf.numbers) and not (cross and _only_dual(pf.numbers, cf.numbers)):
         hits.append(Hit(T.number_mismatch, "numbers", "، ".join(pf.numbers) or "لا شيء",
                         "، ".join(cf.numbers) or "لا شيء", confidence=0.9))
     return hits
+
+
+# ألفاظ معناها «لا + فعل» في خلاصة المعنى: "unable" = not able، "ignorant" = does not know
+_NEGATIVE_WORDS = {"unable", "incapable", "unaware", "ignorant", "impermissible", "invalid", "unlawful",
+                   "unaccepted", "unacceptable", "unforgivable"}
+
+
+def _polarity(claim: str) -> int:
+    return count_negations(claim) + sum(w in _NEGATIVE_WORDS for w in re.findall(r"[a-z]+", claim.lower()))
 
 
 def _only_dual(a: list[str], b: list[str]) -> bool:
