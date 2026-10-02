@@ -259,6 +259,9 @@ body.is-home {
 .hero-bar input { flex: 1; min-width: 0; border: none; outline: none; background: none; font: inherit; font-size: 1.05rem; min-height: 48px; color: var(--ink); }
 .hero-go { flex: none; width: 48px; height: 48px; border-radius: 13px; border: none; cursor: pointer; background: var(--ink); color: var(--white); display: grid; place-items: center; transition: background .15s, transform .15s; }
 .hero-go:hover { background: var(--accent); transform: translateX(-2px); }
+.hero-go:disabled { opacity: .45; cursor: not-allowed; transform: none; background: var(--ink); }
+.hero-ask { margin: 0 0 .6rem; font-size: var(--t14); color: var(--muted); }
+.hero-ask b { color: var(--accent); }
 .hero-go svg { width: 22px; height: 22px; }
 .hero-hints { display: flex; justify-content: center; flex-wrap: wrap; gap: .25rem 1.5rem; margin-top: .75rem; font-size: .72rem; font-weight: 600; letter-spacing: .04em; color: var(--muted); }
 .hero-hints span::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-inline-end: .4rem; vertical-align: middle; }

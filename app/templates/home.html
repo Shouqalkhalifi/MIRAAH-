@@ -6,16 +6,17 @@
   <h1 id="hero-h" class="hero-title">تتبّع <span class="hl">أثر المعنى</span><br>من الأصل العربي إلى كل ترجمة</h1>
   <p class="hero-sub">تكشف مِرآة أين سقط شرط، أو ارتفعت درجة يقين، أو نُسب قول إلى النبي ﷺ بلا مصدر، وفي أي حلقة دخل الخلل. والقرار للمراجع.</p>
 
-  <form class="hero-bar" x-data="{ t: '' }"
-        @submit.prevent="if (t.trim()) { $dispatch('miraah-source', t); t = ''; } document.getElementById('compose').scrollIntoView({ behavior: 'smooth' });">
-    <svg class="hero-bar-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8l4 4v12H4V4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-    <label class="sr-only" for="hero-in">الصق النص العربي الأصلي</label>
-    <input id="hero-in" x-model="t" dir="rtl" placeholder="الصق النص العربي الأصلي وابدأ المقابلة…" autocomplete="off">
-    <button class="hero-go" aria-label="ابدأ المقابلة">
+  <p class="hero-ask">قرأتَ عبارة عن حكم أو حديث؟ <b>قابِلها بمصدرها</b></p>
+  <form class="hero-bar" method="post" action="/reverse" x-data="{ t: '', sending: false }" @submit="sending = true">
+    <svg class="hero-bar-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-4.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <label class="sr-only" for="hero-in">الصق ما قرأته أو اكتب سؤالك</label>
+    <input id="hero-in" name="text" x-model="t" dir="auto" minlength="3" maxlength="1000" required
+           placeholder="الصق عبارة قرأتها أو اكتب سؤالك…" autocomplete="off">
+    <button class="hero-go" :disabled="sending || t.trim().length < 3" aria-label="قابِل ما قرأت">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
   </form>
-  <div class="hero-hints"><span>اضغط Enter للبدء</span><span>مصادر موثّقة محلياً</span><span>لا تُصدر فتوى</span></div>
+  <div class="hero-hints"><span>اضغط Enter للمقابلة</span><span>لا يُحفظ نصك</span><span>لا تُصدر فتوى</span></div>
 
   {% if examples is defined and examples %}
   <div class="try chips">
