@@ -135,7 +135,7 @@
           <button type="button" class="node" @click="select('{{ n.label }}')" :aria-current="sel === '{{ n.label }}'">
             <span class="node-name" {% if n.lang != 'ar' %}dir="ltr"{% endif %}>{{ n.name }}</span>
             {% if n.marks %}<sup class="sigla tone-rubric">{{ n.marks[0] }}</sup>{% endif %}
-            <span class="node-sub">{{ lang_ar.get(n.lang, n.lang) }}{% if n.parent and n.parent != 'source' %} · عن <bdi>{{ n.parent }}</bdi>{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</span>
+            <span class="node-sub">{% if n.medium %}{{ n.medium }} · {% endif %}{{ lang_ar.get(n.lang, n.lang) }}{% if n.parent and n.parent != 'source' %} · عن <bdi>{{ n.parent }}</bdi>{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</span>
           </button>
         </li>
         {% endfor %}

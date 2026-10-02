@@ -31,10 +31,18 @@ def test_chain_must_reference_earlier_link():
         Report(source=src(), versions=[Version(label="sum", lang="en", text="t", derived_from="en")])
 
 
-def test_max_four_versions():
-    vs = [Version(label=f"v{i}", lang="en", text="t") for i in range(5)]
+def test_max_six_versions():
+    vs = [Version(label=f"v{i}", lang="en", text="t") for i in range(6)]
+    assert len(Report(source=src(), versions=vs).versions) == 6
     with pytest.raises(ValidationError):
-        Report(source=src(), versions=vs)
+        Report(source=src(), versions=vs + [Version(label="v6", lang="en", text="t")])
+
+
+def test_version_medium_is_validated():
+    assert Version(label="p", lang="en", text="t", medium="social_post").medium == "social_post"
+    assert Version(label="p", lang="en", text="t").medium is None
+    with pytest.raises(ValidationError):
+        Version(label="p", lang="en", text="t", medium="podcast")
 
 
 def test_duplicate_label_rejected():

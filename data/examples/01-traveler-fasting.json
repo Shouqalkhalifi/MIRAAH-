@@ -12,11 +12,11 @@
       "content_level": "B"
     },
     "versions": [
-      {"label": "en-translation", "lang": "en", "derived_from": "source",
+      {"label": "en-translation", "lang": "en", "derived_from": "source", "medium": "translation",
        "text": "A traveler may break the fast in Ramadan. He must make up the days he missed."},
-      {"label": "en-summary", "lang": "en", "derived_from": "en-translation",
+      {"label": "en-summary", "lang": "en", "derived_from": "en-translation", "medium": "summary",
        "text": "Muslims may break the fast in Ramadan."},
-      {"label": "en-post", "lang": "en", "derived_from": "en-summary",
+      {"label": "en-post", "lang": "en", "derived_from": "en-summary", "medium": "social_post",
        "text": "In Ramadan, Muslims may break their fast."}
     ],
     "locks": []

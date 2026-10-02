@@ -15,7 +15,7 @@ from app import export, review, service
 from app.corpus import load_corpus
 from app.examples import get_example, load_examples
 from app.library import load_library
-from app.models import Decision, Lock, Report, ReportStatus, Revision
+from app.models import MAX_VERSIONS, Decision, Lock, Report, ReportStatus, Revision
 from app.service import STAGES
 from app.pipeline.segment import split_sentences
 from app.pipeline.locks import LOCK_TYPE_AR
@@ -42,6 +42,8 @@ templates.env.globals["meta"] = meta
 templates.env.globals["ui"] = ui
 templates.env.globals["sentences"] = split_sentences
 templates.env.globals["approved_text"] = export.approved_text
+templates.env.globals["medium_ar"] = ui.MEDIUM_AR
+templates.env.globals["max_versions"] = MAX_VERSIONS
 templates.env.globals["footer_ar"] = "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى"
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}

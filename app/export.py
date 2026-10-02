@@ -38,11 +38,13 @@ def approved_text(r: Report, label: str, text: str) -> tuple[str, list[str]]:
 def build(r: Report, disclaimer: str) -> dict:
     nodes = {n["label"]: n for n in ui.thread(r)}
     chain = [{"label": "source", "name": "الأصل", "lang": r.source.lang, "derived_from": None,
+              "medium": None, "medium_ar": "",
               "state": nodes["source"]["state"], "original_text": r.source.text, "approved_text": r.source.text,
               "applied_edits": []}]
     for v in r.versions:
         text, applied = approved_text(r, v.label, v.text)
         chain.append({"label": v.label, "name": v.label, "lang": v.lang, "derived_from": v.derived_from,
+                      "medium": v.medium, "medium_ar": ui.MEDIUM_AR.get(v.medium or "", ""),
                       "state": nodes[v.label]["state"], "original_text": v.text, "approved_text": text,
                       "applied_edits": applied})
     alerts = []

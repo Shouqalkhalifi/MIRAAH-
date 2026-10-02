@@ -81,6 +81,11 @@ class ReportStatus(str, Enum):
     approved = "approved"  # اعتمده المراجع وصُدِّر تقريره الداخلي
 
 
+MAX_VERSIONS = 6
+Medium = Literal["translation", "summary", "edited", "social_post", "video_script", "infographic", "ai_answer",
+                 "other"]
+
+
 # ---------- المدخلات ----------
 class Source(BaseModel):
     text: str = Field(min_length=1)
@@ -94,6 +99,7 @@ class Version(BaseModel):
     lang: str
     text: str = Field(min_length=1)
     derived_from: str = "source"  # "source" أو label نسخة سابقة
+    medium: Optional[Medium] = None  # نوع إعادة الإنتاج: ترجمة، ملخص، منشور، نص فيديو...
 
 
 class Lock(BaseModel):
@@ -291,7 +297,7 @@ class Report(BaseModel):
     created_at: datetime = Field(default_factory=_now)
     title: str = ""
     source: Source
-    versions: list[Version] = Field(default_factory=list, max_length=4)
+    versions: list[Version] = Field(default_factory=list, max_length=MAX_VERSIONS)
     locks: list[Lock] = Field(default_factory=list)
     alerts: list[Alert] = Field(default_factory=list)
     status: ReportStatus = ReportStatus.draft

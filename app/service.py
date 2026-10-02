@@ -6,7 +6,7 @@ from typing import Callable
 from pydantic import BaseModel, Field, model_validator
 
 from app.llm import get_llm
-from app.models import Lock, Report, ReportStatus, Source, Version, WitnessStats, validate_chain
+from app.models import MAX_VERSIONS, Lock, Report, ReportStatus, Source, Version, WitnessStats, validate_chain
 from app.pipeline.align import align
 from app.pipeline import fahm, mizan, reader_exam, severity
 from app.pipeline.chain import STAGES as CHAIN_STAGES
@@ -29,7 +29,7 @@ llm_factory: Callable = get_llm
 class AnalyzeRequest(BaseModel):
     title: str = ""
     source: Source
-    versions: list[Version] = Field(min_length=1, max_length=4)
+    versions: list[Version] = Field(min_length=1, max_length=MAX_VERSIONS)
     locks: list[Lock] = Field(default_factory=list)
 
     @model_validator(mode="after")

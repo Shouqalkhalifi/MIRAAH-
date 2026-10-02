@@ -12,6 +12,11 @@ MODULES = {
              "desc": "يفحص ضوابط المصطلحات، ويمتحن ما يفهمه قارئ النسخة مقارنة بقارئ الأصل."},
 }
 
+# نوع إعادة الإنتاج لكل حلقة (Version.medium)
+MEDIUM_AR = {"translation": "ترجمة", "summary": "ملخص", "edited": "نسخة محرّرة", "social_post": "منشور تواصل",
+             "video_script": "نص فيديو", "infographic": "نص إنفوغرافيك", "ai_answer": "إجابة ذكاء اصطناعي",
+             "other": "أخرى"}
+
 # النوع ← (الوحدة، العنوان العربي)
 ALERT_META: dict[str, tuple[str, str]] = {
     # الميزان: النسبة والدليل
@@ -154,13 +159,14 @@ def thread(report) -> list[dict]:
             w = mark_word(a.type.value)
             if w not in marks.setdefault(a.introduced_at, []):
                 marks[a.introduced_at].append(w)
-    nodes = [{"label": "source", "name": "الأصل", "lang": report.source.lang, "parent": None,
+    nodes = [{"label": "source", "name": "الأصل", "lang": report.source.lang, "parent": None, "medium": "",
               "state": "break" if "source" in broken else "ok", "recheck": False, "marks": marks.get("source", [])}]
     by_label = {"source": nodes[0]}
     for v in report.versions:
         parent = by_label.get(v.derived_from, nodes[0])
         state = "break" if v.label in broken else ("after" if parent["state"] != "ok" else "ok")
         node = {"label": v.label, "name": v.label, "lang": v.lang, "parent": v.derived_from, "state": state,
+                "medium": MEDIUM_AR.get(v.medium or "", ""),
                 "recheck": parent["label"] in edited or parent["recheck"], "marks": marks.get(v.label, [])}
         nodes.append(node)
         by_label[v.label] = node

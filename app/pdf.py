@@ -103,7 +103,8 @@ def render(d: dict) -> bytes:
 
     _heading(p, "حلقات السلسلة")
     for i, n in enumerate(d["chain"], 1):
-        parts = [f"{i}. {n['name']}", LANG_AR.get(n["lang"], n["lang"])]
+        parts = [f"{i}. {n['name']}"] + ([n["medium_ar"]] if n.get("medium_ar") else []) \
+            + [LANG_AR.get(n["lang"], n["lang"])]
         if n["derived_from"]:
             parts.append("عن " + ("الأصل" if n["derived_from"] == "source" else n["derived_from"]))
         broken = n["state"] == "break"

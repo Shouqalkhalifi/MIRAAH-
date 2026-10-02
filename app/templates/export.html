@@ -54,7 +54,7 @@
   <section>
     <h2>حلقات السلسلة</h2>
     <ol class="chain">
-      {% for n in d.chain %}<li class="{{ 'break' if n.state == 'break' else '' }}">{{ loop.index }}. <bdi>{{ n.name }}</bdi> · {{ lang_ar.get(n.lang, n.lang) }}{% if n.derived_from %} · عن <bdi>{{ 'الأصل' if n.derived_from == 'source' else n.derived_from }}</bdi>{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</li>{% endfor %}
+      {% for n in d.chain %}<li class="{{ 'break' if n.state == 'break' else '' }}">{{ loop.index }}. <bdi>{{ n.name }}</bdi>{% if n.medium_ar %} · {{ n.medium_ar }}{% endif %} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.derived_from %} · عن <bdi>{{ 'الأصل' if n.derived_from == 'source' else n.derived_from }}</bdi>{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</li>{% endfor %}
     </ol>
   </section>
 

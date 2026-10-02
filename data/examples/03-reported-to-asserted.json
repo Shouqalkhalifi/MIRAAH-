@@ -12,7 +12,7 @@
       "content_level": "C"
     },
     "versions": [
-      {"label": "en-translation", "lang": "en", "derived_from": "source",
+      {"label": "en-translation", "lang": "en", "derived_from": "source", "medium": "translation",
        "text": "Imam Malik only narrated hadith in a state of ritual purity."}
     ],
     "locks": []

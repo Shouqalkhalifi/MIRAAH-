@@ -160,8 +160,12 @@ def test_examples_valid_and_runnable():
     from app.examples import load_examples
 
     exs = load_examples()
-    assert len(exs) == 3
+    assert len(exs) == 4
     assert any(len(e.request.versions) == 3 for e in exs)
+    life = next(e for e in exs if e.name == "content-lifecycle")
+    assert [v.medium for v in life.request.versions] == ["translation", "summary", "social_post", "video_script",
+                                                         "ai_answer"]
+    assert all(v.medium for e in exs for v in e.request.versions)
     r = client.post(f"/examples/{exs[0].name}", follow_redirects=False)
     assert r.status_code == 303 and r.headers["location"].startswith("/analyze/")
     assert client.post("/examples/nope").status_code == 404

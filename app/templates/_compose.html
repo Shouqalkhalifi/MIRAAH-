@@ -3,9 +3,10 @@
   function compose() {
     return {
       title: '', source: { text: '', lang: 'ar', source_ref: '', content_level: 'B' },
-      versions: [{ label: 'ترجمة-1', lang: 'en', derived_from: 'source', text: '' }],
+      versions: [{ label: 'ترجمة-1', lang: 'en', derived_from: 'source', medium: 'translation', text: '' }],
       locks: [], sending: false, error: '', note: '', suggesting: false,
       langs: { en: 'الإنجليزية' },
+      media: {{ medium_ar | tojson }}, maxLinks: {{ max_versions }},
       lockTypes: { condition: 'شرط', certainty: 'يقين', exception: 'استثناء', attribution: 'نسبة', grade: 'درجة', term: 'مصطلح', negation: 'نفي', number: 'رقم' },
       async suggestLocks() {
         if (!this.source.text.trim()) { this.error = 'اكتب الأصل أولاً، ثم اطلب اقتراح الأقفال.'; return; }
@@ -23,7 +24,7 @@
       },
       addLink() {
         const last = this.versions[this.versions.length - 1];
-        this.versions.push({ label: 'حلقة-' + (this.versions.length + 1), lang: last.lang, derived_from: last.label, text: '' });
+        this.versions.push({ label: 'حلقة-' + (this.versions.length + 1), lang: last.lang, derived_from: last.label, medium: 'summary', text: '' });
       },
       removeLink(i) {
         const gone = this.versions[i].label;
@@ -107,7 +108,11 @@
               <select :id="'lg' + i" class="field" x-model="v.lang">
                 <template x-for="(name, key) in langs" :key="key"><option :value="key" x-text="name" :selected="key === v.lang"></option></template>
               </select></div>
-            <div style="grid-column:1/-1"><label class="lbl" :for="'pr' + i">مأخوذة عن</label>
+            <div><label class="lbl" :for="'md' + i">نوعها</label>
+              <select :id="'md' + i" class="field" x-model="v.medium">
+                <template x-for="(name, key) in media" :key="key"><option :value="key" x-text="name" :selected="key === v.medium"></option></template>
+              </select></div>
+            <div><label class="lbl" :for="'pr' + i">مأخوذة عن</label>
               <select :id="'pr' + i" class="field" x-model="v.derived_from">
                 <option value="source">الأصل</option>
                 <template x-for="p in versions.slice(0, i)"><option :value="p.label" x-text="p.label" :selected="p.label === v.derived_from"></option></template>
@@ -120,8 +125,8 @@
         </li>
       </template>
     </ol>
-    <button type="button" class="btn btn-quiet" @click="addLink()" :disabled="versions.length >= 4">أضف حلقة</button>
-    <p class="t14 muted" x-show="versions.length >= 4" x-cloak>بلغت أربع حلقات، وهو الحد الأقصى.</p>
+    <button type="button" class="btn btn-quiet" @click="addLink()" :disabled="versions.length >= maxLinks">أضف حلقة</button>
+    <p class="t14 muted" x-show="versions.length >= maxLinks" x-cloak x-text="'بلغت ' + maxLinks + ' حلقات، وهو الحد الأقصى.'"></p>
   </section>
 
   <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;border-top:1px solid var(--line);padding-top:1rem">

@@ -1,0 +1,28 @@
+{
+  "name": "content-lifecycle",
+  "title": "دورة إنتاج المحتوى: من الأصل إلى إجابة الذكاء الاصطناعي",
+  "description": "خمس حلقات: ترجمة أمينة، ثم ملخص يُسقط ذكر الخلاف، ثم منشور ينسب القول إلى الإسلام كله، ثم نص فيديو ينسبه إلى النبي ﷺ، ثم إجابة chatbot ترث كل ذلك.",
+  "review_note": "مثال اصطناعي — النص الأصلي يصف خلافاً معروفاً في زكاة الحلي المستعمل؛ تراجعه المطوّرة وتضيف المصدر من dorar.net/feqhia في source_ref. الحلقات المشتقة أخطاء مقصودة للاختبار، ونسبة نص الفيديو إلى النبي ﷺ مختلَقة عمداً ليكشفها الميزان.",
+  "request": {
+    "title": "زكاة الحلي المستعمل عبر دورة إنتاج المحتوى",
+    "source": {
+      "text": "اختلف العلماء في وجوب الزكاة في الحلي المعدّ للاستعمال، فأوجبها بعضهم ولم يوجبها آخرون.",
+      "lang": "ar",
+      "source_ref": "يُضاف المصدر من dorar.net/feqhia",
+      "content_level": "C"
+    },
+    "versions": [
+      {"label": "en-translation", "lang": "en", "derived_from": "source", "medium": "translation",
+       "text": "Scholars differ on whether zakat is due on jewelry kept for personal use: some require it and others do not."},
+      {"label": "summary", "lang": "en", "derived_from": "en-translation", "medium": "summary",
+       "text": "Zakat is due on jewelry kept for personal use."},
+      {"label": "x-post", "lang": "en", "derived_from": "summary", "medium": "social_post",
+       "text": "Islam requires zakat on all jewelry."},
+      {"label": "video-script", "lang": "en", "derived_from": "x-post", "medium": "video_script",
+       "text": "Did you know? The Prophet said that zakat must be paid on every piece of jewelry."},
+      {"label": "chatbot", "lang": "en", "derived_from": "video-script", "medium": "ai_answer",
+       "text": "Yes. In Islam zakat must be paid on all jewelry, as the Prophet commanded."}
+    ],
+    "locks": []
+  }
+}
