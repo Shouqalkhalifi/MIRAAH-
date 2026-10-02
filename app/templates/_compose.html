@@ -5,7 +5,7 @@
       title: '', source: { text: '', lang: 'ar', source_ref: '', content_level: 'B' },
       versions: [{ label: 'ترجمة-1', lang: 'en', derived_from: 'source', text: '' }],
       locks: [], sending: false, error: '', note: '', suggesting: false,
-      langs: { en: 'الإنجليزية', fr: 'الفرنسية', id: 'الإندونيسية', ur: 'الأردية', ar: 'العربية' },
+      langs: { en: 'الإنجليزية' },
       lockTypes: { condition: 'شرط', certainty: 'يقين', exception: 'استثناء', attribution: 'نسبة', grade: 'درجة', term: 'مصطلح', negation: 'نفي', number: 'رقم' },
       async suggestLocks() {
         if (!this.source.text.trim()) { this.error = 'اكتب الأصل أولاً، ثم اطلب اقتراح الأقفال.'; return; }
