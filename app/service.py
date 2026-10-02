@@ -127,6 +127,32 @@ def run_analysis(report_id: str) -> Report:
     return report
 
 
+def reexam_corrected(report_id: str) -> Report:
+    """يعيد امتحان القارئ على كل حلقة طُبّق فيها تصحيح، بالأسئلة نفسها، ليُرى هل عاد الفهم إلى فهم الأصل."""
+    from app.export import approved_text
+
+    report = load_report(report_id)
+    if report is None:
+        raise KeyError(report_id)
+    exam = report.reader_exam
+    if not exam or not exam.questions:
+        return report
+    llm = None
+    for v in report.versions:
+        text, applied = approved_text(report, v.label, v.text)
+        if not applied:
+            exam.corrected.pop(v.label, None)
+            exam.corrected_text.pop(v.label, None)
+            continue
+        if exam.corrected_text.get(v.label) == text:
+            continue
+        llm = llm or llm_factory()
+        exam.corrected[v.label] = reader_exam.answer(llm, text, v.lang, exam.questions)
+        exam.corrected_text[v.label] = text
+    save_report(report)
+    return report
+
+
 def revise_alert(report_id: str, alert_id: str) -> list:
     """ثلاث صياغات آمنة لتنبيه، بعد التحقق الذاتي. تُحفظ في التقرير ولا تُولَّد مرتين."""
     from app.pipeline.revise import revise

@@ -1,5 +1,6 @@
 """«قابِل ما قرأت» عبر الواجهة البرمجية والصفحة، مع الخصوصية: لا يُحفظ نص المستخدم إلا باختياره."""
 import json
+import re
 
 import pytest
 from fastapi.testclient import TestClient
@@ -75,12 +76,16 @@ def test_saved_reverse_gets_permalink():
 
 def test_reverse_page_form_flow():
     page = client.get("/reverse")
-    assert page.status_code == 200 and "الصق ما قرأته أو اكتب سؤالك" in page.text
-    assert "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى" in page.text
+    assert page.status_code == 200 and 'action="/reverse"' in page.text and "<h1>تحقّق مما قرأت</h1>" in page.text
     res = client.post("/reverse", data={"text": "Zorblat is obligatory for everyone."})
     assert res.status_code == 200
     html = res.text
+    assert "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى" in html
     assert "مطابق جزئياً" in html and "لم يُحفظ نصك" in html
+    # خدمة القارئ: الحكم ثم «هكذا يقول المصدر» ثم «لماذا هذا الحكم؟» ثم ما قرأه، بلا أي زر تعديل أو تصدير
+    assert html.index("rv-verdict") < html.index("هكذا يقول المصدر") < html.index("لماذا هذا الحكم؟") < html.index("ما قرأتَه")
+    assert "طبّق التصحيح" not in html and "/api/decision" not in html and "صدّر" not in html
+    assert "أنت في <b>تحقّق مما قرأت</b>" in html and 'href="/new"' in html  # سطر الخدمة، وجسر إلى خدمة الناشر
     assert "نص تجريبي (أ)" in html  # الأصل الحرفي معروض
     assert "مسألة تجريبية غير مراجعة" in html  # لافتة المسألة الوهمية
     saved = client.post("/reverse", data={"text": "Zorblat is forbidden.", "save": "1"}, follow_redirects=False)
@@ -93,6 +98,17 @@ def test_reverse_page_personal_request_and_validation():
     assert "اكتب ما قرأته أو سؤالك" in client.post("/reverse", data={"text": "a"}).text
 
 
-def test_home_offers_both_entries():
+def test_home_offers_both_services_and_section_nav():
     html = client.get("/").text
-    assert 'href="/reverse"' in html and "قابِل ما قرأت" in html and "مقابلة جديدة" in html
+    assert "تحقّق من مصدرها" in html and "قابِلها بمصدرها" not in html
+    assert 'action="/reverse"' in html and 'href="/new"' in html
+    assert ">راجِع قبل النشر</a>" in html and "حلّل بمِرآة" not in html
+    nav = re.search(r'<nav class="topnav".*?</nav>', html, re.S).group(0)
+    assert re.findall(r'href="([^"]+)"', nav) == ["/", "/#about", "/#features", "/#how", "/#app", "/#faq", "/docs"]
+    for anchor in ("about", "features", "how", "app", "faq"):
+        assert f'id="{anchor}"' in html
+    assert 'class="phone"' in html and "الاعتكاف سنة للرجال والنساء" in html
+    assert "أنت في" not in html  # الرئيسية خارج الخدمتين
+    r = client.get("/about", follow_redirects=False)
+    assert r.status_code == 308 and r.headers["location"] == "/#about"
+    assert "أنت في <b>راجِع قبل النشر</b>" in client.get("/new").text

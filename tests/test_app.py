@@ -139,7 +139,7 @@ def test_report_page_colors_broken_link_and_highlights():
     assert re.search(r'<mark class="mk mk-rubric" title="سقط الشرط «للمسافر» · condition_dropped">للمسافر</mark>', html)
     assert '<sup class="sigla tone-rubric">لحق</sup>' in html
     assert 'href="#alert-' in html and 'id="alert-' in html  # الموضع يقود إلى ملاحظته في الحاشية
-    assert "<h3 title=\"condition_dropped\">سقط الشرط «للمسافر»</h3>" in html  # الملاحظة مسمّاة بالمشكلة
+    assert "<b title=\"condition_dropped\">سقط الشرط «للمسافر»</b>" in html  # الملاحظة مسمّاة بالمشكلة
     assert "أعراضه (" in html  # اتساع النطاق وامتحان القارئ مطويان تحتها
     assert "راجع <b>2</b> من <b>2</b> جملة" in html
     assert "🔴" not in html and "⚠️" not in html  # لا إيموجي في الواجهة
@@ -166,10 +166,12 @@ def test_examples_valid_and_runnable():
     assert r.status_code == 303 and r.headers["location"].startswith("/analyze/")
     assert client.post("/examples/nope").status_code == 404
     home = client.get("/").text
-    assert "جرّب:" in home and exs[0].title in home and "قابِل النص" in home
+    assert "جرّب:" in home and exs[0].title in home
+    new = client.get("/new").text
+    assert "قابِل النص" in new and exs[0].title in new
 
 
-# ---------- قرار المراجع والنشر ----------
+# ---------- قرار المراجع والاعتماد والتصدير ----------
 def _analyzed():
     rep = client.post("/api/analyze", json=CHAIN).json()
     reds = [a["id"] for a in rep["alerts"] if a["severity"] == "red"]
@@ -178,14 +180,40 @@ def _analyzed():
 
 
 def decide(rid, aid, **kw):
-    body = {"report_id": rid, "alert_id": aid, "action": "accept", "reason": "الشرط ضروري", **kw}
+    body = {"report_id": rid, "alert_id": aid, "action": "reject", "reason": "الشرط ضروري", **kw}
     return client.post("/api/decision", json=body)
 
 
-def test_reason_is_mandatory():
+def test_reader_exam_can_be_rerun_on_the_corrected_text():
+    rep, _ = _analyzed()
+    rid = rep["id"]
+    fix = next(a for a in rep["alerts"] if a["version_label"] == "en-summary" and a["severity"] == "red"
+               and a["version_span"]["text"])
+    assert client.post(f"/api/report/{rid}/reexam").json()["corrected"] == {}  # لا تصحيح بعد
+    assert decide(rid, fix["id"], action="edit", reason="",
+                  edited_text="A traveler may break the fast in Ramadan.").status_code == 200
+    page = client.get(f"/report/{rid}").text
+    assert "قبل التصحيح" in page and "أعد الامتحان على النص المصحَّح" in page and "tone-verified\">بعد التصحيح" not in page
+
+    exam = client.post(f"/api/report/{rid}/reexam").json()
+    assert exam["answers"]["en-summary"] == [1]  # النسخة كما حُلّلت: «لكل المسلمين»
+    assert exam["corrected"] == {"en-summary": [0]}  # بعد التصحيح: «للمسافر» كالأصل
+    page = client.get(f"/report/{rid}").text
+    assert "tone-verified\">بعد التصحيح" in page and 'class="same"' in page and "أعد الامتحان على النص المصحَّح" not in page
+
+
+def test_not_an_error_needs_a_reason():
     rep, reds = _analyzed()
     assert decide(rep["id"], reds[0], reason="  ").status_code == 422
     assert decide(rep["id"], reds[0], reason="").status_code == 422
+
+
+def test_apply_fix_needs_no_reason_and_no_role():
+    rep, reds = _analyzed()
+    r = decide(rep["id"], reds[0], action="edit", reason="", edited_text="A traveler may break the fast.")
+    assert r.status_code == 200
+    d = r.json()["decisions"][reds[0]]
+    assert d["action"] == "edit" and d["reason"] == "" and "reviewer_role" not in d
 
 
 def test_edit_requires_text():
@@ -200,34 +228,97 @@ def test_unknown_alert_rejected():
     assert decide(rep["id"], "nope").status_code == 404
 
 
-def test_publish_locked_until_all_reds_decided_then_seal_and_audit():
+EXPORT_TITLE = "تقرير مقابلة – للاستخدام الداخلي، وليس شهادة اعتماد عامة"
+
+
+def approve(rid):
+    return client.post("/api/approve", json={"report_id": rid})
+
+
+def test_approve_locked_until_all_reds_decided_then_export_and_audit():
     rep, reds = _analyzed()
     rid = rep["id"]
-    assert client.post("/api/publish", json={"report_id": rid, "reviewer_role": "مترجم"}).status_code == 409
-    assert client.get(f"/seal/{rid}").status_code == 404  # لا ختم قبل النشر
+    assert approve(rid).status_code == 409
+    assert client.get(f"/api/report/{rid}/export.json").status_code == 409  # لا تصدير قبل الاعتماد
+    assert client.get(f"/api/report/{rid}/export.html").status_code == 409
+    assert client.get(f"/api/report/{rid}/export.pdf").status_code == 409
     for aid in reds:
-        assert decide(rid, aid, reviewer_role="مترجم").status_code == 200
-    r = client.post("/api/publish", json={"report_id": rid, "reviewer_role": "مترجم"})
-    assert r.status_code == 200 and r.json()["status"] == "published"
-    # بعد النشر: القرارات مقفلة، والختم متاح، والسجل كامل
+        assert decide(rid, aid).status_code == 200
+    r = approve(rid)
+    assert r.status_code == 200 and r.json()["status"] == "approved"
+    # بعد الاعتماد: القرارات مقفلة، والتصدير متاح، والسجل كامل
     assert decide(rid, reds[0]).status_code == 409
-    seal = client.get(f"/seal/{rid}").text
-    assert "مترجم" in seal and "أُحيل خللاً حقيقياً" in seal and DISCLAIMER in seal
-    assert "بلغ مقابلة" in seal and "تحقّق من نص وصلك" in seal  # عنوان الختم، وخانة التحقق من البصمة
-    assert 'aria-label="رمز QR لصفحة الختم"' in seal and "بصمة الختم" in seal
     events = [e["event"] for e in client.get(f"/api/report/{rid}/audit").json()]
-    assert events == ["decision"] * len(reds) + ["publish"]
+    assert events == ["decision"] * len(reds) + ["approve"]
+
+    j = client.get(f"/api/report/{rid}/export.json")
+    assert j.status_code == 200 and "attachment" in j.headers["content-disposition"]
+    d = j.json()
+    assert d["title"] == EXPORT_TITLE
+    assert d["source"] == {"text": SOURCE, "lang": "ar", "source_ref": "اصطناعي", "content_level": "B"}
+    assert [n["label"] for n in d["chain"]] == ["source", "en-translation", "en-summary", "fr-translation"]
+    assert all(n["approved_text"] for n in d["chain"])
+    assert "reviewer_role" not in d
+    assert d["approved_at"].endswith("(بتوقيت الرياض)")
+    decided = [a for a in d["alerts"] if a["decision"]]
+    assert {a["id"] for a in decided} >= set(reds)
+    assert all(a["decision"]["reason"] == "الشرط ضروري" and a["decision"]["action_ar"] == "ليس خطأ"
+               for a in decided)
+
+    h = client.get(f"/api/report/{rid}/export.html")
+    assert h.status_code == 200 and "attachment" in h.headers["content-disposition"]
+    html = h.text
+    assert f"<title>{EXPORT_TITLE}</title>" in html and DISCLAIMER in html
+    assert "اصطناعي" in html and "صفة المراجع" not in html and "بتوقيت الرياض" in html
+    assert "ليس خطأ" in html and "السبب:" in html and "window.print()" in html
+    assert html.index("المصدر") < html.index("حلقات السلسلة") < html.index("النص المصحَّح لكل حلقة") \
+        < html.index("التنبيهات وما تم في كل منها")
+
+    p = client.get(f"/api/report/{rid}/export.pdf")
+    assert p.status_code == 200 and p.headers["content-type"] == "application/pdf"
+    assert f'miraah-report-{rid}.pdf' in p.headers["content-disposition"]
+    assert p.content.startswith(b"%PDF") and len(p.content) > 5000
+    page = client.get(f"/report/{rid}").text
+    assert f"/api/report/{rid}/export.pdf" in page and "this.download('pdf')" in page and "تقرير HTML" not in page
 
 
-def test_level_d_cannot_be_published():
+def test_riyadh_time_is_utc_plus_3():
+    from datetime import datetime, timezone
+
+    from app.export import riyadh_time
+
+    assert riyadh_time(datetime(2026, 10, 2, 21, 30, tzinfo=timezone.utc)) == "2026-10-03 00:30 (بتوقيت الرياض)"
+
+
+def test_level_d_can_never_be_approved():
     body = dict(CHAIN, source=dict(CHAIN["source"], content_level="D"))
     rep = client.post("/api/analyze", json=body).json()
     assert rep["referral"] is True
     for a in rep["alerts"]:
         if a["severity"] == "red":
             decide(rep["id"], a["id"])
-    r = client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"})
+    r = approve(rep["id"])
     assert r.status_code == 409 and "مختص" in r.json()["detail"]
+    assert client.get(f"/api/report/{rep['id']}/export.json").status_code == 409
+    page_html = client.get(f"/report/{rep['id']}").text
+    assert "&#34;levelD&#34;: true" in page_html  # الزر معطّل دائماً في الواجهة
+
+
+def test_seal_is_gone():
+    rep, _ = _analyzed()
+    assert client.get(f"/seal/{rep['id']}").status_code == 404
+    assert client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"}).status_code == 404
+    html = client.get(f"/report/{rep['id']}").text
+    assert "/seal/" not in html and "اختِم" not in html and "صدّر التقرير" in html
+    assert "ختم" not in client.get("/").text
+
+
+def test_legacy_published_report_loads_as_approved():
+    from app.models import Report, ReportStatus
+
+    r = Report.model_validate({"source": {"text": "نص"}, "status": "published",
+                               "published_at": "2026-10-01T00:00:00Z"})
+    assert r.status == ReportStatus.approved and r.approved_at is not None
 
 
 def test_revise_endpoint_self_checks_and_caches():
@@ -297,17 +388,20 @@ def test_review_page_renders_after_revisions_and_decisions():
     assert json.dumps("الشرط ضروري")[1:-1] in r.text  # القرار المحفوظ (tojson يهرّب الحروف العربية)
 
 
-def test_reason_must_not_be_the_edited_wording_and_seal_shows_both():
+def test_reason_must_not_be_the_edited_wording_and_export_shows_both():
     rep, reds = _analyzed()
     wording = "A traveler may break the fast in Ramadan."
     r = decide(rep["id"], reds[0], action="edit", edited_text=wording, reason=wording)
     assert r.status_code == 422 and "سبب القرار" in r.text
     for aid in reds:
         assert decide(rep["id"], aid, action="edit", edited_text=wording, reason="أسقط الملخص شرط السفر").status_code == 200
-    assert client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"}).status_code == 200
-    seal = client.get(f"/seal/{rep['id']}").text
-    assert "الصياغة المعتمدة:" in seal and wording in seal and "السبب: أسقط الملخص شرط السفر" in seal
-    assert seal.index("النص المعتمد") < seal.index("خيط السند") < seal.index("قيود المقابلة")  # ترتيب الختم
+    assert approve(rep["id"]).status_code == 200
+    html = client.get(f"/api/report/{rep['id']}/export.html").text
+    assert "الصياغة المعتمدة:" in html and wording in html and "أسقط الملخص شرط السفر" in html
+    d = client.get(f"/api/report/{rep['id']}/export.json").json()
+    assert d["chain"][0]["approved_text"] == SOURCE  # الأصل لا يُعدَّل أبداً
+    summary = next(n for n in d["chain"] if n["label"] == "en-summary")
+    assert summary["applied_edits"] and summary["approved_text"].startswith(wording)
 
 
 def test_provider_errors_get_a_clear_arabic_message(monkeypatch):
@@ -336,10 +430,19 @@ def test_favicon_served():
     assert 'rel="icon" href="/static/favicon.svg"' in client.get("/").text
 
 
-def test_seal_shows_overruled_title_when_a_red_alert_was_rejected():
+def test_export_records_rejected_red_alerts_with_reason():
     rep, reds = _analyzed()
     for aid in reds:
         assert decide(rep["id"], aid, action="reject", reason="رأيتُه إنذاراً خاطئاً").status_code == 200
-    assert client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"}).status_code == 200
-    seal = client.get(f"/seal/{rep['id']}").text
-    assert "نُشر رغم رفض تنبيه خطير" in seal and "سُجّل إنذاراً خاطئاً" in seal
+    assert approve(rep["id"]).status_code == 200
+    html = client.get(f"/api/report/{rep['id']}/export.html").text
+    assert "ليس خطأ" in html and "رأيتُه إنذاراً خاطئاً" in html
+
+
+def test_simplified_decision_ui():
+    rep, _ = _analyzed()
+    html = client.get(f"/report/{rep['id']}").text
+    assert "طبّق التصحيح" in html and "ليس خطأ" in html
+    for gone in ("صفتك", "خلل حقيقي", "إنذار خاطئ", "أصلحه الآن", "اعتمِد وصدّر", "export.json"):
+        assert gone not in html, gone
+

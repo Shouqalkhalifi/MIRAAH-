@@ -4,17 +4,18 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import BackgroundTasks, FastAPI, Form, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup, escape
 
 from pydantic import BaseModel, Field
 
-from app import review, service
+from app import export, review, service
 from app.corpus import load_corpus
 from app.examples import get_example, load_examples
-from app.models import REVIEWER_ROLES, Decision, Lock, Report, ReportStatus, Revision
+from app.library import load_library
+from app.models import Decision, Lock, Report, ReportStatus, Revision
 from app.service import STAGES
 from app.pipeline.segment import split_sentences
 from app.pipeline.locks import LOCK_TYPE_AR
@@ -40,7 +41,7 @@ templates.env.globals["meta"] = meta
 # طبقة العرض للمقابلة (علامات النسّاخ، والتجميع بالسبب الجذري، وخيط السند) وتقسيم الجمل للمرآة
 templates.env.globals["ui"] = ui
 templates.env.globals["sentences"] = split_sentences
-templates.env.globals["reviewer_roles"] = REVIEWER_ROLES
+templates.env.globals["approved_text"] = export.approved_text
 templates.env.globals["footer_ar"] = "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى"
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
@@ -127,9 +128,8 @@ class DecisionIn(Decision):
     report_id: str
 
 
-class PublishIn(BaseModel):
+class ApproveIn(BaseModel):
     report_id: str
-    reviewer_role: str = Field(min_length=2, max_length=40)
 
 
 def _review_call(fn, *args):
@@ -146,10 +146,46 @@ def api_decision(body: DecisionIn):
     return _review_call(review.decide, body.report_id, decision)
 
 
-@app.post("/api/publish", response_model=Report)
-def api_publish(body: PublishIn):
-    """ينشر التقرير ويُنشئ صفحة الختم. يُرفض ما لم تُحسم كل التنبيهات الحمراء."""
-    return _review_call(review.publish, body.report_id, body.reviewer_role)
+@app.post("/api/approve", response_model=Report)
+def api_approve(body: ApproveIn):
+    """يعتمد المراجع التقرير فيصير قابلاً للتصدير. يُرفض ما لم تُحسم كل التنبيهات الحمراء، ودائماً في المستوى D."""
+    return _review_call(review.approve, body.report_id)
+
+
+def _approved(report_id: str) -> Report:
+    r = _get(report_id)
+    if r.status != ReportStatus.approved:
+        raise HTTPException(409, "لم يُعتمد هذا التقرير بعد")
+    return r
+
+
+def _download(name: str) -> dict:
+    return {"Content-Disposition": f'attachment; filename="{name}"'}
+
+
+@app.get("/api/report/{report_id}/export.json")
+def api_export_json(report_id: str):
+    """تقرير المقابلة المعتمد بصيغة JSON: للاستخدام الداخلي، وليس شهادة اعتماد عامة."""
+    r = _approved(report_id)
+    return JSONResponse(export.build(r, DISCLAIMER), headers=_download(f"miraah-report-{r.id}.json"))
+
+
+@app.get("/api/report/{report_id}/export.html", response_class=HTMLResponse)
+def api_export_html(request: Request, report_id: str):
+    """تقرير المقابلة المعتمد صفحةً مستقلة قابلة للطباعة."""
+    r = _approved(report_id)
+    html = templates.get_template("export.html").render(d=export.build(r, DISCLAIMER), lang_ar=export.LANG_AR)
+    return HTMLResponse(html, headers=_download(f"miraah-report-{r.id}.html"))
+
+
+@app.get("/api/report/{report_id}/export.pdf")
+def api_export_pdf(report_id: str):
+    """تقرير المقابلة المعتمد ملف PDF: المصدر، والنص المصحَّح لكل حلقة، والتنبيهات وما تم في كل منها."""
+    from app import pdf
+
+    r = _approved(report_id)
+    return Response(pdf.render(export.build(r, DISCLAIMER)), media_type="application/pdf",
+                    headers=_download(f"miraah-report-{r.id}.pdf"))
 
 
 class ReverseIn(BaseModel):
@@ -195,6 +231,16 @@ def api_revise(body: ReviseIn):
         raise HTTPException(409, str(e))
 
 
+@app.post("/api/report/{report_id}/reexam")
+def api_reexam(report_id: str):
+    """يعيد امتحان القارئ على نص كل حلقة بعد تصحيحاتها المعتمدة، بالأسئلة نفسها."""
+    try:
+        r = service.reexam_corrected(report_id)
+    except KeyError:
+        raise HTTPException(404, "التقرير غير موجود")
+    return r.reader_exam.model_dump(mode="json") if r.reader_exam else {}
+
+
 @app.get("/api/report/{report_id}/audit")
 def api_audit(report_id: str) -> list[dict]:
     _get(report_id)
@@ -209,11 +255,19 @@ def api_examples() -> list[dict]:
 # ---------- الشاشات ----------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return page(request, "home.html", examples=load_examples())
+    verse = next((c for c in load_corpus() if c.id == "q-2-185-yusr"), None)
+    sample = next((i for i in load_library() if i.id == "BZ09"), None)
+    return page(request, "home.html", examples=load_examples(), verse=verse, sample=sample)
+
+
+@app.get("/about")
+def about():
+    return RedirectResponse("/#about", status_code=308)
 
 
 @app.get("/reverse", response_class=HTMLResponse)
 def reverse_page(request: Request):
+    """«تحقّق مما قرأت»: خدمة القارئ. عرض فقط، بلا تعديل ولا تصحيح."""
     return page(request, "reverse.html", result=None, text="", error="")
 
 
@@ -252,7 +306,7 @@ def run_example(name: str, background_tasks: BackgroundTasks):
 
 @app.get("/new", response_class=HTMLResponse)
 def new_report(request: Request):
-    return page(request, "input.html")
+    return page(request, "input.html", examples=load_examples())
 
 
 @app.get("/analyze/{report_id}", response_class=HTMLResponse)
@@ -299,18 +353,5 @@ def review_page(request: Request, report_id: str):
     # tojson في القالب لا يفهم كائنات Pydantic: نمرّر قواميس جاهزة
     saved = {"decisions": {k: d.model_dump(mode="json") for k, d in r.decisions.items()},
              "revisions": {k: [x.model_dump(mode="json") for x in v] for k, v in r.revisions.items()}}
-    return page(request, "review.html", roles=REVIEWER_ROLES, blockers=review.blockers(r), saved=saved,
+    return page(request, "review.html", blockers=review.blockers(r), saved=saved,
                 **_report_ctx(r))
-
-
-@app.get("/seal/{report_id}", response_class=HTMLResponse)
-def seal_page(request: Request, report_id: str):
-    """صفحة عامة للقراءة فقط بعد النشر. لا بيانات شخصية: صفة المراجع لا اسمه."""
-    from app import seal
-
-    r = _get(report_id)
-    if r.status != ReportStatus.published:
-        raise HTTPException(404, "لم يُنشر هذا التقرير بعد")
-    return page(request, "seal.html", report=r, chain=["source"] + [v.label for v in r.versions],
-                hashes=seal.text_hashes(r), digest=seal.seal_digest(r), qr=Markup(seal.qr_svg(str(request.url))),
-                counts={sev: sum(1 for a in r.alerts if a.severity.value == sev) for sev in ("red", "yellow", "info")})

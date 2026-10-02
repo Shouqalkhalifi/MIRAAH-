@@ -1,4 +1,4 @@
-"""6.12 قرار المراجع: قبول/رفض/تعديل بسبب إلزامي، وسجل تدقيق، والنشر المقفل حتى حسم كل تنبيه أحمر."""
+"""6.12 قرار المراجع: «طبّق التصحيح» أو «ليس خطأ» بسبب، وسجل تدقيق، وتصدير مقفل حتى حسم كل تنبيه أحمر."""
 from __future__ import annotations
 
 import json
@@ -37,11 +37,11 @@ def _load(report_id: str) -> Report:
 
 
 def blockers(r: Report) -> list[str]:
-    """أسباب منع النشر (قائمة فارغة = جاهز)."""
+    """أسباب منع الاعتماد (قائمة فارغة = جاهز)."""
     out = []
     if r.status != ReportStatus.analyzed:
         out.append("التقرير ليس في حالة «حُلِّل»")
-    if r.referral:
+    if r.referral or r.source.content_level.value == "D":
         out.append("مستوى المحتوى D: يُحال إلى مختص")
     pending = [a.id for a in r.alerts if a.severity.value == "red" and a.id not in r.decisions]
     if pending:
@@ -51,8 +51,8 @@ def blockers(r: Report) -> list[str]:
 
 def decide(report_id: str, decision: Decision) -> Report:
     r = _load(report_id)
-    if r.status == ReportStatus.published:
-        raise ReviewError("التقرير منشور؛ القرارات مقفلة")
+    if r.status == ReportStatus.approved:
+        raise ReviewError("التقرير معتمد؛ القرارات مقفلة")
     if r.status != ReportStatus.analyzed:
         raise ReviewError("لا يمكن اتخاذ قرار قبل اكتمال التحليل")
     if not any(a.id == decision.alert_id for a in r.alerts):
@@ -63,14 +63,14 @@ def decide(report_id: str, decision: Decision) -> Report:
     return r
 
 
-def publish(report_id: str, reviewer_role: str) -> Report:
+def approve(report_id: str) -> Report:
     r = _load(report_id)
-    if r.status == ReportStatus.published:
+    if r.status == ReportStatus.approved:
         return r
     problems = blockers(r)
     if problems:
         raise ReviewError("؛ ".join(problems))
-    r.status, r.published_at, r.reviewer_role = ReportStatus.published, datetime.now(timezone.utc), reviewer_role
+    r.status, r.approved_at = ReportStatus.approved, datetime.now(timezone.utc)
     save_report(r)
-    _audit(r.id, "publish", payload={"reviewer_role": reviewer_role, "decisions": len(r.decisions)})
+    _audit(r.id, "approve", payload={"decisions": len(r.decisions)})
     return r

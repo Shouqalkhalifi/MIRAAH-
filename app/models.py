@@ -76,7 +76,7 @@ class ReportStatus(str, Enum):
     failed = "failed"
     analyzed = "analyzed"
     in_review = "in_review"
-    published = "published"
+    approved = "approved"  # اعتمده المراجع وصُدِّر تقريره الداخلي
 
 
 # ---------- المدخلات ----------
@@ -223,6 +223,9 @@ class ExamQuestion(BaseModel):
 class ReaderExam(BaseModel):
     questions: list[ExamQuestion] = Field(default_factory=list)
     answers: dict[str, list[Optional[int]]] = Field(default_factory=dict)  # label ← رقم الخيار لكل سؤال
+    # إعادة الامتحان على نص الحلقة بعد التصحيحات المعتمدة؛ النص محفوظ ليُعرف إن تغيّرت التصحيحات بعدها
+    corrected: dict[str, list[Optional[int]]] = Field(default_factory=dict)
+    corrected_text: dict[str, str] = Field(default_factory=dict)
 
 
 # ---------- الصياغة الآمنة (6.10) ----------
@@ -235,25 +238,24 @@ class Revision(BaseModel):
 
 
 # ---------- قرار المراجع (6.12) ----------
-REVIEWER_ROLES = ("مترجم", "محرر", "مدقق لغوي", "مراجع شرعي", "مراجع محتوى")
-
-
 class Decision(BaseModel):
+    """قرار بلا صفة ولا اسم. «edit» = طبّق التصحيح، «reject» = ليس خطأ (بسبب إلزامي).
+    «accept» = أحِله للمختص (بسبب)، ويظهر فقط حين يكون الخلل في الأصل نفسه، لأن الأصل لا يُعدَّل."""
     alert_id: str
-    action: Literal["accept", "reject", "edit"]  # قبول التنبيه / رفضه / تعديل الصياغة
-    reason: str = Field(min_length=3, max_length=1000)  # السبب إلزامي
+    action: Literal["edit", "reject", "accept"]
+    reason: str = Field(default="", max_length=1000)
     edited_text: Optional[str] = Field(default=None, max_length=5000)
-    reviewer_role: str = Field(default="مراجع محتوى", min_length=2, max_length=40)  # الصفة لا الاسم
     decided_at: datetime = Field(default_factory=_now)
 
     @model_validator(mode="after")
-    def _edit_needs_text(self) -> "Decision":
+    def _check(self) -> "Decision":
         self.reason = self.reason.strip()
-        if len(self.reason) < 3:
-            raise ValueError("السبب إلزامي")
-        if self.action == "edit" and not (self.edited_text and self.edited_text.strip()):
-            raise ValueError("التعديل يحتاج الصياغة المعدّلة")
-        if self.edited_text and " ".join(self.reason.split()) == " ".join(self.edited_text.split()):
+        if self.action == "edit":
+            if not (self.edited_text and self.edited_text.strip()):
+                raise ValueError("التصحيح يحتاج الصياغة المعتمدة")
+        elif len(self.reason) < 3:
+            raise ValueError("اكتب سبباً قصيراً")
+        if self.reason and self.edited_text and " ".join(self.reason.split()) == " ".join(self.edited_text.split()):
             raise ValueError("اكتب سبب القرار، لا الصياغة نفسها")
         return self
 
@@ -264,7 +266,7 @@ class AuditEntry(SQLModel, table=True):
     id: Optional[int] = SQLField(default=None, primary_key=True)
     report_id: str = SQLField(index=True)
     ts: datetime = SQLField(default_factory=_now)
-    event: str  # decision | publish
+    event: str  # decision | approve
     alert_id: str = ""
     payload: str = "{}"
 
@@ -301,8 +303,15 @@ class Report(BaseModel):
     reader_exam: Optional[ReaderExam] = None
     witnesses: WitnessStats = Field(default_factory=WitnessStats)
     warnings: list[str] = Field(default_factory=list)  # مراحل اختيارية تعذّرت (لا تُفشل التقرير)
-    published_at: Optional[datetime] = None
-    reviewer_role: str = ""
+    approved_at: Optional[datetime] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_published(cls, data):
+        """تقارير محفوظة قبل إزالة الختم: «published» صارت «approved»."""
+        if isinstance(data, dict) and data.get("status") == "published":
+            data = {**data, "status": "approved", "approved_at": data.get("published_at")}
+        return data
 
     @model_validator(mode="after")
     def _chain_valid(self) -> "Report":

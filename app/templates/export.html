@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ d.title }}</title>
+<style>
+  body { font-family: "Readex Pro", "Segoe UI", Tahoma, sans-serif; color: #12183F; background: #fff; margin: 0; line-height: 1.8; }
+  main { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.45rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.05rem; margin: 1.75rem 0 .6rem; padding-bottom: .3rem; border-bottom: 2px solid #6150EA; }
+  .muted { color: #5B6080; font-size: .9rem; }
+  .meta { display: grid; grid-template-columns: max-content 1fr; gap: .2rem 1rem; font-size: .92rem; margin: 1rem 0 0; }
+  .meta dt { color: #5B6080; }
+  .meta dd { margin: 0; font-weight: 600; }
+  .box { border: 1px solid #DDE0F0; border-radius: 10px; padding: .7rem 1rem; margin: .5rem 0; break-inside: avoid; }
+  .text { font-size: 1.05rem; white-space: pre-wrap; }
+  .ltr { direction: ltr; text-align: left; font-family: Georgia, serif; }
+  .chain { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0; list-style: none; }
+  .chain li { border: 1px solid #DDE0F0; border-radius: 999px; padding: .15rem .8rem; font-size: .88rem; }
+  .chain .break { border-color: #E5484D; color: #C62F35; font-weight: 700; }
+  .tag { display: inline-block; font-size: .78rem; font-weight: 700; border-radius: 6px; padding: 0 .45rem; color: #fff; background: #5B6080; }
+  .tag.red { background: #E5484D; } .tag.yellow { background: #D9A21B; } .tag.info { background: #8A90B0; }
+  .alert h3 { font-size: 1rem; margin: 0 0 .2rem; }
+  .alert p { margin: .2rem 0; font-size: .92rem; }
+  .decision { background: #F2F4FF; border-radius: 8px; padding: .4rem .7rem; margin-top: .4rem; }
+  .pending { color: #9A6B00; }
+  .banner { background: #FFF6DF; border: 1px solid #F0D68A; border-radius: 10px; padding: .6rem 1rem; font-size: .9rem; margin-top: 1rem; }
+  footer { margin-top: 2rem; padding-top: .75rem; border-top: 1px solid #DDE0F0; font-size: .82rem; color: #5B6080; }
+  .print { margin-top: 1rem; font: inherit; padding: .4rem 1rem; border-radius: 8px; border: 1px solid #12183F; background: #12183F; color: #fff; cursor: pointer; }
+  @media print { .print { display: none; } main { padding: 0; } h2 { break-after: avoid; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>{{ d.title }}</h1>
+    <p class="muted" style="margin:0">{{ d.report_title or 'مقابلة' }} · مِرآة MIRAAH</p>
+    <dl class="meta">
+      <dt>مرجع المصدر</dt><dd>{{ d.source.source_ref or 'غير مسجّل' }}</dd>
+      <dt>مستوى المحتوى</dt><dd>{{ d.source.content_level }}</dd>
+      <dt>تاريخ التصدير</dt><dd>{{ d.approved_at }}</dd>
+      <dt>رقم التقرير</dt><dd dir="ltr" style="text-align:right">{{ d.report_id }}</dd>
+    </dl>
+    <p class="banner">هذا التقرير سجلّ داخلي لقرارات المراجعة. ليس شهادة اعتماد عامة، ولا يُصدر حكماً شرعياً.</p>
+    <button type="button" class="print" onclick="window.print()">اطبع التقرير</button>
+  </header>
+
+  <section>
+    <h2>المصدر</h2>
+    <div class="box"><p class="text" style="margin:0">{{ d.source.text }}</p></div>
+  </section>
+
+  <section>
+    <h2>حلقات السلسلة</h2>
+    <ol class="chain">
+      {% for n in d.chain %}<li class="{{ 'break' if n.state == 'break' else '' }}">{{ loop.index }}. <bdi>{{ n.name }}</bdi> · {{ lang_ar.get(n.lang, n.lang) }}{% if n.derived_from %} · عن <bdi>{{ 'الأصل' if n.derived_from == 'source' else n.derived_from }}</bdi>{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</li>{% endfor %}
+    </ol>
+  </section>
+
+  <section>
+    <h2>النص المصحَّح لكل حلقة</h2>
+    {% for n in d.chain %}
+    <div class="box">
+      <p class="muted" style="margin:0"><bdi>{{ n.name }}</bdi> · {{ lang_ar.get(n.lang, n.lang) }}{% if n.label == 'source' %} · الأصل لا يُعدَّل{% elif n.applied_edits %} · طُبّقت {{ n.applied_edits | length }} صياغة اعتمدها المراجع{% else %} · بلا تعديل{% endif %}</p>
+      <p class="text {{ '' if n.lang in ['ar', 'ur'] else 'ltr' }}" style="margin:.3rem 0 0">{{ n.approved_text }}</p>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section>
+    <h2>التنبيهات وما تم في كل منها</h2>
+    {% for a in d.alerts %}
+    <div class="box alert">
+      <h3><span class="tag {{ a.severity }}">{{ a.severity_ar }}</span> {{ a.headline_ar }}</h3>
+      <p class="muted">في <bdi>{{ a.version_label }}</bdi> · دخل في <bdi>{{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }}</bdi></p>
+      <p>{{ a.explanation_ar }}</p>
+      {% if a.decision %}
+      <div class="decision">
+        <p><b>القرار:</b> {{ a.decision.action_ar }}</p>
+        {% if a.decision.edited_text %}<p><b>الصياغة المعتمدة:</b> <bdi>{{ a.decision.edited_text }}</bdi></p>{% endif %}
+        {% if a.decision.reason %}<p><b>السبب:</b> {{ a.decision.reason }}</p>{% endif %}
+        <p class="muted">{{ a.decision.decided_at }}</p>
+      </div>
+      {% else %}
+      <p class="pending">بلا قرار (ليس تنبيهاً خطيراً)</p>
+      {% endif %}
+    </div>
+    {% else %}
+    <p>لم تُسجَّل تنبيهات على هذه المقابلة.</p>
+    {% endfor %}
+  </section>
+
+  <footer>{{ d.disclaimer }}.</footer>
+</main>
+</body>
+</html>
