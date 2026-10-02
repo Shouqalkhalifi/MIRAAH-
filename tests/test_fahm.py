@@ -9,7 +9,25 @@ from app.pipeline.fahm import term_hits, term_rules, understanding_risks
 
 
 def test_shipped_terms_have_rules():
-    assert {i.id for i in term_rules()} == {"t-sunnah", "t-makruh", "t-ijma"}
+    assert {i.id for i in term_rules()} == {"t-islam", "t-tawhid", "t-ibadah", "t-nubuwwah", "t-wahy", "t-shariah",
+                                            "t-sunnah", "t-makruh", "t-ijma"}
+
+
+def test_package_terms_are_attributed_to_the_package():
+    from app.corpus import load_corpus
+    pkg = [i for i in load_corpus() if i.type == "term" and i.source_name.startswith("الحزمة والبيانات")]
+    assert len(pkg) == 10  # نماذج قاموس المصطلحات الأساسية في الحزمة العلمية
+
+
+def test_tawhid_reduced_to_unity_is_flagged():
+    hits = term_hits("أساس الإسلام التوحيد.", "The basis of Islam is unity.")
+    assert [h.match_key for h in hits] == ["t-tawhid"]
+    assert term_hits("أساس الإسلام التوحيد.", "The basis of Islam is Tawhid, the Oneness of God.") == []
+
+
+def test_worship_reduced_to_rituals_is_flagged():
+    hits = term_hits("العبادة تشمل أعمال القلب.", "Rituals include deeds of the heart.")
+    assert [h.match_key for h in hits] == ["t-ibadah"]
 
 
 def test_makruh_rendered_as_forbidden():
