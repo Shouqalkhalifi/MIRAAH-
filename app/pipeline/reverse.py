@@ -125,14 +125,22 @@ def classify(llm, text: str) -> Kind:
                              purpose="reverse_classify").kind
 
 
+# الفاصلة العليا ونظائرها في النقحرة (I'tikaf / I’tikaf / Iʿtikaf / Itikaf) تُحذف قبل مطابقة الكلمات المفتاحية
+_APOSTROPHES = re.compile(r"['’‘ʼʻʿʾ`´]")
+
+
+def _kw_norm(s: str) -> str:
+    return _APOSTROPHES.sub("", normalize_ar(s))
+
+
 def _has(phrase: str, norm_text: str) -> bool:
-    p = normalize_ar(phrase)
+    p = _kw_norm(phrase)
     return bool(p) and re.search(rf"(?<!\w){re.escape(p)}(?!\w)", norm_text) is not None
 
 
 def candidates(text: str, issues) -> list[tuple[Issue, int]]:
     """المرشّحون بالكلمات المفتاحية (عربية وإنجليزية) بعد التطبيع."""
-    norm = normalize_ar(text)
+    norm = _kw_norm(text)
     scored = []
     for issue in issues:
         hits = sum(1 for k in issue.keywords_ar + issue.keywords_en if _has(k, norm))

@@ -146,5 +146,13 @@ def test_diff_quote_must_be_verbatim_in_reader_text():
     assert r.diff_quote is None
 
 
+def test_keywords_match_any_apostrophe_in_transliteration():
+    from app.library import default_library
+    for spelling in ["I'tikaf", "I\u2019tikaf", "I\u2018tikaf", "I\u02bftikaf", "Itikaf"]:
+        ids = [i.id for i, _ in rv.candidates(f"The statement I read says that {spelling} is obligatory for women.",
+                                              default_library())]
+        assert "BZ09" in ids, spelling
+
+
 def test_detect_lang():
     assert rv.detect_lang("الزوربلات واجبة") == "ar" and rv.detect_lang("zorblat is obligatory") == "en"
