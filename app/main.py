@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import BackgroundTasks, FastAPI, Form, HTTPException, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -11,7 +11,7 @@ from markupsafe import Markup, escape
 
 from pydantic import BaseModel, Field
 
-from app import export, review, service
+from app import export, ratelimit, review, service
 from app.corpus import load_corpus
 from app.examples import get_example, load_examples
 from app.library import load_library
@@ -27,6 +27,7 @@ from app.ui import MODULES, meta
 
 APP_DIR = Path(__file__).resolve().parent
 VERSION = "0.1.0"
+LIMITED = [Depends(ratelimit.check)]  # المسارات التي تستدعي النموذج
 DISCLAIMER = "أداة مدعومة بالذكاء الاصطناعي للمساعدة في المراجعة، ولا تُصدر فتوى"
 
 app = FastAPI(title="مِرآة MIRAAH", version=VERSION,
@@ -102,7 +103,7 @@ def health() -> dict:
     return {"status": "ok", "version": VERSION, "corpus_items": len(load_corpus())}
 
 
-@app.post("/api/analyze", response_model=None)
+@app.post("/api/analyze", response_model=None, dependencies=LIMITED)
 def api_analyze(req: AnalyzeRequest, background_tasks: BackgroundTasks, background: bool = False):
     """يحلل الأصل ونسخه. افتراضياً يعيد التقرير كاملاً؛ ومع `background=true` يعيد المعرّف فوراً."""
     report = service.create_report(req)
@@ -195,7 +196,7 @@ class ReverseIn(BaseModel):
     save: bool = False  # لا يُحفظ النص إلا باختيار المستخدم
 
 
-@app.post("/api/reverse")
+@app.post("/api/reverse", dependencies=LIMITED)
 def api_reverse(body: ReverseIn):
     """«قابِل ما قرأت»: يقابل عبارة أو سؤالاً بنص المصدر في مكتبة مِرآة. لا يُصدر فتوى ولا يرجّح."""
     try:
@@ -209,7 +210,7 @@ class SuggestLocksIn(BaseModel):
     lang: str = "ar"
 
 
-@app.post("/api/locks/suggest", response_model=list[Lock])
+@app.post("/api/locks/suggest", response_model=list[Lock], dependencies=LIMITED)
 def api_suggest_locks(body: SuggestLocksIn):
     """أقفال مقترحة من الأصل: الشروط والاستثناءات من البصمة، وصيغ اليقين والنسبة والدرجات والنفي والأرقام والمصطلحات."""
     return service.suggest_locks(body.text, body.lang)
@@ -220,7 +221,7 @@ class ReviseIn(BaseModel):
     alert_id: str
 
 
-@app.post("/api/revise", response_model=list[Revision])
+@app.post("/api/revise", response_model=list[Revision], dependencies=LIMITED)
 def api_revise(body: ReviseIn):
     """ثلاث صياغات آمنة (الأدق / المتوازنة / الأوضح) بلغة النسخة، كل منها مُعاد فحصها؛ passed=false تعني أنها استُبعدت."""
     from app.pipeline.revise import RevisionError
@@ -233,7 +234,7 @@ def api_revise(body: ReviseIn):
         raise HTTPException(409, str(e))
 
 
-@app.post("/api/report/{report_id}/reexam")
+@app.post("/api/report/{report_id}/reexam", dependencies=LIMITED)
 def api_reexam(report_id: str):
     """يعيد امتحان القارئ على نص كل حلقة بعد تصحيحاتها المعتمدة، بالأسئلة نفسها."""
     try:
@@ -279,6 +280,9 @@ def reverse_submit(request: Request, text: str = Form(""), save: str | None = Fo
     if not 3 <= len(text) <= 1000:
         return page(request, "reverse.html", result=None, text=text,
                     error="اكتب ما قرأته أو سؤالك في 3 أحرف إلى 1000 حرف.")
+    if not ratelimit.allow(ratelimit.client_key(request)):
+        return page(request, "reverse.html", result=None, text=text,
+                    error=ratelimit.MESSAGE.format(n=ratelimit.per_hour()))
     try:
         result = service.reverse_trace(text, bool(save))
     except Exception as e:

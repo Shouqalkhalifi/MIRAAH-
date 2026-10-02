@@ -19,8 +19,17 @@ def make_engine(path: Path | str) -> Engine:
     return engine
 
 
+SEED_CACHE = Path(__file__).resolve().parent.parent / "data" / "seed" / "llm_cache.jsonl"
+
+
 @lru_cache(maxsize=1)
 def get_engine() -> Engine:
-    from app.config import get_settings
+    import os
 
-    return make_engine(get_settings().database_path)
+    from app.config import get_settings
+    from app.llm import load_seed
+
+    engine = make_engine(get_settings().database_path)
+    if os.getenv("SEED_CACHE", "on").lower() not in ("off", "0", "false"):
+        load_seed(engine, SEED_CACHE)
+    return engine

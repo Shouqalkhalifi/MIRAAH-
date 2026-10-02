@@ -1,0 +1,30 @@
+# نشر مِرآة على Render من Dockerfile. المفتاح يُدخل في لوحة Render (sync: false)، ولا يُكتب هنا أبداً.
+services:
+  - type: web
+    name: miraah
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # الخطة المجانية تنام بعد 15 دقيقة بلا زيارات (أول طلب بعدها يتأخر قرابة دقيقة) وتمسح SQLite عند كل تشغيل.
+    # طوال فترة التحكيم يُفضَّل starter، أو إبقاء free مع cache الأمثلة المحفوظ في data/seed/.
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: false
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: anthropic
+      - key: MAIN_MODEL
+        value: claude-sonnet-5-5
+      - key: WITNESS_A_MODEL
+        value: claude-sonnet-5-5
+      - key: WITNESS_B_MODEL
+        value: claude-haiku-4-5
+      - key: LLM_EFFORT
+        value: medium
+      - key: LLM_CACHE
+        value: "on"
+      - key: RATE_LIMIT_PER_HOUR
+        value: "30"
+      - key: DATABASE_PATH
+        value: data/runtime/miraah.db

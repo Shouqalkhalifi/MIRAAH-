@@ -223,6 +223,28 @@ class LLM:
         raise LLMError(f"فشل التحقق من JSON بعد إعادة المحاولة: {last_err}")
 
 
+def load_seed(engine: Engine, path) -> int:
+    """يضيف إلى الـcache ردوداً محفوظة في المستودع (للأمثلة الاصطناعية فقط) دون أن يستبدل الموجود.
+    الاستضافة المجانية تمسح SQLite عند كل تشغيل، فتبقى الأمثلة فورية ومجانية."""
+    from pathlib import Path
+
+    p = Path(path)
+    if not p.exists():
+        return 0
+    added = 0
+    with Session(engine) as s:
+        for line in p.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if s.get(LLMCache, row["key"]) is None:
+                s.add(LLMCache(key=row["key"], model=row["model"], response_text=row["response_text"],
+                               input_tokens=row.get("input_tokens", 0), output_tokens=row.get("output_tokens", 0)))
+                added += 1
+        s.commit()
+    return added
+
+
 def usage_summary(engine: Engine) -> dict:
     """ملخص tokens والزمن (لتقدير التكلفة في README)."""
     with Session(engine) as s:
