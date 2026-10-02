@@ -131,13 +131,18 @@ def test_all_screens_render_with_disclaimer():
 def test_report_page_colors_broken_link_and_highlights():
     rid = client.post("/api/analyze", json=CHAIN).json()["id"]
     html = client.get(f"/report/{rid}").text
-    assert "🔴 لا تنشر" in html
-    assert re.search(r"border-red-600 bg-red-50[^>]*>\s*<div>en-summary ⚠️", html)
-    assert "ورث خللاً من حلقة سابقة" in html  # fr-translation
-    assert re.search(r'<mark class="mark-red" data-tip="تحذير: سقوط شرط" data-alert="\w+">للمسافر</mark>', html)
-    assert 'class="tip tip-red"' in html  # فقاعة التحذير فوق المقطع في النسخة
-    assert 'href="#alert-' in html and 'id="alert-' in html  # المقطع يقود إلى بطاقته
-    assert "راجع <b>2</b> جمل من أصل <b>2</b>" in html
+    assert "لا تنشر · 1 لحق" in html  # الحالة نص صريح بلغة المقابلة
+    # خيط السند: ينكسر عند en-summary، وما بعده بعد الخلل
+    assert re.search(r'class="st-break[^"]*"[^>]*>\s*<span class="knot"[^>]*></span>\s*<button[^>]*>\s*<span class="node-name" dir="ltr">en-summary', html)
+    assert 'class="st-after' in html  # fr-translation
+    # الموضع مسطّر، وعلامة «لحق» مرتفعة عنده، والرمز التقني في التلميح فقط
+    assert re.search(r'<mark class="mk mk-rubric" title="سقط الشرط «للمسافر» · condition_dropped">للمسافر</mark>', html)
+    assert '<sup class="sigla tone-rubric">لحق</sup>' in html
+    assert 'href="#alert-' in html and 'id="alert-' in html  # الموضع يقود إلى ملاحظته في الحاشية
+    assert "<h3 title=\"condition_dropped\">سقط الشرط «للمسافر»</h3>" in html  # الملاحظة مسمّاة بالمشكلة
+    assert "أعراضه (" in html  # اتساع النطاق وامتحان القارئ مطويان تحتها
+    assert "راجع <b>2</b> من <b>2</b> جملة" in html
+    assert "🔴" not in html and "⚠️" not in html  # لا إيموجي في الواجهة
 
 
 def test_docs():
@@ -148,7 +153,7 @@ def test_review_alpine_state_not_inlined_in_attribute():
     # منع تكرار خطأ: JSON داخل x-data="..." يكسر السمة
     rid = client.post("/api/analyze", json=CHAIN).json()["id"]
     r = client.get(f"/review/{rid}").text
-    assert 'x-data="reviewState()"' in r
+    assert 'x-data="muqabala(' in r and 'x-data="{\n' not in r
 
 
 def test_examples_valid_and_runnable():
@@ -160,7 +165,8 @@ def test_examples_valid_and_runnable():
     r = client.post(f"/examples/{exs[0].name}", follow_redirects=False)
     assert r.status_code == 303 and r.headers["location"].startswith("/analyze/")
     assert client.post("/examples/nope").status_code == 404
-    assert "جرّب مثالاً" in client.get("/").text
+    home = client.get("/").text
+    assert "جرّب:" in home and exs[0].title in home and "قابِل النص" in home
 
 
 # ---------- قرار المراجع والنشر ----------
@@ -206,7 +212,8 @@ def test_publish_locked_until_all_reds_decided_then_seal_and_audit():
     # بعد النشر: القرارات مقفلة، والختم متاح، والسجل كامل
     assert decide(rid, reds[0]).status_code == 409
     seal = client.get(f"/seal/{rid}").text
-    assert "مترجم" in seal and "قُبل التنبيه" in seal and DISCLAIMER in seal
+    assert "مترجم" in seal and "أُحيل خللاً حقيقياً" in seal and DISCLAIMER in seal
+    assert "بلغ مقابلة" in seal and "تحقّق من نص وصلك" in seal  # عنوان الختم، وخانة التحقق من البصمة
     assert 'aria-label="رمز QR لصفحة الختم"' in seal and "بصمة الختم" in seal
     events = [e["event"] for e in client.get(f"/api/report/{rid}/audit").json()]
     assert events == ["decision"] * len(reds) + ["publish"]
@@ -242,7 +249,7 @@ def test_locks_end_to_end_and_validation():
     lv = next(a for a in rep["alerts"] if a["type"] == "lock_violated")
     assert lv["introduced_at"] == "en-summary" and lv["propagated_to"] == ["fr-translation"]
     html = client.get(f"/report/{rep['id']}").text
-    assert "🔓 «للمسافر» · شرط" in html
+    assert re.search(r'<span class="tag tone-rubric">انكسر</span>\s*«للمسافر» · قفل شرط', html)
 
 
 def test_suggest_locks_endpoint():
@@ -287,7 +294,7 @@ def test_review_page_renders_after_revisions_and_decisions():
     r = client.get(f"/review/{rep['id']}")
     assert r.status_code == 200
     assert "A traveler may break the fast in Ramadan." in r.text  # الصياغة المحفوظة
-    assert json.dumps("الشرط ضروري") in r.text  # القرار المحفوظ (tojson يهرّب الحروف العربية)
+    assert json.dumps("الشرط ضروري")[1:-1] in r.text  # القرار المحفوظ (tojson يهرّب الحروف العربية)
 
 
 def test_reason_must_not_be_the_edited_wording_and_seal_shows_both():
@@ -299,7 +306,8 @@ def test_reason_must_not_be_the_edited_wording_and_seal_shows_both():
         assert decide(rep["id"], aid, action="edit", edited_text=wording, reason="أسقط الملخص شرط السفر").status_code == 200
     assert client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"}).status_code == 200
     seal = client.get(f"/seal/{rep['id']}").text
-    assert "الصياغة المعتمدة:" in seal and wording in seal and "السبب:</span> أسقط الملخص شرط السفر" in seal
+    assert "الصياغة المعتمدة:" in seal and wording in seal and "السبب: أسقط الملخص شرط السفر" in seal
+    assert seal.index("النص المعتمد") < seal.index("خيط السند") < seal.index("قيود المقابلة")  # ترتيب الختم
 
 
 def test_provider_errors_get_a_clear_arabic_message(monkeypatch):
@@ -326,3 +334,12 @@ def test_favicon_served():
     assert r.content[:4] == b"\x00\x00\x01\x00"  # ترويسة ICO
     assert client.get("/static/favicon.svg").status_code == 200
     assert 'rel="icon" href="/static/favicon.svg"' in client.get("/").text
+
+
+def test_seal_shows_overruled_title_when_a_red_alert_was_rejected():
+    rep, reds = _analyzed()
+    for aid in reds:
+        assert decide(rep["id"], aid, action="reject", reason="رأيتُه إنذاراً خاطئاً").status_code == 200
+    assert client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"}).status_code == 200
+    seal = client.get(f"/seal/{rep['id']}").text
+    assert "نُشر رغم رفض تنبيه خطير" in seal and "سُجّل إنذاراً خاطئاً" in seal

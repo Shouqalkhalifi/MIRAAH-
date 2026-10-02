@@ -1,42 +1,111 @@
 {% extends "base.html" %}
-{% from "_macros.html" import chain_view %}
 {% block title %}ختم المعنى{% endblock %}
 {% block content %}
-<section class="bg-white rounded-2xl shadow p-8 max-w-3xl mx-auto">
-  <div class="flex justify-between items-start gap-4 flex-wrap">
-    <div>
-      <p class="text-violet font-semibold">ختم المعنى · صفحة عامة للقراءة فقط</p>
-      <h1 class="text-2xl font-bold mt-1">{{ report.title }}</h1>
-      <p class="text-sm text-navy/60">مرجع المصدر: {{ report.source.source_ref }}</p>
-    </div>
-    <div class="w-36 h-36 bg-white rounded-xl p-1 [&>svg]:w-full [&>svg]:h-full" title="امسح للوصول إلى هذه الصفحة">{{ qr }}</div>
-  </div>
-  <h2 class="font-bold mt-6 mb-2">السلسلة</h2>
-  {{ chain_view(chain) }}
-  <p class="mt-4 text-sm">التنبيهات: <b class="text-red-600">{{ counts.red }}</b> خطير · <b class="text-yellow-600">{{ counts.yellow }}</b> متوسط · {{ counts.info }} معلومة —
-    حُسم {{ report.decisions | length }} منها بقرار بشري.</p>
-  <h2 class="font-bold mt-6 mb-2">ملخص التنبيهات والقرارات</h2>
-  {% set action_ar = {'accept': 'قُبل التنبيه', 'reject': 'رُفض التنبيه', 'edit': 'عُدّلت الصياغة'} %}
-  <ul class="list-disc ps-5 text-sm space-y-1">
-    {% for a in report.alerts %}{% set d = report.decisions.get(a.id) %}
-    <li><code class="text-xs">{{ a.type.value }}</code> ({{ a.severity.value }}) في {{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }} —
-      {% if d %}<b>{{ action_ar[d.action] }}</b>
-        {% if d.action == 'edit' and d.edited_text %}<div class="mt-1 bg-paper rounded p-2"><span class="text-navy/60">الصياغة المعتمدة:</span> <span dir="auto">«{{ d.edited_text }}»</span></div>{% endif %}
-        <div class="mt-1"><span class="text-navy/60">السبب:</span> {{ d.reason }}</div>
-      {% else %}<i>بلا قرار</i>{% endif %}</li>
-    {% else %}<li>لا توجد تنبيهات.</li>{% endfor %}
-  </ul>
-  <dl class="grid grid-cols-2 gap-2 mt-6 text-sm">
-    <dt class="text-navy/60">صفة المراجع</dt><dd>{{ report.reviewer_role }}</dd>
-    <dt class="text-navy/60">تاريخ النشر</dt><dd>{{ report.published_at.strftime('%Y-%m-%d %H:%M UTC') if report.published_at else '' }}</dd>
-    <dt class="text-navy/60">مستوى المحتوى</dt><dd>{{ report.source.content_level.value }}</dd>
-  </dl>
-  <h2 class="font-bold mt-6 mb-2">بصمة SHA-256 للنصوص</h2>
-  <table class="w-full text-xs"><tbody>
-    {% for label, h in hashes %}<tr class="border-t"><td class="py-1 pe-2">{{ label }}</td><td class="font-mono break-all" dir="ltr">{{ h }}</td></tr>{% endfor %}
-  </tbody></table>
-  <p class="text-sm mt-4">بصمة الختم (النصوص + القرارات + تاريخ النشر):</p>
-  <p class="font-mono text-xs break-all bg-paper rounded p-2" dir="ltr">{{ digest }}</p>
-  <p class="text-xs text-navy/50 mt-6">لا تحتوي هذه الصفحة على أي بيانات شخصية. القرار النهائي كان لمراجع بشري.</p>
-</section>
+{% set groups = ui.group_alerts(report.alerts) %}
+{% set nodes = ui.thread(report) %}
+{% set lang_ar = {'ar': 'العربية', 'en': 'الإنجليزية', 'fr': 'الفرنسية', 'id': 'الإندونيسية', 'ur': 'الأردية'} %}
+{% set ns = namespace(overruled=false) %}
+{% for a in report.alerts %}{% set d = report.decisions.get(a.id) %}{% if a.severity.value == 'red' and d and d.action == 'reject' %}{% set ns.overruled = true %}{% endif %}{% endfor %}
+{% set final = report.versions[-1] if report.versions else none %}
+{% set done = {'edit': 'اعتُمد الإصلاح', 'accept': 'أُحيل خللاً حقيقياً', 'reject': 'سُجّل إنذاراً خاطئاً'} %}
+
+<article class="seal">
+  {# 1) العنوان #}
+  <section>
+    <p class="t14 muted" style="margin:0">ختم المعنى · صفحة عامة للقراءة فقط</p>
+    {% if ns.overruled %}
+    <h1 class="tone-rubric">نُشر رغم رفض تنبيه خطير</h1>
+    <p class="t14">رأى المراجع أن تنبيهاً واحداً على الأقل بالحُمرة إنذار خاطئ. اقرأ السبب في القيود أدناه.</p>
+    {% else %}
+    <h1 class="tone-verified">بلغ مقابلة</h1>
+    {% endif %}
+    <p class="t16" style="margin:.25rem 0 0">{{ report.title or 'مقابلة' }} · المرجع: {{ report.source.source_ref or 'غير مسجّل' }}</p>
+  </section>
+
+  {# 2) النص المعتمد #}
+  {% if final %}
+  <section>
+    <h2>النص المعتمد · <bdi>{{ final.label }}</bdi> ({{ lang_ar.get(final.lang, final.lang) }})</h2>
+    <p class="{{ '' if final.lang in ['ar', 'ur'] else 'latin' }}" dir="{{ 'rtl' if final.lang in ['ar', 'ur'] else 'ltr' }}" style="font-size:1.1rem;line-height:1.9;margin:0">{{ final.text }}</p>
+    {% if nodes[-1].recheck %}<p class="banner" style="margin:.75rem 0 0">هذه الحلقة جاءت بعد حلقة عُدّلت صياغتها، فتحتاج إعادة فحص قبل الاعتماد عليها. الصياغات المعتمدة أدناه هي ما أقرّه المراجع.</p>{% endif %}
+    {% set edits = [] %}{% for g in groups %}{% set d = report.decisions.get(g.root.id) %}{% if d and d.action == 'edit' %}{% set _ = edits.append((g.root, d)) %}{% endif %}{% endfor %}
+    {% if edits %}
+    <p class="t14 muted" style="margin:.75rem 0 .25rem">صياغات اعتمدها المراجع للمواضع المنبَّه عليها:</p>
+    <ul class="ledger">{% for a, d in edits %}<li><span class="tag tone-verified">صح</span> <span class="muted">في <bdi>{{ a.version_label }}</bdi>:</span><span class="qb latin" dir="auto" style="flex-basis:100%">{{ d.edited_text }}</span></li>{% endfor %}</ul>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {# 3) خيط السند #}
+  <section>
+    <h2>خيط السند</h2>
+    <ol class="thread">
+      {% for n in nodes %}{% set nxt = nodes[loop.index] if not loop.last else none %}
+      <li class="st-{{ n.state }}{% if n.recheck %} recheck{% endif %}{% if nxt and nxt.state != 'ok' %} seg-broken{% endif %}" style="--i: {{ loop.index0 }}">
+        <span class="knot" aria-hidden="true"></span>
+        <div class="node" style="cursor:default">
+          <span class="node-name">{% if n.label == 'source' %}الأصل{% else %}<bdi>{{ n.name }}</bdi>{% endif %}</span>
+          {% if n.marks %}<sup class="sigla tone-rubric">{{ n.marks[0] }}</sup>{% endif %}
+          <span class="node-sub">{{ lang_ar.get(n.lang, n.lang) }}{% if n.state == 'break' %} · دخل هنا الخلل ثم حُسم{% endif %}</span>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  {# 4) القيود #}
+  <section>
+    <h2>قيود المقابلة</h2>
+    <ul class="ledger">
+      {% for g in groups %}{% set a = g.root %}{% set d = report.decisions.get(a.id) %}
+      <li>
+        {% if d %}<span class="tag {{ 'tone-rubric' if d.action == 'reject' and a.severity.value == 'red' else 'tone-verified' }}">صح</span>
+        {% else %}<span class="tag tone-saffron">يُنظر</span>{% endif %}
+        <b>{{ ui.headline(a) }}</b>
+        <span class="muted">في <bdi>{{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }}</bdi></span>
+        {% if d %}<span>{{ done[d.action] }}</span>{% if d.action == 'edit' and d.edited_text %}<span class="muted" style="flex-basis:100%">الصياغة المعتمدة:</span><span class="qb latin" dir="auto" style="flex-basis:100%">{{ d.edited_text }}</span>{% endif %}
+        <span class="muted">السبب: {{ d.reason }} · {{ d.reviewer_role }}</span>
+        {% else %}<span class="muted">بلا قرار (ليس بالحُمرة)</span>{% endif %}
+      </li>
+      {% else %}<li>لم تُسجَّل ملاحظات على هذه المقابلة.</li>{% endfor %}
+    </ul>
+    <p class="t14 muted" style="margin:.75rem 0 0">صفة المراجع: {{ report.reviewer_role }} · خُتمت {{ report.published_at.strftime('%Y-%m-%d %H:%M UTC') if report.published_at else '' }} · مستوى المحتوى {{ report.source.content_level.value }}</p>
+  </section>
+
+  {# 5) رمز QR #}
+  <section style="display:flex;gap:1.25rem;align-items:center;flex-wrap:wrap">
+    <div class="qr" title="رابط هذه الصفحة">{{ qr }}</div>
+    <p class="t14 muted measure" style="margin:0">امسح الرمز لتصل إلى هذا الختم. لا تحتوي الصفحة على أي بيانات شخصية، والقرار الأخير كان لمراجع بشري.</p>
+  </section>
+
+  {# 6) التحقق من نص وصلك #}
+  <section x-data="{ text: '', result: null, async check() {
+        const hash = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
+        const h1 = await hash(this.text), h2 = await hash(this.text.trim());
+        this.result = {{ hashes | tojson | forceescape }}.find(([label, h]) => h === h1 || h === h2) || false;
+      } }">
+    <h2>تحقّق من نص وصلك</h2>
+    <label class="lbl" for="pasted">الصق النص الذي وصلك كما هو</label>
+    <textarea id="pasted" class="field" rows="3" dir="auto" x-model="text" @input="result = null"></textarea>
+    <div class="acts"><button type="button" class="btn btn-primary" :disabled="!text.trim()" @click="check()">تحقّق</button></div>
+    <p class="t16 tone-verified" x-show="result" x-cloak style="margin:.5rem 0 0">يطابق النص المختوم: <bdi x-text="result && (result[0] === 'source' ? 'الأصل' : result[0])"></bdi>.</p>
+    <p class="t16 tone-rubric" x-show="result === false" x-cloak style="margin:.5rem 0 0">لا يطابق أي نص مختوم. ربما عُدّل بعد الختم، أو نُسخ ناقصاً. قارنه بالنص المعتمد أعلاه.</p>
+  </section>
+
+  {# 7) البصمات #}
+  <section x-data="{ copied: '' }">
+    <h2>بصمات SHA-256</h2>
+    <ul class="ledger">
+      {% for label, h in hashes %}
+      <li><span style="min-width:8rem">{% if label == 'source' %}الأصل{% else %}<bdi>{{ label }}</bdi>{% endif %}</span>
+        <code class="hash" dir="ltr" title="{{ h }}">{{ h[:12] }}…</code>
+        <button type="button" class="btn-text" @click="navigator.clipboard.writeText('{{ h }}'); copied = '{{ label }}'"
+                x-text="copied === '{{ label }}' ? 'نُسخت' : 'انسخ البصمة'">انسخ البصمة</button></li>
+      {% endfor %}
+      <li><span style="min-width:8rem">بصمة الختم</span><code class="hash" dir="ltr" title="{{ digest }}">{{ digest[:12] }}…</code>
+        <button type="button" class="btn-text" @click="navigator.clipboard.writeText('{{ digest }}'); copied = 'seal'"
+                x-text="copied === 'seal' ? 'نُسخت' : 'انسخ البصمة'">انسخ البصمة</button></li>
+    </ul>
+  </section>
+</article>
 {% endblock %}

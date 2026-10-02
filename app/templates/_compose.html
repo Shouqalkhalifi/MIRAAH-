@@ -1,0 +1,131 @@
+{# مقابلة جديدة: الأصل يميناً، والحلقات يساراً على خيط يمتد بزر «أضف حلقة». #}
+<script>
+  function compose() {
+    return {
+      title: '', source: { text: '', lang: 'ar', source_ref: '', content_level: 'B' },
+      versions: [{ label: 'ترجمة-1', lang: 'en', derived_from: 'source', text: '' }],
+      locks: [], sending: false, error: '', note: '', suggesting: false,
+      langs: { en: 'الإنجليزية', fr: 'الفرنسية', id: 'الإندونيسية', ur: 'الأردية', ar: 'العربية' },
+      lockTypes: { condition: 'شرط', certainty: 'يقين', exception: 'استثناء', attribution: 'نسبة', grade: 'درجة', term: 'مصطلح', negation: 'نفي', number: 'رقم' },
+      async suggestLocks() {
+        if (!this.source.text.trim()) { this.error = 'اكتب الأصل أولاً، ثم اطلب اقتراح الأقفال.'; return; }
+        this.suggesting = true; this.error = ''; this.note = '';
+        try {
+          const res = await fetch('/api/locks/suggest', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: this.source.text, lang: this.source.lang }) });
+          const data = await res.json();
+          if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'تعذّر الاقتراح.');
+          const have = new Set(this.locks.map(l => l.span_text));
+          data.forEach(l => { if (!have.has(l.span_text)) this.locks.push(l); });
+          this.note = data.length ? `اقتُرح ${data.length} قفلاً. احذف ما لا تريده.` : 'لم نجد مقاطع نقترحها. أضف القفل بنفسك.';
+        } catch (e) { this.error = 'تعذّر اقتراح الأقفال الآن. أضفها بنفسك أو أعد المحاولة.'; }
+        this.suggesting = false;
+      },
+      addLink() {
+        const last = this.versions[this.versions.length - 1];
+        this.versions.push({ label: 'حلقة-' + (this.versions.length + 1), lang: last.lang, derived_from: last.label, text: '' });
+      },
+      removeLink(i) {
+        const gone = this.versions[i].label;
+        this.versions.splice(i, 1);
+        this.versions.forEach(v => { if (v.derived_from === gone) v.derived_from = 'source'; });
+      },
+      async submit() {
+        this.error = '';
+        if (!this.source.text.trim()) { this.error = 'اكتب الأصل العربي أولاً.'; return; }
+        if (this.versions.some(v => !v.text.trim())) { this.error = 'في إحدى الحلقات نص فارغ. اكتبه أو احذف الحلقة.'; return; }
+        this.sending = true;
+        const body = { title: this.title, source: this.source, versions: this.versions,
+                       locks: this.locks.filter(l => l.span_text.trim()) };
+        try {
+          const res = await fetch('/api/analyze?background=true', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          const data = await res.json();
+          if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : (data.detail?.[0]?.msg || 'تعذّر البدء.'));
+          location.href = '/analyze/' + data.id;
+        } catch (e) { this.error = 'لم تبدأ المقابلة: ' + e.message.replace('Value error, ', ''); this.sending = false; }
+      }
+    };
+  }
+</script>
+
+{% if examples is defined and examples %}
+<div class="try">
+  <span class="muted">جرّب:</span>
+  {% for ex in examples %}
+  <form method="post" action="/examples/{{ ex.name }}"><button class="btn-text">{{ ex.title }}</button></form>{% if not loop.last %}<span class="muted" aria-hidden="true">·</span>{% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<form class="compose" x-data="compose()" @submit.prevent="submit()" novalidate>
+  {# الأصل #}
+  <section class="compose-col" aria-labelledby="src-h">
+    <h2 id="src-h">الأصل</h2>
+    <label class="sr-only" for="src">النص العربي الأصلي</label>
+    <textarea id="src" class="field ar-source" dir="rtl" x-model="source.text" placeholder="الصق النص العربي الأصلي هنا" required></textarea>
+    <div class="meta-grid">
+      <div><label class="lbl" for="ref">المرجع</label><input id="ref" class="field" x-model="source.source_ref" placeholder="مثال: كتاب الصيام، ص 12"></div>
+      <div><label class="lbl" for="lvl">مستوى المحتوى</label>
+        <select id="lvl" class="field" x-model="source.content_level">
+          <option value="A">A · نصوص منسوبة إلى الله ورسوله ﷺ</option>
+          <option value="B">B · أحكام وفتاوى منقولة</option>
+          <option value="C">C · محتوى دعوي وتربوي</option>
+          <option value="D">D · خارج النطاق، يُحال إلى مختص</option>
+        </select></div>
+      <div style="grid-column:1/-1"><label class="lbl" for="ttl">عنوان المقابلة (اختياري)</label><input id="ttl" class="field" x-model="title" placeholder="مثال: رخصة الفطر للمسافر"></div>
+    </div>
+
+    <h2 class="t16" style="margin:1.25rem 0 .25rem">أقفال المعنى</h2>
+    <p class="t14 muted" style="margin:0 0 .5rem">مقطع من الأصل، كما ورد حرفياً، يجب ألا يتغيّر معناه في أي حلقة.</p>
+    <template x-for="(l, i) in locks" :key="i">
+      <div style="display:flex;gap:.5rem;margin-bottom:.4rem">
+        <input class="field" x-model="l.span_text" placeholder="المقطع، مثل: للمسافر" :aria-label="'مقطع القفل ' + (i + 1)">
+        <select class="field" style="width:8rem" x-model="l.lock_type" :aria-label="'نوع القفل ' + (i + 1)">
+          <template x-for="(name, key) in lockTypes" :key="key"><option :value="key" x-text="name"></option></template>
+        </select>
+        <button type="button" class="btn btn-quiet" @click="locks.splice(i, 1)">احذف</button>
+      </div>
+    </template>
+    <div class="acts">
+      <button type="button" class="btn btn-quiet" @click="suggestLocks()" :disabled="suggesting" x-text="suggesting ? 'نقترح الأقفال…' : 'اقترح أقفالاً'">اقترح أقفالاً</button>
+      <button type="button" class="btn btn-quiet" @click="locks.push({ span_text: '', lock_type: 'condition', origin: 'user' })">أضف قفلاً</button>
+    </div>
+    <p class="t14 muted" x-show="note" x-text="note" x-cloak></p>
+  </section>
+
+  {# الحلقات على الخيط #}
+  <section class="compose-col" aria-labelledby="links-h">
+    <h2 id="links-h">الحلقات</h2>
+    <ol class="links">
+      <template x-for="(v, i) in versions" :key="i">
+        <li>
+          <span class="knot" aria-hidden="true"></span>
+          <div class="meta-grid" style="margin:0 0 .5rem">
+            <div><label class="lbl" :for="'lb' + i">اسم الحلقة</label><input :id="'lb' + i" class="field" dir="auto" x-model="v.label" required></div>
+            <div><label class="lbl" :for="'lg' + i">لغتها</label>
+              <select :id="'lg' + i" class="field" x-model="v.lang">
+                <template x-for="(name, key) in langs" :key="key"><option :value="key" x-text="name" :selected="key === v.lang"></option></template>
+              </select></div>
+            <div style="grid-column:1/-1"><label class="lbl" :for="'pr' + i">مأخوذة عن</label>
+              <select :id="'pr' + i" class="field" x-model="v.derived_from">
+                <option value="source">الأصل</option>
+                <template x-for="p in versions.slice(0, i)"><option :value="p.label" x-text="p.label" :selected="p.label === v.derived_from"></option></template>
+              </select></div>
+          </div>
+          <label class="lbl" :for="'tx' + i">نصها</label>
+          <textarea :id="'tx' + i" class="field" rows="5" x-model="v.text" :dir="['ar', 'ur'].includes(v.lang) ? 'rtl' : 'ltr'"
+                    :class="['ar', 'ur'].includes(v.lang) ? '' : 'latin'" placeholder="الصق نص الحلقة"></textarea>
+          <button type="button" class="btn-text" x-show="versions.length > 1" @click="removeLink(i)">احذف الحلقة</button>
+        </li>
+      </template>
+    </ol>
+    <button type="button" class="btn btn-quiet" @click="addLink()" :disabled="versions.length >= 4">أضف حلقة</button>
+    <p class="t14 muted" x-show="versions.length >= 4" x-cloak>بلغت أربع حلقات، وهو الحد الأقصى.</p>
+  </section>
+
+  <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;border-top:1px solid var(--line);padding-top:1rem">
+    <button class="btn btn-primary" :disabled="sending" x-text="sending ? 'بدأت المقابلة…' : 'قابِل النص'">قابِل النص</button>
+    <p class="t14 tone-rubric" x-show="error" x-text="error" x-cloak role="alert" style="margin:0"></p>
+  </div>
+</form>

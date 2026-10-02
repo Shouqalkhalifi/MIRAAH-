@@ -62,3 +62,118 @@ def meta(alert_type: str) -> tuple[str, str, str]:
     """(الوحدة، العنوان العربي، السطر الإنجليزي)"""
     mod, ar = ALERT_META.get(alert_type, ("athar", alert_type))
     return mod, ar, ALERT_EN.get(alert_type, alert_type)
+
+
+# ---------- لغة المقابلة: علامات النسّاخ ----------
+# «لحق»: شيء سقط · «زيادة»: شيء أُضيف · «تغيّر»: معنى تحوّل · «يُنظر»: يحتاج مختصاً أو مرجعاً
+MARK_WORD = {
+    "condition_dropped": "لحق", "exception_dropped": "لحق", "sentence_dropped": "لحق", "hasr_lost": "لحق",
+    "hadith_grade_dropped": "لحق", "lock_violated": "لحق",
+    "new_prophetic_attribution": "زيادة", "consensus_inflated": "زيادة",
+    "certainty_raised": "تغيّر", "ruling_shift": "تغيّر", "scope_widened": "تغيّر", "scope_narrowed": "تغيّر",
+    "negation_mismatch": "تغيّر", "number_mismatch": "تغيّر", "term_narrowing": "تغيّر",
+    "attribution_upgraded": "تغيّر", "quote_wording_differs": "تغيّر", "source_conflict": "تغيّر",
+    "unverified_attribution": "يُنظر", "witness_disagreement": "يُنظر", "reader_divergence": "يُنظر",
+    "length_drop": "يُنظر",
+}
+
+# عنوان الملاحظة: المشكلة نفسها بصيغة الفعل
+_HEADLINE = {
+    "condition_dropped": "سقط الشرط «{src}»", "exception_dropped": "سقط الاستثناء «{src}»",
+    "sentence_dropped": "سقطت جملة من الأصل", "hasr_lost": "سقطت أداة الحصر", "hadith_grade_dropped": "سقطت درجة الحديث",
+    "lock_violated": "انكسر القفل «{src}»", "new_prophetic_attribution": "زيدت نسبة القول إلى النبي ﷺ",
+    "consensus_inflated": "زيدت دعوى الإجماع", "certainty_raised": "ارتفعت درجة اليقين", "ruling_shift": "تغيّر نوع الحكم",
+    "scope_widened": "اتسع النطاق", "scope_narrowed": "ضاق النطاق", "negation_mismatch": "تغيّر النفي",
+    "number_mismatch": "تغيّر الرقم", "term_narrowing": "خالف المصطلحُ ضابطه", "attribution_upgraded": "صار المرويّ جازماً",
+    "quote_wording_differs": "تغيّر لفظ النص المنسوب", "source_conflict": "خالف النصُّ مصدره",
+    "unverified_attribution": "نسبةٌ لم نجد مصدرها", "witness_disagreement": "اختلف الشاهدان",
+    "reader_divergence": "فهم قارئ النسخة مختلف", "length_drop": "اختُصرت الحلقة كثيراً",
+}
+# أعراض تُطوى تحت سببها الجذري إن وُجد في الحلقة نفسها
+SYMPTOM_TYPES = {"scope_widened", "scope_narrowed", "reader_divergence", "length_drop", "witness_disagreement"}
+
+
+def mark_word(alert_type: str) -> str:
+    return MARK_WORD.get(alert_type, "يُنظر")
+
+
+def tone(alert) -> str:
+    """لون العلامة: الحُمرة للخطير، والزعفران للمتوسط وما يُنظر فيه."""
+    return "rubric" if alert.severity.value == "red" else "saffron"
+
+
+def headline(alert) -> str:
+    src = (alert.source_span.text or "").strip()
+    tpl = _HEADLINE.get(alert.type.value, meta(alert.type.value)[1])
+    if "{src}" in tpl:
+        return tpl.format(src=src) if src and len(src) <= 40 else tpl.split(" «")[0]
+    return tpl
+
+
+def group_alerts(alerts) -> list[dict]:
+    """يجمع التنبيهات حسب السبب الجذري: {"root": تنبيه، "symptoms": [...]}.
+
+    العَرَض (اتساع النطاق، امتحان القارئ...) يُلحق بأول سبب في الحلقة نفسها يشاركه جملة الأصل،
+    وإلا بأول سبب في الحلقة؛ وإن لم يوجد سبب صار هو نفسه ملاحظة مستقلة.
+    """
+    groups: list[dict] = []
+    for a in alerts:
+        if a.type.value not in SYMPTOM_TYPES:
+            groups.append({"root": a, "symptoms": []})
+    for a in alerts:
+        if a.type.value not in SYMPTOM_TYPES:
+            continue
+        same_link = [g for g in groups if g["root"].introduced_at == a.introduced_at
+                     and g["root"].type.value not in SYMPTOM_TYPES]
+        shared = [g for g in same_link if set(g["root"].source_sentence_indices) & set(a.source_sentence_indices)]
+        target = (shared or same_link or [None])[0]
+        if target:
+            target["symptoms"].append(a)
+        else:
+            groups.append({"root": a, "symptoms": []})
+    return groups
+
+
+def thread(report) -> list[dict]:
+    """عقد خيط السند: الأصل ثم الحلقات، وحالة كل عقدة.
+
+    state: ok (المعنى سليم) | break (دخل الخلل هنا) | after (بعد الخلل) ؛ recheck: بعد حلقة عُدّلت صياغتها.
+    """
+    broken = {a.introduced_at for a in report.alerts if a.severity.value != "info"}
+    edited = {a.version_label for a in report.alerts
+              if (d := report.decisions.get(a.id)) and d.action == "edit"}
+    marks: dict[str, list[str]] = {}
+    for a in report.alerts:
+        if a.severity.value != "info":
+            w = mark_word(a.type.value)
+            if w not in marks.setdefault(a.introduced_at, []):
+                marks[a.introduced_at].append(w)
+    nodes = [{"label": "source", "name": "الأصل", "lang": report.source.lang, "parent": None,
+              "state": "break" if "source" in broken else "ok", "recheck": False, "marks": marks.get("source", [])}]
+    by_label = {"source": nodes[0]}
+    for v in report.versions:
+        parent = by_label.get(v.derived_from, nodes[0])
+        state = "break" if v.label in broken else ("after" if parent["state"] != "ok" else "ok")
+        node = {"label": v.label, "name": v.label, "lang": v.lang, "parent": v.derived_from, "state": state,
+                "recheck": parent["label"] in edited or parent["recheck"], "marks": marks.get(v.label, [])}
+        nodes.append(node)
+        by_label[v.label] = node
+    return nodes
+
+
+def status_line(report) -> dict:
+    """حالة التقرير نصاً صريحاً: «لا تنشر · 2 لحق» أو «يُنظر · 3 مواضع» أو «بلغ مقابلة»."""
+    pending = [g for g in group_alerts(report.alerts)
+               if any(x.id not in report.decisions for x in [g["root"], *g["symptoms"]])]
+    red = [g for g in pending if any(x.severity.value == "red" for x in [g["root"], *g["symptoms"]])]
+    if red:
+        counts: dict[str, int] = {}
+        for g in red:
+            w = mark_word(g["root"].type.value)
+            counts[w] = counts.get(w, 0) + 1
+        return {"tone": "rubric", "text": "لا تنشر · " + " · ".join(f"{n} {w}" for w, n in counts.items())}
+    yellow = [g for g in pending if any(x.severity.value == "yellow" for x in [g["root"], *g["symptoms"]])]
+    if yellow:
+        n = len(yellow)
+        return {"tone": "saffron", "text": f"يُنظر · {n} {'موضع' if n == 1 else 'مواضع'}"}
+    return {"tone": "verified", "text": "بلغ مقابلة"}

@@ -5,48 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}مِرآة{% endblock %} · MIRAAH</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: {
-      colors: { navy: '#12183F', violet: '#6150EA', teal: '#2EF2C2', paper: '#F2F4FF',
-                ink: '#0F1B3A', gold: '#C9A24A', goldlight: '#E3C77E', pine: '#1D4E4F', pinedark: '#163B3D', line: '#E2E5EC' },
-      fontFamily: { sans: ['Readex Pro', 'system-ui', 'sans-serif'], kufi: ['Reem Kufi', 'Readex Pro', 'sans-serif'] } } } };
-  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
   <link rel="stylesheet" href="/static/app.css">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="apple-touch-icon" href="/static/favicon-180.png">
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 {% set path = request.url.path %}
-{% set review_href = ('/review/' ~ report.id) if report is defined and report.id else '/#examples' %}
-  <header class="bg-ink text-white sticky top-0 z-30 shadow-lg" dir="ltr">
-    <nav class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2" x-data="{ open: false }">
-      <a href="/" class="flex flex-col items-center leading-none shrink-0 text-gold" aria-label="مِرآة — الرئيسية">
-        <span class="font-kufi text-4xl font-bold" dir="rtl">مـرآة</span>
-        <span class="font-kufi text-sm tracking-[0.35em] mt-1">MIRAAH</span>
-      </a>
-      <div class="hidden md:block border-l border-white/20 pl-5 leading-snug">
-        <p class="font-bold text-lg">MIRAAH : <span dir="rtl">مرآة العربي</span></p>
-        <p class="text-xs text-white/70 max-w-xs">AI-powered Islamic content localization<br>and semantic accuracy checking platform</p>
-      </div>
-      <button class="md:hidden ml-auto border border-white/30 rounded-lg px-3 py-1" @click="open = !open" aria-label="Menu">☰</button>
-      <div class="w-full md:w-auto md:ml-auto items-center gap-1 text-sm" :class="open ? 'flex flex-col items-start' : 'hidden md:flex'">
-        {% for href, label in [('/', 'Home'), ('/#how', 'About'), ('/docs', 'Documentation'), ('https://github.com/Shouqalkhalifi/MIRAAH-', 'Contact')] %}
-        <a href="{{ href }}" class="rounded px-3 py-2 transition {{ 'bg-white/15 text-white' if path == href else 'text-white/85 hover:bg-white/10' }}">{{ label }}</a>
-        {% endfor %}
-        <span class="hidden md:block w-px h-6 bg-white/25 mx-2"></span>
-        <a href="{{ review_href }}" class="rounded px-3 py-2 text-white/90 hover:bg-white/10">Review Details</a>
-      </div>
-    </nav>
+  <header class="topbar">
+    <div class="topbar-in">
+      <a href="/" class="brand" aria-label="مِرآة — مقابلة جديدة">مِرآة <small dir="ltr">MIRAAH</small></a>
+      <nav class="topnav" aria-label="التنقل">
+        <a href="/" {% if path in ['/', '/new'] %}aria-current="page"{% endif %}>مقابلة جديدة</a>
+        <a href="/docs">التوثيق</a>
+      </nav>
+    </div>
   </header>
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">{% block content %}{% endblock %}</main>
-  <footer class="bg-navy text-white/80 text-sm">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap gap-2 justify-between">
-      <p role="note" class="font-semibold text-teal">⚠️ {{ DISCLAIMER }}.</p>
-      <p>«نحافظ على المعنى، لا على الكلمات فقط»</p>
+  <main class="page">{% block content %}{% endblock %}</main>
+  <footer class="foot">
+    <div class="foot-in">
+      <p role="note">{{ DISCLAIMER }}.</p>
+      <p>نحافظ على المعنى، لا على الكلمات فقط</p>
     </div>
   </footer>
 </body>

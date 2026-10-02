@@ -17,9 +17,10 @@
 | [NumPy](https://github.com/numpy/numpy) (تبعية rank-bm25) | حساب الدرجات | BSD-3-Clause |
 | [qrcode](https://github.com/lincolnloop/python-qrcode) | رمز QR في صفحة الختم (SVG) | BSD-3-Clause |
 | [sacrebleu](https://github.com/mjpost/sacrebleu) | chrF لخط الأساس في التقييم | Apache-2.0 |
-| [Tailwind CSS](https://tailwindcss.com) (CDN) | التنسيق | MIT |
 | [Alpine.js](https://alpinejs.dev) (CDN) | تفاعل الواجهة | MIT |
-| [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | الخط | SIL Open Font License 1.1 |
+| [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | خط الواجهة | SIL Open Font License 1.1 |
+| [Amiri](https://fonts.google.com/specimen/Amiri) (Google Fonts) | النص العربي الأصلي وحده (نسخي) | SIL Open Font License 1.1 |
+| [Literata](https://fonts.google.com/specimen/Literata) (Google Fonts) | النصوص اللاتينية | SIL Open Font License 1.1 |
 
 ## الخدمات والبنية
 
@@ -46,6 +47,7 @@
 
 ## الأصول البصرية
 - أيقونة الموقع (`app/static/favicon.*`): من عمل المشروع، تُولَّد بـ `scripts/make_favicon.py` بألوان الهوية.
+- الواجهة («المقابلة»): CSS من عمل المشروع في `app/static/app.css` برموز متغيرات CSS، بلا مكتبة تنسيق ولا صور خارجية.
 
 ## البيانات الاصطناعية
 كل الأمثلة في `app/mock.py` و `data/examples/` اصطناعية، ولا تحتوي على محادثات حقيقية ولا بيانات شخصية.

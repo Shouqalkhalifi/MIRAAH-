@@ -21,6 +21,7 @@ from app.pipeline.locks import LOCK_TYPE_AR
 from app.pipeline.severity import TIER_LABELS_AR
 from app.service import AnalyzeRequest
 from app.store import load_report
+from app import ui
 from app.ui import MODULES, meta
 
 APP_DIR = Path(__file__).resolve().parent
@@ -36,6 +37,10 @@ templates.env.globals["tier_labels"] = TIER_LABELS_AR
 templates.env.globals["lock_types"] = LOCK_TYPE_AR
 templates.env.globals["modules"] = MODULES
 templates.env.globals["meta"] = meta
+# طبقة العرض للمقابلة (علامات النسّاخ، والتجميع بالسبب الجذري، وخيط السند) وتقسيم الجمل للمرآة
+templates.env.globals["ui"] = ui
+templates.env.globals["sentences"] = split_sentences
+templates.env.globals["reviewer_roles"] = REVIEWER_ROLES
 
 _SEV_ORDER = {"red": 0, "yellow": 1, "info": 2}
 
@@ -55,15 +60,13 @@ def highlight(text: str, alerts, side: str, label: str | None = None) -> Markup:
         spans.append((i, i + len(frag), a.severity.value, a))
     out, pos = [], 0
     for s, e, sev, a in sorted(spans, key=lambda x: x[0]):
-        _, ar, en = meta(a.type.value)
-        word, word_en = ("تحذير", "Warning") if sev == "red" else ("تنبيه", "Notice")
+        word, tone = ui.mark_word(a.type.value), ui.tone(a)
+        tip = escape(f"{ui.headline(a)} · {a.type.value}")  # الرمز التقني في التلميح فقط
         out += [escape(text[pos:s]),
-                Markup(f'<a href="#alert-{a.id}" class="mark-link">'
-                       f'<mark class="mark-{sev}" data-tip="{escape(word)}: {escape(ar)}" data-alert="{a.id}">'),
-                escape(text[s:e]), Markup("</mark>")]
-        if side == "version":  # فقاعة ظاهرة فوق المقطع في النسخة (عربي + إنجليزي)
-            out.append(Markup(f'<span class="tip tip-{sev}" aria-hidden="true"><b>{escape(word)}: {escape(ar)}</b>'
-                              f'<span>{word_en}: {escape(en.split(": ", 1)[-1])}</span></span>'))
+                Markup(f'<a href="#alert-{a.id}" class="anchor" data-alert="{a.id}">'
+                       f'<mark class="mk mk-{tone}" title="{tip}">'), escape(text[s:e]), Markup("</mark>")]
+        if side == "version":  # علامة النسّاخ مرتفعة عند حدّ الموضع: «لحق» / «زيادة» / «تغيّر» / «يُنظر»
+            out.append(Markup(f'<sup class="sigla tone-{tone}">{escape(word)}</sup>'))
         out.append(Markup("</a>"))
         pos = e
     out.append(escape(text[pos:]))

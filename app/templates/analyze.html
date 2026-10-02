@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}جارٍ التحليل{% endblock %}
+{% block title %}تجري المقابلة{% endblock %}
 {% block content %}
 <script>
   function progressState() {
@@ -18,27 +18,19 @@
     };
   }
 </script>
-<section class="bg-white rounded-2xl shadow p-8 max-w-2xl mx-auto" x-data="progressState()" x-init="poll()">
-  <h1 class="text-2xl font-bold mb-1" x-text="status === 'failed' ? 'تعذّر التحليل' : (status === 'analyzed' ? 'اكتمل التحليل' : 'جارٍ التحليل…')">جارٍ التحليل…</h1>
-  <p class="text-sm text-navy/60 mb-6">{{ report.title or 'تقرير جديد' }} · {{ report.versions | length }} نسخ</p>
-  <div class="w-full bg-paper rounded-full h-3 mb-6">
-    <div class="bg-violet h-3 rounded-full transition-all" :style="`width: ${done / steps.length * 100}%`"></div>
-  </div>
-  <ol class="space-y-2">
+<section class="seal" x-data="progressState()" x-init="poll()">
+  <h1 class="t28" x-text="status === 'failed' ? 'تعذّر التحليل' : (status === 'analyzed' ? 'اكتملت المقابلة' : 'تجري المقابلة…')" role="status">تجري المقابلة…</h1>
+  <p class="t14 muted" style="margin:.25rem 0 0">{{ report.title or 'مقابلة جديدة' }} · {{ report.versions | length }} حلقات</p>
+  <ol class="steps" aria-label="مراحل المقابلة">
     <template x-for="(s, i) in steps" :key="i">
-      <li class="flex items-center gap-2" :class="i < done ? 'text-navy' : 'text-navy/40'">
-        <span x-text="i < done ? '✅' : (i === done && status === 'analyzing' ? '⏳' : '◻️')"></span><span x-text="s"></span>
-      </li>
+      <li :class="i < done ? 'done' : (i === done && status === 'analyzing' ? 'now' : '')" x-text="s"></li>
     </template>
   </ol>
-  <div x-show="status === 'failed'" x-cloak class="mt-6 bg-red-50 border border-red-300 rounded-xl p-4 text-sm">
-    <p class="font-bold text-red-700 mb-1">تعذّر إكمال التحليل</p>
-    <p class="mb-2" x-text="(error || '').split('\n— التفاصيل التقنية: ')[0]"></p>
-    <details x-show="(error || '').includes('التفاصيل التقنية')" class="text-xs text-navy/60">
-      <summary>التفاصيل التقنية</summary>
-      <p dir="ltr" class="font-mono break-all mt-1" x-text="(error || '').split('\n— التفاصيل التقنية: ')[1]"></p>
-    </details>
-    <a href="/new" class="text-violet underline mt-2 inline-block">ابدأ من جديد</a>
+  <div x-show="status === 'failed'" x-cloak class="banner rubric" style="margin-top:1rem">
+    <p style="margin:0 0 .25rem" x-text="(error || '').split('\n— التفاصيل التقنية: ')[0]"></p>
+    <details x-show="(error || '').includes('التفاصيل التقنية')"><summary class="muted">التفاصيل التقنية</summary>
+      <p dir="ltr" class="hash" style="word-break:break-all" x-text="(error || '').split('\n— التفاصيل التقنية: ')[1]"></p></details>
+    <a class="btn btn-quiet" href="/" style="margin-top:.5rem">ابدأ مقابلة جديدة</a>
   </div>
 </section>
 {% endblock %}
