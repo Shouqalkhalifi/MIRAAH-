@@ -28,8 +28,10 @@
   <p class="rv-verdict tone-{{ r.tone if r.tone not in ['ink', 'muted'] else 'none' }}">{{ r.headline_ar }}</p>
   <p class="t14 muted" style="margin:.25rem 0 1rem">زمن التحليل {{ '%.1f' | format(r.elapsed_ms / 1000) }} ث{% if r.id %} · محفوظة: <a href="/reverse/{{ r.id }}">رابط دائم</a>{% else %} · لم يُحفظ نصك{% endif %}</p>
 
-  {% if r.issue and r.issue.is_placeholder %}
+  {% if r.issue and 'TODO' in (r.issue.title_ar ~ r.issue.title_en) %}
   <p class="banner">هذه مسألة تجريبية غير مراجعة في مكتبة مِرآة (TODO)، ومحتواها وهمي للاختبار فقط.</p>
+  {% elif r.issue and not r.issue.reviewed %}
+  <p class="banner">نص المصدر هنا مأخوذ حرفياً من نسخة ممسوحة ضوئياً، ولم تُراجَع المسألة بعدُ على صفحات الكتاب؛ اعتمد على الرابط إلى الصفحة.</p>
   {% endif %}
 
   {% if r.issue %}{% set i = r.issue %}

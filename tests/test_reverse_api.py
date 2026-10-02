@@ -10,7 +10,8 @@ from app.db import get_engine
 from app.llm import LLM, LLMCache, ProviderResponse
 from app.main import app
 from app.models import ReverseRow
-from tests.test_reverse import FakeLLM
+from app.pipeline import reverse as rv
+from tests.test_reverse import ISSUES, FakeLLM
 
 client = TestClient(app)
 SECRET = "Zorblat is forbidden, wrote my-unique-marker-7781."
@@ -28,6 +29,7 @@ class FakeProvider:
 
 @pytest.fixture(autouse=True)
 def fake_llm(monkeypatch):
+    monkeypatch.setattr(rv, "default_library", lambda: ISSUES)
     monkeypatch.setattr(service, "llm_factory", lambda: LLM(
         get_engine(), FakeProvider(), {"main": "fake", "witness_a": "fake", "witness_b": "fake-b"}))
 

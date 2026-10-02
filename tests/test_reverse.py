@@ -2,11 +2,14 @@
 import json
 import re
 
+from app.config import ROOT
 from app.library import load_library
 from app.pipeline import reverse as rv
 from app.pipeline.fingerprint import SYSTEM_FP, SYSTEM_PRESENCE
 
-ISSUES = load_library()
+# المسألتان الوهميتان نُقلتا من المكتبة المشحونة إلى ملف اختبار ثابت
+PLACEHOLDERS = ROOT / "tests" / "fixtures" / "placeholder_issues.jsonl"
+ISSUES = load_library(PLACEHOLDERS)
 
 
 class FakeLLM:

@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from app.config import ROOT
 from app.library import LibraryError, load_library
 
 BASE = {"id": "X1", "level": "أ", "sources": [{"type": "fiqh", "text_ar": "نص", "url": "https://example.org"}]}
@@ -13,8 +14,27 @@ def write(tmp_path, *rows):
     return p
 
 
-def test_shipped_library_has_only_placeholders():
+def test_shipped_library_is_binbaz_fasting_book():
     issues = load_library()
+    assert [i.id for i in issues] == [f"BZ0{n}" for n in range(1, 10)]
+    for i in issues:
+        assert not i.reviewed  # تنتظر مراجعة المطوّرة على صفحات الكتاب
+        assert all(s.url.startswith("https://binbaz.org.sa/books/pdf/215#page=") for s in i.sources)
+        assert all(not s.translation_en for s in i.sources)  # لا ترجمة معتمدة، فلا تُخترع
+        assert "TODO" not in i.title_ar
+    khilaf = {i.id for i in issues if i.position.khilaf}
+    assert khilaf == {"BZ03", "BZ08"}
+
+
+def test_shipped_quotes_are_verbatim_from_their_sources():
+    for i in load_library():
+        texts = " ".join(s.text_ar for s in i.sources)
+        for o in i.position.opinions:
+            assert o in texts or any(o in s.text_ar for s in i.sources), (i.id, o)
+
+
+def test_placeholder_fixture_still_loads():
+    issues = load_library(ROOT / "tests" / "fixtures" / "placeholder_issues.jsonl")
     assert [i.id for i in issues] == ["I01", "I02"]
     assert all(i.is_placeholder and "TODO" in i.title_ar for i in issues)
     assert issues[1].position.khilaf is True and issues[0].position.khilaf is False
