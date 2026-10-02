@@ -1,72 +1,40 @@
 {% extends "base.html" %}
-{% block title %}مقابلة جديدة{% endblock %}
-
-{% macro ornament(cls='') %}
-<div class="orn {{ cls }}" aria-hidden="true"><span></span>
-  <svg viewBox="0 0 24 24"><path d="M12 1.5 15 9l7.5 3-7.5 3-3 7.5L9 15l-7.5-3L9 9z" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="7.5" y="7.5" width="9" height="9" transform="rotate(45 12 12)" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
-<span></span></div>
-{% endmacro %}
-
-{% block hero %}
-<section class="hero" aria-labelledby="hero-h">
-  <svg class="hero-pattern" aria-hidden="true" width="100%" height="100%">
-    <defs>
-      <pattern id="khatam" width="72" height="72" patternUnits="userSpaceOnUse">
-        <g fill="none" stroke="currentColor" stroke-width="1">
-          <rect x="22" y="22" width="28" height="28"/>
-          <rect x="22" y="22" width="28" height="28" transform="rotate(45 36 36)"/>
-          <circle cx="36" cy="36" r="6"/>
-          <path d="M0 36h16M56 36h16M36 0v16M36 56v16"/>
-          <rect x="-14" y="-14" width="28" height="28" transform="rotate(45 0 0)"/>
-          <rect x="58" y="-14" width="28" height="28" transform="rotate(45 72 0)"/>
-          <rect x="-14" y="58" width="28" height="28" transform="rotate(45 0 72)"/>
-          <rect x="58" y="58" width="28" height="28" transform="rotate(45 72 72)"/>
-        </g>
-      </pattern>
-    </defs>
-    <rect width="100%" height="100%" fill="url(#khatam)"/>
-  </svg>
-
-  <div class="hero-in">
-    <p class="hero-kicker">الترجمة والتحقق في المحتوى الإسلامي</p>
-    <h1 id="hero-h" class="hero-title">نحفظ <span class="hl">أثر المعنى</span><br>من الأصل العربي إلى كل ترجمة</h1>
-    {{ ornament('orn-light') }}
-    <p class="hero-sub">تكشف مِرآة أين سقط شرط، أو ارتفعت درجة يقين، أو نُسب قولٌ إلى النبي ﷺ بلا مصدر، وفي أي حلقة دخل الخلل. والقرار للمراجع.</p>
-
-    <form class="hero-bar" method="post" action="/reverse" x-data="{ t: '', sending: false }" @submit="sending = true">
-      <label class="sr-only" for="hero-in">الصق ما قرأته أو اكتب سؤالك</label>
-      <input id="hero-in" name="text" x-model="t" dir="auto" minlength="3" maxlength="1000" required
-             placeholder="الصق عبارة قرأتها عن حكم أو حديث…" autocomplete="off">
-      <button class="hero-go" :disabled="sending || t.trim().length < 3" x-text="sending ? 'نقابل…' : 'قابِلها بمصدرها'">قابِلها بمصدرها</button>
-    </form>
-    <p class="hero-hints">تُعرض نصوص المصادر كما وردت · لا يُحفظ نصك · لا تُصدر مِرآة فتوى</p>
-
-    {% if examples is defined and examples %}
-    <div class="try hero-try">
-      <span>جرّب:</span>
-      {% for ex in examples %}
-      <form method="post" action="/examples/{{ ex.name }}"><button class="btn-text">{{ ex.title }}</button></form>{% if not loop.last %}<span aria-hidden="true">·</span>{% endif %}
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-</section>
-{% endblock %}
-
+{% block title %}مِرآة{% endblock %}
 {% block content %}
+<section class="hero" aria-labelledby="hero-h">
+  <p class="hero-kicker"><span class="dot" aria-hidden="true"></span> الترجمة والتحقق في المحتوى الإسلامي</p>
+  <h1 id="hero-h" class="hero-title">تتبّع <span class="hl">أثر المعنى</span><br>من الأصل العربي إلى كل ترجمة</h1>
+  <p class="hero-sub">تكشف مِرآة أين سقط شرط، أو ارتفعت درجة يقين، أو نُسب قول إلى النبي ﷺ بلا مصدر، وفي أي حلقة دخل الخلل. والقرار للمراجع.</p>
+
+  <p class="hero-ask">قرأتَ عبارة عن حكم أو حديث؟ <b>تحقّق من مصدرها</b></p>
+  <form id="ask" class="hero-bar" method="post" action="/reverse" x-data="{ t: '', sending: false }" @submit="sending = true">
+    <svg class="hero-bar-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-4.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <label class="sr-only" for="hero-in">الصق ما قرأته أو اكتب سؤالك</label>
+    <input id="hero-in" name="text" x-model="t" dir="auto" minlength="3" maxlength="1000" required
+           placeholder="الصق عبارة قرأتها أو اكتب سؤالك…" autocomplete="off">
+    <button class="hero-go" :disabled="sending || t.trim().length < 3" aria-label="تحقّق من مصدرها">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </form>
+
+  {% if examples %}
+  <div class="try chips">
+    <span class="muted">جرّب:</span>
+    {% for ex in examples %}
+    <form method="post" action="/examples/{{ ex.name }}"><button class="chip">{{ ex.title }}</button></form>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+
 {# عرض توضيحي ثابت من المثال الاصطناعي «رخصة الفطر للمسافر» #}
 <section class="demo" aria-labelledby="demo-h" x-data="demoWires()" x-init="draw()" @resize.window.debounce.100ms="draw()">
-  <header class="sec-h">
-    <h2 id="demo-h">كيف تقرأ مِرآة سلسلة الترجمة</h2>
-    {{ ornament() }}
-    <p class="muted t14">مثال توضيحي اصطناعي: حكم مقيّد بالمسافر يصير عاماً في الملخص.</p>
-  </header>
-
+  <h2 id="demo-h" class="sr-only">مثال توضيحي لتقرير مِرآة</h2>
   <ol class="demo-chain" aria-label="سلسلة النسخ">
-    <li class="ok"><span class="k"></span>الأصل العربي</li>
-    <li class="ok"><span class="k"></span><bdi dir="ltr">en-translation</bdi></li>
-    <li class="bad"><span class="k"></span><bdi dir="ltr">en-summary</bdi> <em>هنا دخل الخلل</em></li>
-    <li class="after"><span class="k"></span><bdi dir="ltr">en-post</bdi></li>
+    <li class="ok"><span class="k"></span><span class="lbl">١. الأصل العربي<small>المعنى سليم</small></span></li>
+    <li class="ok"><span class="k"></span><span class="lbl">٢. الترجمة الإنجليزية<small>المعنى محفوظ</small></span></li>
+    <li class="bad"><span class="k"></span><span class="lbl">٣. الملخص الإنجليزي<small>هنا تغيّر المعنى</small></span></li>
+    <li class="after"><span class="k"></span><span class="lbl">٤. منشور على وسائل التواصل<small>ورث الخطأ من الملخص</small></span></li>
   </ol>
 
   <div class="demo-grid" x-ref="grid">
@@ -78,46 +46,160 @@
         <p><span data-w="1">يجوز <mark class="m-ok">للمسافر</mark> أن يفطر في رمضان.</span></p>
         <p><span data-w="2">ويجب عليه قضاء ما أفطره من أيام.</span></p>
       </div>
-      <footer class="panel-f"><span>مستوى المحتوى B</span><span>المرجع: يُضاف المصدر الرسمي</span></footer>
+      <footer class="panel-f"><span class="pill">مستوى المحتوى B</span><span class="pill">المرجع: يُضاف المصدر الرسمي</span></footer>
     </article>
 
     <article class="panel">
-      <header class="panel-h"><span>النسخة المترجمة</span><small dir="ltr">en-summary</small></header>
+      <header class="panel-h"><span>النسخة المترجمة</span><small>الملخص الإنجليزي</small></header>
       <div class="panel-b latin" dir="ltr">
         <p><span data-w="1" data-to="1"><mark class="m-red">Muslims</mark> may break the fast in Ramadan.</span>
-          <span class="gloss g-red" dir="rtl"><b>لحق</b> سقط الشرط «للمسافر»</span></p>
-        <p><span data-w="2" data-to="2" class="gap">sentence missing</span>
-          <span class="gloss g-yel" dir="rtl"><b>يُنظر</b> جملة القضاء بلا مقابل</span></p>
+          <span class="bubble b-red" dir="rtl">تحذير: سقط الشرط «للمسافر»<small dir="ltr">Constraint loss</small></span></p>
+        <p><span data-w="2" data-to="2" class="gap">— sentence missing —</span>
+          <span class="bubble b-yel" dir="rtl">تنبيه: جملة القضاء بلا مقابل<small dir="ltr">Sentence dropped</small></span></p>
       </div>
-      <footer class="panel-f"><span>راجع 2 من 2 جملة</span></footer>
+      <footer class="panel-f"><span class="pill">راجع 2 من 2 جملة</span></footer>
     </article>
 
     <aside class="panel panel-alerts">
       <header class="panel-h"><span>تنبيهات المراجعة والتحقق</span></header>
       <ul class="alerts">
-        <li class="a-red"><small>الأثر</small><b>سقط الشرط</b><span>خاص بالمسافر، فصار عاماً لكل المسلمين</span></li>
-        <li class="a-yel"><small>الأثر</small><b>اتّسع النطاق</b><span>من «المسافر» إلى <bdi dir="ltr">Muslims</bdi></span></li>
-        <li class="a-grn"><small>الميزان</small><b>لا نسبة غير موثّقة</b><span>لم يُنسب قول إلى النبي ﷺ</span></li>
-        <li class="a-pur"><small>الفهم</small><b>مخاطر فهم محتملة</b><span>قد يُفهم أن الفطر مباح للجميع</span></li>
+        <li class="a-red"><span class="ab">أثر</span><div><b>سقط الشرط</b><small>خاص بالمسافر ← عام لكل المسلمين</small></div></li>
+        <li class="a-yel"><span class="ab">أثر</span><div><b>اتّسع النطاق</b><small>من «المسافر» إلى «Muslims»</small></div></li>
+        <li class="a-grn"><span class="ab">ميزان</span><div><b>لا نسبة غير موثّقة</b><small>لم يُنسب قول إلى النبي ﷺ</small></div></li>
+        <li class="a-pur"><span class="ab">فهم</span><div><b>مخاطر فهم محتملة</b><small>قد يُفهم أن الفطر مباح للجميع</small></div></li>
       </ul>
-      <p class="verdict"><span class="lamp"></span><b>لا تنشر</b> حتى يُحسم التنبيه الخطير</p>
+      <div class="light"><span class="lamp red"></span><b>لا تنشر</b><span class="muted t14">· حتى يُحسم التنبيه الخطير</span></div>
       <div class="panel-acts">
-        <a href="#compose" class="btn btn-primary">حلّل نصك بمِرآة</a>
+        <a href="/new" class="btn btn-primary">راجِع قبل النشر</a>
         <form method="post" action="/examples/traveler-fasting"><button class="btn btn-quiet">افتح التقرير الكامل</button></form>
       </div>
     </aside>
   </div>
+  <p class="demo-note t14 muted">مثال توضيحي اصطناعي. التقرير الحقيقي يربط كل تنبيه بموضعه وبالمصدر، ويقترح صياغة آمنة.</p>
 </section>
 
-<section class="pillars" aria-label="وحدات مِرآة">
-  <div class="pillar"><h3>الأثر <small dir="ltr">ATHAR</small></h3><p>يقارن كل حلقة بأمها وبالأصل، ويحدد أول حلقة انكسر فيها المعنى.</p></div>
-  <div class="pillar"><h3>الميزان <small dir="ltr">MIZAN</small></h3><p>يبحث عن كل نسبة في مدونة محلية موثّقة، فإن لم يجدها قال: غير متحقق.</p></div>
-  <div class="pillar"><h3>الفهم <small dir="ltr">FAHM</small></h3><p>يفحص المصطلحات بضوابطها، ويقابل ما يفهمه قارئ الأصل بما يفهمه قارئ النسخة.</p></div>
+{# عن المنصة #}
+<section id="about" class="sec about" aria-labelledby="about-h">
+  <div>
+    <span class="eyebrow eb-dark">عن المنصة</span>
+    <h2 id="about-h" class="big"><span class="soft">ما هي</span><br>مِرآة؟</h2>
+    <span class="rule" aria-hidden="true"></span>
+  </div>
+  <div class="about-txt">
+    <p>مِرآة منظومة ذكاء اصطناعي تتتبّع أثر المعنى في المحتوى الإسلامي، من الأصل العربي إلى الترجمة والملخص، وتكشف أين تغيّر المعنى وفي أي حلقة دخل الخلل.</p>
+    <p>تقابل كل نسخة بأمها وبالأصل، وتربط كل تنبيه بموضعه في النص وبمصدر من مدونتها المحلية، وتقترح صياغة آمنة.</p>
+    <p class="strong">لا تُصدر فتوى ولا تعدّل النص المصدر؛ مهمتها أن تجعل نقل المعنى أدق وأوضح وأجدر بالثقة، والقرار الأخير للمراجع.</p>
+  </div>
 </section>
 
-<section id="compose" class="compose-card">
-  {% include "_modes.html" %}
-  {% with hide_try = true %}{% include "_compose.html" %}{% endwith %}
+{# القدرات #}
+<section id="features" class="sec" aria-labelledby="cap-h">
+  <span class="eyebrow eb-light"><i aria-hidden="true"></i>قدرات المنصة</span>
+  <h2 id="cap-h" class="big">كل ما تحتاجه <span class="soft">لنقل المعنى بأمانة.</span></h2>
+  <p class="sec-sub">تقنية حديثة في خدمة نصٍّ لا يتغيّر معناه.</p>
+  <div class="cards3">
+    <article class="fcard">
+      <span class="ftile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>
+      <h3>أثر · تتبّع السلسلة</h3>
+      <p>يقارن كل حلقة بأمها وبالأصل، ويحدد أول حلقة انكسر فيها المعنى: شرط سقط، أو يقين ارتفع، أو نطاق اتسع.</p>
+    </article>
+    <article class="fcard">
+      <span class="ftile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
+      <h3>ميزان · التحقق من المصادر</h3>
+      <p>يبحث عن كل نسبة إلى النبي ﷺ في مدونة محلية موثّقة، وإن لم يجدها قال «غير متحقق» وأحال، ولا يولّد مرجعاً.</p>
+    </article>
+    <article class="fcard">
+      <span class="ftile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg></span>
+      <h3>فهم · المصطلحات والقارئ</h3>
+      <p>يفحص المصطلحات بضوابطها، ويمتحن ما يفهمه قارئ الأصل وما يفهمه قارئ النسخة، ويعرض الفرق.</p>
+    </article>
+  </div>
+</section>
+
+{# كيف تعمل #}
+<section id="how" class="sec" aria-labelledby="how-h">
+  <span class="eyebrow eb-light"><i aria-hidden="true"></i>الدقة في كل خطوة</span>
+  <h2 id="how-h" class="big">مقابلة مصمَّمة <span class="soft">للوضوح والثقة.</span></h2>
+  <ol class="cards3 steps3">
+    <li class="fcard">
+      <span class="fnum">01</span>
+      <span class="ftile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></span>
+      <h3>الصق الأصل وترجمته</h3>
+      <p>النص العربي وما أُخذ منه: ترجمة أو ملخص، حتى أربع حلقات متتابعة.</p>
+    </li>
+    <li class="fcard">
+      <span class="fnum">02</span>
+      <span class="ftile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/></svg></span>
+      <h3>تقابل مِرآة المعنى</h3>
+      <p>تستخرج بصمة المعنى لكل جملة، وتطبّق قواعد ثابتة على الشروط واليقين والنسبة والأرقام.</p>
+    </li>
+    <li class="fcard">
+      <span class="fnum">03</span>
+      <span class="ftile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.5 2.5M15.2 15.2l2.5 2.5M6.3 17.7l2.5-2.5M15.2 8.8l2.5-2.5"/></svg></span>
+      <h3>راجع وقرّر بثقة</h3>
+      <p>تنبيهات مرتّبة بالخطورة مع الدليل وصياغات آمنة، والقرار وسببه لك.</p>
+    </li>
+  </ol>
+</section>
+
+{# التطبيق: الخدمتان #}
+<section id="app" class="sec pocket" aria-labelledby="two-h">
+  <div class="pocket-txt">
+    {% if verse %}
+    <figure class="verse">
+      <blockquote class="verse-ar">{{ verse.text_ar }}</blockquote>
+      <figcaption><span class="verse-en" dir="ltr">“{{ verse.text_en }}”</span><span>{{ verse.source_name }}</span></figcaption>
+    </figure>
+    {% endif %}
+    <h2 id="two-h" class="big">خدمتان،<br><span class="soft">لمستخدمَين مختلفين.</span></h2>
+    <p class="sec-sub"><b>راجِع قبل النشر</b> للمترجمين والمحررين والجهات: قارن ترجمتك أو ملخصك بالأصل، وصحّح قبل النشر.
+      <b>تحقّق مما قرأت</b> للقرّاء: الصق عبارة قرأتها، واعرف هل تطابق المصدر، دون أن يُحفظ نصك.</p>
+    <div class="badges">
+      <a href="/new" class="badge"><span><small>للمترجمين والمحررين والجهات</small>راجِع قبل النشر</span></a>
+      <a href="/reverse" class="badge"><span><small>للقرّاء</small>تحقّق مما قرأت</span></a>
+    </div>
+  </div>
+  {% if sample %}
+  <div class="phone" role="img" aria-label="مثال لنتيجة «تحقّق مما قرأت»">
+    <div class="phone-in">
+      <div class="phone-bar"><span>9:41</span><span class="notch"></span><span>●●●</span></div>
+      <p class="ph-hi">السلام عليكم</p>
+      <p class="ph-sub">ماذا قرأتَ اليوم؟</p>
+      <div class="ph-msg" dir="ltr">I‘tikaf is obligatory for women.</div>
+      <div class="ph-card ph-red"><b>متعارض مع المصدر</b><small>المصدر يذكر أنه سنة، لا واجب</small></div>
+      <div class="ph-card"><span class="ar-source">{{ sample.sources[0].text_ar }}</span><small>{{ sample.title_ar }}</small></div>
+      <div class="ph-input">الصق ما قرأته…<span class="ph-go"></span></div>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+{# الأسئلة الشائعة #}
+<section id="faq" class="faq" aria-labelledby="faq-h">
+  <div class="faq-in">
+    <span class="eyebrow eb-ghost"><i aria-hidden="true"></i>الأسئلة الشائعة</span>
+    <h2 id="faq-h" class="big">أسئلة <span class="soft">متكررة.</span></h2>
+    <p class="sec-sub">كل ما تحتاج معرفته عن منهج مِرآة ومصادرها وطريقة تحققها.</p>
+    {% set faqs = [
+        ('ما هي مِرآة؟', 'أداة مراجعة مدعومة بالذكاء الاصطناعي تقابل الترجمات والملخصات بالأصل العربي، وتكشف أين تغيّر المعنى وفي أي حلقة.'),
+        ('كيف تعمل مِرآة؟', 'تقسّم النص إلى جمل وتحاذيها بجمل الأصل، وتستخرج بصمة المعنى لكل جملة، ثم تقارن البصمات بقواعد ثابتة وتحدد الحلقة التي دخل فيها الخلل.'),
+        ('كيف تتجنب مِرآة اختلاق المصادر؟', 'لا تبحث إلا في مدونتها المحلية الموثّقة. إن لم تجد المرجع قالت «غير متحقق» وأحالت إلى المراجع، ولا يُسمح للنموذج بتوليد آية أو حديث من ذاكرته.'),
+        ('هل أستطيع التحقق من منشور قرأته؟', 'نعم، عبر «تحقّق مما قرأت»: الصق العبارة فتعرض لك مِرآة نص المصدر من مكتبتها وموضع الاختلاف، إن كانت المسألة فيها.'),
+        ('ما المصادر التي تعتمدها مِرآة؟', 'مدونة محلية من آيات وأحاديث ومصطلحات، ومكتبة مسائل منقولة حرفياً مع رابط صفحتها، منها مسائل في الصيام والحج من كتب الشيخ ابن باز. التفاصيل والتراخيص في ملف المصادر.'),
+        ('هل يُحفظ ما أكتبه؟', 'في «تحقّق مما قرأت» لا يُحفظ نصك إلا إن اخترت رابطاً دائماً. أما مراجعات «راجِع قبل النشر» فتُحفظ لتتمكن من حسم تنبيهاتها وتصدير تقرير داخلي عنها.'),
+        ('هل تُصدر مِرآة فتوى؟', 'لا. هي تعرض المصادر وتقابلها، ولا تُصدر حكماً شرعياً، ولا تعدّل النص المصدر آلياً.'),
+        ('هل مِرآة بديل عن العلماء والمراجعين؟', 'لا. هي مساعدة للمراجع البشري والقرار النهائي له، وتُحال الحالات الشخصية إلى أهل الاختصاص.'),
+    ] %}
+    <div class="faq-grid">
+      {% for col in [faqs[0::2], faqs[1::2]] %}{% set c = loop.index0 %}
+      <div class="faq-col">
+        {% for q, a in col %}
+        <details class="faq-item" name="faq" style="order: {{ loop.index0 * 2 + c }}"><summary>{{ q }}<span class="chev" aria-hidden="true"></span></summary><p>{{ a }}</p></details>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
 <script>
@@ -136,10 +218,10 @@
           const pa = from.closest('.panel').getBoundingClientRect(), pb = to.closest('.panel').getBoundingClientRect();
           const x1 = pa.left - g.left, y1 = a.top - g.top + Math.min(a.height / 2, 20);
           const x2 = pb.right - g.left, y2 = b.top - g.top + Math.min(b.height / 2, 16);
-          const mx = (x1 + x2) / 2, c = to.dataset.to === '1' ? '#B4232F' : '#B7791F';
+          const mx = (x1 + x2) / 2, bad = to.dataset.to === '1' ? '#E5484D' : '#D9A21B';
           svg.insertAdjacentHTML('beforeend',
-            `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="1.2" stroke-dasharray="3 4"/>` +
-            `<circle cx="${x1}" cy="${y1}" r="3" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="3" fill="${c}"/>`);
+            `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${bad}" stroke-width="1.6" stroke-dasharray="4 4"/>` +
+            `<circle cx="${x1}" cy="${y1}" r="4" fill="${bad}"/><circle cx="${x2}" cy="${y2}" r="4" fill="${bad}"/>`);
         });
       }
     };

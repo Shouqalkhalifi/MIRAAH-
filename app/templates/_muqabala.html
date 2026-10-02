@@ -2,7 +2,7 @@
 {% set groups = ui.group_alerts(report.alerts) %}
 {% set nodes = ui.thread(report) %}
 {% set status = ui.status_line(report) %}
-{% set published = report.status.value == 'published' %}
+{% set approved = report.status.value == 'approved' %}
 {% set first_label = nodes[first_tab + 1].label if report.versions else 'source' %}
 {% set lang_ar = {'ar': 'العربية', 'en': 'الإنجليزية', 'fr': 'الفرنسية', 'id': 'الإندونيسية', 'ur': 'الأردية'} %}
 {% set ns = namespace() %}
@@ -14,13 +14,15 @@
                           'yellow': members | selectattr('severity.value', 'equalto', 'yellow') | list | length > 0,
                           'word': ui.mark_word(g.root.type.value),
                           'links': [g.root.introduced_at] + g.root.propagated_to}) %}{% endfor %}
+{% macro bubble(a) %}{% set red = a.severity.value == 'red' %}
+<a href="#alert-{{ a.id }}" class="bubble {{ 'b-red' if red else 'b-yel' }}" dir="rtl">{{ 'تحذير' if red else 'تنبيه' }}: {{ ui.headline(a) }}<small dir="ltr">{{ ui.meta(a.type.value)[2].split(': ')[-1] }}</small></a>
+{% endmacro %}
 {% set src_of = {} %}{% for a in report.alerts %}{% set _ = src_of.update({a.id: a.source_sentence_indices}) %}{% endfor %}
-{% set roles = reviewer_roles %}
 
 <script>
   function muqabala(cfg) {
     return {
-      ...cfg, showSrc: window.innerWidth >= 1280, publishError: '',
+      ...cfg, showSrc: true, approveError: '', approving: false,
       decided(ids) { return ids.every(id => this.decisions[id]); },
       statusTone() { return this.statusCalc().tone; },
       statusText() { return this.statusCalc().text; },
@@ -35,7 +37,7 @@
         if (y) return { tone: 'saffron', text: `يُنظر · ${y} ${y === 1 ? 'موضع' : 'مواضع'}` };
         return { tone: 'verified', text: 'بلغ مقابلة' };
       },
-      canSeal() { return !this.referral && !this.published && this.statusTone() !== 'rubric'; },
+      canApprove() { return !this.referral && !this.levelD && !this.approved && !this.approving && this.statusTone() !== 'rubric'; },
       select(label) { this.sel = label; this.$nextTick(() => this.layout()); },
       mirror(indices) {
         document.querySelectorAll('.src-sent.is-mirror').forEach(e => e.classList.remove('is-mirror'));
@@ -50,7 +52,7 @@
       async decide(ids, action, reason, edited) {
         for (const id of ids) {
           const d = await this.post('/api/decision', { report_id: this.reportId, alert_id: id, action, reason,
-            edited_text: action === 'edit' ? edited : null, reviewer_role: this.role });
+            edited_text: action === 'edit' ? edited : null });
           this.decisions[id] = d.decisions[id];
         }
         this.$nextTick(() => this.layout());
@@ -61,111 +63,71 @@
         this.$nextTick(() => this.layout());
         return this.revs[id];
       },
-      async seal() {
-        this.publishError = '';
-        try { await this.post('/api/publish', { report_id: this.reportId, reviewer_role: this.role }); location.href = '/seal/' + this.reportId; }
-        catch (e) { this.publishError = e.message; }
+      download(ext) {
+        const a = document.createElement('a');
+        a.href = `/api/report/${this.reportId}/export.${ext}`;
+        a.download = `miraah-report-${this.reportId}.${ext}`;
+        document.body.appendChild(a); a.click(); a.remove();
       },
-      // الحاشية: كل ملاحظة تحاذي سطرها ويصلها بالموضع خط رفيع؛ وعلى الجوال تنزل تحت جملتها
+      async exportReport() {
+        this.approveError = ''; this.approving = true;
+        try {
+          await this.post('/api/approve', { report_id: this.reportId });
+          this.approved = true;
+          this.download('pdf');
+        } catch (e) { this.approveError = e.message; }
+        finally { this.approving = false; }
+      },
+      // خيوط تصل كل موضع منبَّه عليه في النسخة بجملته في الأصل، كما في عرض الرئيسية
       layout() {
-        const body = this.$refs.body, hashiya = this.$refs.hashiya, svg = this.$refs.wires;
-        if (!body || !hashiya) return;
-        const notes = [...document.querySelectorAll('.note[data-ids]')];
-        const anchorOf = n => {
-          const pane = document.querySelector('.matn-pane:not([style*="display: none"])');
-          if (!pane) return null;
-          for (const id of n.dataset.ids.split(' ')) { const a = pane.querySelector(`[data-alert="${id}"]`); if (a) return a; }
-          return null;
-        };
-        if (window.innerWidth < 1024) {
-          svg && (svg.innerHTML = '');
-          notes.forEach(n => {
-            const a = anchorOf(n), sent = a && a.closest('.v-sent');
-            if (sent) { let slot = sent.nextElementSibling;
-              if (!slot || !slot.classList.contains('v-note-slot')) { slot = document.createElement('div'); slot.className = 'v-note-slot'; sent.after(slot); }
-              slot.appendChild(n);
-            } else if (n.parentElement !== hashiya) { hashiya.appendChild(n); }
-            n.style.top = '';
+        const svg = this.$refs.wires, grid = this.$refs.grid;
+        if (!svg) return;
+        svg.innerHTML = '';
+        const src = grid.querySelector('.source-pane'), matn = grid.querySelector('.matn');
+        if (!src || src.offsetParent === null) return;
+        const g = grid.getBoundingClientRect(), pa = src.getBoundingClientRect(), pb = matn.getBoundingClientRect();
+        if (pb.right > pa.left + 1) return;  // الأعمدة متراكبة على الشاشات الضيقة
+        const mid = r => r.top - g.top + Math.min(r.height / 2, 16);
+        matn.querySelectorAll('[data-src]').forEach(el => {
+          if (el.offsetParent === null) return;
+          const target = el.classList.contains('gap') ? el : el.querySelector('[data-alert]');
+          if (!target) return;
+          const c = el.querySelector('.mk-rubric') ? '#E5484D' : '#D9A21B';
+          const b = target.getClientRects()[0];
+          [...new Set(JSON.parse(el.dataset.src))].forEach(i => {
+            const s = src.querySelector(`.src-sent[data-i="${i}"]`);
+            const a = s && (s.querySelector('[data-alert]') || s).getClientRects()[0];
+            if (!a) return;
+            const x1 = pa.left - g.left, y1 = mid(a), x2 = pb.right - g.left, y2 = mid(b), mx = (x1 + x2) / 2;
+            svg.insertAdjacentHTML(c === '#E5484D' ? 'beforeend' : 'afterbegin',
+              `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="1.6" stroke-dasharray="4 4"/>` +
+              `<circle cx="${x1}" cy="${y1}" r="4" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="4" fill="${c}"/>`);
           });
-          return;
-        }
-        notes.forEach(n => { if (n.parentElement !== hashiya) hashiya.appendChild(n); });
-        const H = hashiya.getBoundingClientRect(), B = body.getBoundingClientRect();
-        const visible = notes.filter(n => n.offsetParent !== null)
-          .map(n => ({ n, a: anchorOf(n) }))
-          .sort((x, y) => (x.a ? x.a.getBoundingClientRect().top : 1e9) - (y.a ? y.a.getBoundingClientRect().top : 1e9));
-        let bottom = 0, wires = '';
-        const matn = document.querySelector('.matn');
-        visible.forEach(({ n, a }) => {
-          const want = a ? a.getBoundingClientRect().top - H.top - 6 : bottom;
-          const top = Math.max(want, bottom);
-          n.style.top = top + 'px';
-          bottom = top + n.offsetHeight + 14;
-          if (a && matn) {
-            const ar = a.getBoundingClientRect(), mr = matn.getBoundingClientRect();
-            const y1 = ar.top + ar.height / 2 - B.top, x1 = mr.left - B.left;
-            const x2 = H.right - B.left, y2 = H.top + top + 14 - B.top;
-            const c = n.classList.contains('is-decided') ? '#0E8F77' : (n.classList.contains('tone-rubric-n') ? '#B4232F' : '#B7791F');
-            wires += `<path d="M${x1},${y1} C${x1 - 14},${y1} ${x2 + 14},${y2} ${x2},${y2}" fill="none" stroke="${c}" stroke-width="1" opacity=".7"/>`
-                   + `<circle cx="${x1}" cy="${y1}" r="2.5" fill="${c}"/>`;
-          }
         });
-        hashiya.style.minHeight = bottom + 'px';
-        if (svg) { svg.setAttribute('viewBox', `0 0 ${B.width} ${B.height}`); svg.innerHTML = wires; }
       },
-      init() {
-        this.$watch('showSrc', () => this.$nextTick(() => this.layout()));
-        window.addEventListener('resize', () => this.layout());
-        if (window.ResizeObserver) new ResizeObserver(() => this.layout()).observe(this.$refs.hashiya);
-        document.fonts && document.fonts.ready.then(() => this.layout());
-        this.$nextTick(() => this.layout());
+      light(ids, on) {
+        document.querySelectorAll('[data-alert].is-lit').forEach(e => e.classList.remove('is-lit'));
+        if (on) ids.forEach(id => document.querySelectorAll(`.matn [data-alert="${id}"]`).forEach(e => e.classList.add('is-lit')));
       },
     };
   }
 </script>
 
-<div x-data="muqabala({{ {'reportId': report.id, 'sel': first_label, 'role': report.reviewer_role or roles[0],
-                           'published': published, 'referral': report.referral, 'groups': gmeta,
+<div class="mq" x-data="muqabala({{ {'reportId': report.id, 'sel': first_label,
+                           'approved': approved, 'referral': report.referral, 'groups': gmeta,
+                           'levelD': report.source.content_level.value == 'D',
                            'decisions': dec, 'revs': revs} | tojson | forceescape }})">
 
-  {# ---------- الرأس: الحالة، والعدد، والأفعال ---------- #}
-  <header class="mq-head">
-    <div>
-      <p class="mq-status tone-{{ status.tone }}" :class="'tone-' + statusTone()" x-text="statusText()" role="status">{{ status.text }}</p>
-      <p class="t16" style="margin:.15rem 0">راجع <b>{{ flagged | length }}</b> من <b>{{ source_sentences | length }}</b> جملة في الأصل</p>
-      <p class="mq-meta">
-        <span>{{ report.title or 'مقابلة' }}</span>
-        <span>المرجع: {{ report.source.source_ref or 'غير مسجّل' }}</span>
-        <span>مستوى المحتوى {{ report.source.content_level.value }}</span>
-        <span>{% if report.witnesses.enabled %}اتفاق الشاهدين {{ ((report.witnesses.agreement or 0) * 100) | round | int }}٪{% else %}شاهد واحد{% endif %}</span>
-      </p>
-    </div>
-    <div class="mq-actions">
-      <button type="button" class="btn btn-quiet" @click="showSrc = !showSrc" :aria-pressed="showSrc" x-text="showSrc ? 'أخفِ الأصل' : 'أظهر الأصل'">أظهر الأصل</button>
-      {% if not published %}
-      <label class="sr-only" for="role">صفتك</label>
-      <select id="role" class="field" style="width:auto" x-model="role" aria-label="صفتك كمراجع">
-        {% for r in roles %}<option>{{ r }}</option>{% endfor %}
-      </select>
-      <button type="button" class="btn btn-primary" :disabled="!canSeal()" @click="seal()">اختِم المقابلة</button>
-      {% else %}
-      <a class="btn btn-primary" href="/seal/{{ report.id }}">افتح الختم</a>
-      {% endif %}
-    </div>
-    <p class="t14 tone-rubric" x-show="publishError" x-cloak x-text="publishError" style="grid-column:1/-1;margin:0"></p>
-    <p class="t14 muted" x-show="!published && !canSeal() && !referral" style="grid-column:1/-1;margin:0">يُختم بعد حسم كل ملاحظة بالحُمرة.</p>
+  <header class="mq-top">
+    <p class="mq-kicker">نتيجة المراجعة</p>
+    <h1 class="mq-title">{{ report.title or 'مقابلة' }}</h1>
   </header>
 
-  {% if report.referral %}<p class="banner rubric">مستوى المحتوى D خارج نطاق مِرآة. الملاحظات للاستئناس، ويُحال النص إلى مختص قبل النشر.</p>{% endif %}
-  {% for w in report.warnings %}<p class="banner">{{ w }}. بقية المقابلة سليمة، ويمكنك إعادة التحليل لاحقاً.</p>{% endfor %}
-
   {# ---------- الجسم ---------- #}
-  <div class="mq-body" :class="showSrc ? '' : 'no-src'" x-ref="body">
-    <svg id="wires" x-ref="wires" aria-hidden="true"></svg>
+  <div class="mq-body">
 
     {# خيط السند #}
-    <nav aria-label="خيط السند">
-      <p class="pane-title">خيط السند</p>
+    <nav class="mq-chain" aria-label="خيط السند">
       <ol class="thread">
         {% for n in nodes %}{% set nxt = nodes[loop.index] if not loop.last else none %}
         <li class="st-{{ n.state }}{% if n.recheck %} recheck{% endif %}{% if nxt and nxt.state != 'ok' %} seg-broken{% endif %}" style="--i: {{ loop.index0 }}">
@@ -180,59 +142,77 @@
       </ol>
     </nav>
 
+  {% if report.referral %}<p class="banner rubric">مستوى المحتوى D خارج نطاق مِرآة. الملاحظات للاستئناس، ويُحال النص إلى مختص قبل النشر.</p>{% endif %}
+  {% for w in report.warnings %}<p class="banner">{{ w }}. بقية المقابلة سليمة، ويمكنك إعادة التحليل لاحقاً.</p>{% endfor %}
+
+  <div class="mq-grid" x-ref="grid" :class="sel === 'source' && 'is-src'"
+       x-init="$nextTick(() => layout()); document.fonts && document.fonts.ready.then(() => layout()); new ResizeObserver(() => layout()).observe($el)">
+    <svg class="demo-wires" x-ref="wires" aria-hidden="true"></svg>
     {# الأصل (المرآة) #}
-    <section class="source-pane" x-show="showSrc" {% if not report.versions %}x-cloak{% endif %} aria-label="الأصل">
-      <p class="pane-title"><span>الأصل</span><span class="t14">{{ source_sentences | length }} جمل</span></p>
-      <div class="ar-source measure" dir="rtl">
+    <article class="panel source-pane" x-show="sel !== 'source'" {% if not report.versions %}x-cloak{% endif %} aria-label="الأصل">
+      <header class="panel-h"><span>المصدر العربي</span><small dir="ltr">Arabic Source</small></header>
+      <div class="panel-b ar-source" dir="rtl">
         {% for seg in source_sentences %}<span class="src-sent" data-i="{{ seg.index }}">{{ seg.text | hl(report.alerts, 'source') }}</span> {% endfor %}
       </div>
-    </section>
+      <footer class="panel-f"><span class="pill">مستوى المحتوى {{ report.source.content_level.value }}</span><span class="pill">المرجع: {{ report.source.source_ref or 'غير مسجّل' }}</span></footer>
+    </article>
 
     {# المتن #}
-    <section class="matn" aria-label="المتن">
+    <article class="panel matn" aria-label="المتن">
+      <header class="panel-h"><span x-text="sel === 'source' ? 'المصدر العربي' : 'النسخة المترجمة'">{{ 'المصدر العربي' if first_label == 'source' else 'النسخة المترجمة' }}</span><small dir="ltr" x-text="sel === 'source' ? 'Arabic Source' : sel">{{ first_label }}</small></header>
+      <div class="panel-b">
       <div class="matn-pane" x-show="sel === 'source'" {% if first_label != 'source' %}x-cloak{% endif %}>
-        <p class="pane-title"><span>الأصل</span></p>
-        <div class="ar-source measure matn-text" dir="rtl">{{ report.source.text | hl(report.alerts, 'source') }}</div>
+        <div class="ar-source matn-text" dir="rtl">{{ report.source.text | hl(report.alerts, 'source') }}</div>
       </div>
       {% for v in report.versions %}
       {% set vsents = sentences(v.text) %}
       <div class="matn-pane" x-show="sel === '{{ v.label }}'" {% if v.label != first_label %}x-cloak{% endif %}>
-        <p class="pane-title"><bdi>{{ v.label }}</bdi><span>{{ lang_ar.get(v.lang, v.lang) }} · عن <bdi>{{ 'الأصل' if v.derived_from == 'source' else v.derived_from }}</bdi></span></p>
-        <div class="matn-text measure {{ '' if v.lang in ['ar', 'ur'] else 'latin' }}" dir="{{ 'rtl' if v.lang in ['ar', 'ur'] else 'ltr' }}">
+        <p class="mq-vmeta">{{ lang_ar.get(v.lang, v.lang) }} · مأخوذة عن <bdi>{{ 'الأصل' if v.derived_from == 'source' else v.derived_from }}</bdi></p>
+        <div class="matn-text {{ '' if v.lang in ['ar', 'ur'] else 'latin' }}" dir="{{ 'rtl' if v.lang in ['ar', 'ur'] else 'ltr' }}">
           {% for seg in vsents %}
             {% set ns.src = [] %}
             {% for a in report.alerts if a.version_label == v.label and a.version_span.text and a.version_span.text in seg.text %}{% set ns.src = ns.src + a.source_sentence_indices %}{% endfor %}
             {% if not ns.src and vsents | length == source_sentences | length %}{% set ns.src = [seg.index] %}{% endif %}
-            <span class="v-sent" tabindex="0" data-i="{{ seg.index }}" @mouseenter="mirror({{ ns.src | tojson }})" @focus="mirror({{ ns.src | tojson }})" @mouseleave="mirror([])">{{ seg.text | hl(report.alerts, 'version', v.label) }}</span>
+            <span class="v-sent" tabindex="0" data-i="{{ seg.index }}" data-src="{{ ns.src | tojson | forceescape }}" @mouseenter="mirror({{ ns.src | tojson }})" @focus="mirror({{ ns.src | tojson }})" @mouseleave="mirror([])">{{ seg.text | hl(report.alerts, 'version', v.label) }}</span>
+            {% for g in groups if g.root.version_label == v.label and g.root.type.value != 'sentence_dropped' and g.root.version_span.text and g.root.version_span.text in seg.text %}{{ bubble(g.root) }}{% endfor %}
+          {% endfor %}
+          {% for a in report.alerts if a.version_label == v.label and a.type.value == 'sentence_dropped' and a.source_sentence_indices %}
+            <span class="gap" data-src="{{ a.source_sentence_indices | tojson | forceescape }}" @mouseenter="mirror({{ a.source_sentence_indices | tojson }})" @mouseleave="mirror([])">{{ '— جملة ساقطة —' if v.lang in ['ar', 'ur'] else '— sentence missing —' }}</span>
+            {{ bubble(a) }}
           {% endfor %}
         </div>
       </div>
       {% endfor %}
-    </section>
+      </div>
+      <footer class="panel-f"><span class="pill">راجع <b>{{ flagged | length }}</b> من <b>{{ source_sentences | length }}</b> جملة</span><span class="pill">{% if report.witnesses.enabled %}اتفاق الشاهدين {{ ((report.witnesses.agreement or 0) * 100) | round | int }}٪{% else %}شاهد واحد{% endif %}</span></footer>
+    </article>
 
-    {# الحاشية #}
-    <aside class="hashiya" x-ref="hashiya" aria-label="الحاشية">
+    {# التنبيهات والقرار #}
+    <aside class="panel panel-alerts hashiya" x-ref="hashiya" aria-label="تنبيهات المراجعة والتحقق">
+      <header class="panel-h"><span>تنبيهات المراجعة والتحقق</span><small>اضغط على تنبيه لتراجعه</small></header>
+      <div class="alerts">
       {% for g in groups %}{% set a = g.root %}{% set members = [a] + g.symptoms %}
       {% set ids = members | map(attribute='id') | list %}
       {% set links = [a.introduced_at] + a.propagated_to %}
-      {% set fixable = a.version_label != 'source' and a.severity.value != 'info' %}
-      <article id="alert-{{ a.id }}" class="note {{ 'tone-rubric-n' if ui.tone(a) == 'rubric' }}" data-ids="{{ ids | join(' ') }}"
+      {% set fixable = a.version_label != 'source' %}
+      <article id="alert-{{ a.id }}" class="note {{ 'a-red tone-rubric-n' if ui.tone(a) == 'rubric' else 'a-yel' }}" data-ids="{{ ids | join(' ') }}"
                x-show="{{ links | tojson | forceescape }}.includes(sel)" :class="decided({{ ids | tojson | forceescape }}) && 'is-decided'"
-               x-data="{ mode: '', reason: '', edited: '', alts: null, busy: false, err: '', change: false }">
+               x-data="{ open: false, mode: '', reason: '', edited: '', alts: null, busy: false, gen: false, err: '', change: false }"
+               @mouseenter="light({{ ids | tojson | forceescape }}, true)" @mouseleave="light([], false)">
         {% for s in g.symptoms %}<span id="alert-{{ s.id }}"></span>{% endfor %}
-        <p class="t14" style="margin:0">
-          <span class="tag" :class="decided({{ ids | tojson | forceescape }}) ? 'tone-verified' : 'tone-{{ ui.tone(a) }}'"
-                x-text="decided({{ ids | tojson | forceescape }}) ? 'صح' : '{{ ui.mark_word(a.type.value) }}'">{{ ui.mark_word(a.type.value) }}</span>
-          <span class="muted">في <bdi>{{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }}</bdi>{% if a.propagated_to %} وانتقل إلى {% for p in a.propagated_to %}<bdi>{{ p }}</bdi>{{ '، ' if not loop.last }}{% endfor %}{% endif %}</span>
-        </p>
-        <h3 title="{{ a.type.value }}">{{ ui.headline(a) }}</h3>
-        <p>{{ a.explanation_ar }}</p>
+        <button type="button" class="a-head" @click="open = !open" :aria-expanded="open">
+          <span class="ab" x-text="decided({{ ids | tojson | forceescape }}) ? 'حُسم' : '{{ ui.mark_word(a.type.value) }}'">{{ ui.mark_word(a.type.value) }}</span>
+          <span class="a-txt"><b title="{{ a.type.value }}">{{ ui.headline(a) }}</b><small>{{ a.explanation_ar }}</small></span>
+          <span class="chev" aria-hidden="true"></span>
+        </button>
+        <div class="a-body" x-show="open" x-cloak>
+        <p class="a-where">دخل في <bdi>{{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }}</bdi>{% if a.propagated_to %} وانتقل إلى {% for p in a.propagated_to %}<bdi>{{ p }}</bdi>{{ '، ' if not loop.last }}{% endfor %}{% endif %}</p>
         {% if a.version_span.text %}<p class="quote" style="margin-bottom:0">في النسخة:</p><span class="qb latin" dir="auto">{{ a.version_span.text }}</span>{% endif %}
         {% if a.witnesses_agree == false %}<p class="quote tone-saffron">اختلف فيه الشاهدان، فانظر فيه بنفسك.</p>{% endif %}
         {% if g.symptoms %}
         <details @toggle="$nextTick(() => layout())">
           <summary>أعراضه ({{ g.symptoms | length }})</summary>
-          <ul class="rows">{% for s in g.symptoms %}<li title="{{ s.type.value }}"><b>{{ ui.headline(s) }}</b><br>{{ s.explanation_ar }}</li>{% endfor %}</ul>
+          <ul class="sym">{% for s in g.symptoms %}<li class="s-{{ s.severity.value }}" title="{{ s.type.value }}"><b>{{ ui.headline(s) }}</b><span dir="auto">{{ s.explanation_ar }}</span></li>{% endfor %}</ul>
         </details>
         {% endif %}
         <details @toggle="$nextTick(() => layout())">
@@ -245,27 +225,31 @@
         {# قرار محفوظ #}
         <template x-if="decided({{ ids | tojson | forceescape }}) && !change">
           <div class="t14">
-            <p style="margin:.25rem 0"><b class="tone-verified" x-text="{edit: 'اعتُمد الإصلاح', accept: 'أُحيل خللاً حقيقياً', reject: 'سُجّل إنذاراً خاطئاً'}[decisions['{{ a.id }}'].action]"></b>
-              · <span x-text="decisions['{{ a.id }}'].reason"></span></p>
+            <p style="margin:.25rem 0"><b class="tone-verified" x-text="{edit: 'طُبّق التصحيح', accept: 'أُحيل للمختص', reject: 'ليس خطأ'}[decisions['{{ a.id }}'].action]"></b>
+              <span x-show="decisions['{{ a.id }}'].reason"> · <span x-text="decisions['{{ a.id }}'].reason"></span></span></p>
             <p x-show="decisions['{{ a.id }}'].edited_text" class="quote" style="margin-bottom:0">الصياغة المعتمدة:</p>
             <span x-show="decisions['{{ a.id }}'].edited_text" class="qb latin" dir="auto" x-text="decisions['{{ a.id }}'].edited_text"></span>
-            <button type="button" class="btn-text" x-show="!published" @click="change = true; mode = ''">غيّر القرار</button>
+            <button type="button" class="btn-text" x-show="!approved" @click="change = true; mode = ''">غيّر القرار</button>
           </div>
         </template>
 
-        {# الأفعال الثلاثة #}
-        <template x-if="!published && (!decided({{ ids | tojson | forceescape }}) || change)">
+        {# فعل رئيسي واحد، ورابط «ليس خطأ» تحته #}
+        <template x-if="!approved && (!decided({{ ids | tojson | forceescape }}) || change)">
           <div>
-            <div class="acts" role="group" aria-label="قرارك">
-              {% if fixable %}<button type="button" class="btn" :aria-pressed="mode === 'edit'"
-                @click="mode = 'edit'; err = ''; if (!alts) { busy = true; revise('{{ a.id }}').then(r => alts = r).catch(() => err = 'تعذّر إعداد الصياغات الآن. اكتب صياغتك بنفسك في الخانة أدناه، أو أعد المحاولة لاحقاً.').finally(() => { busy = false; $nextTick(() => layout()) }) }">أصلحه الآن</button>{% endif %}
-              <button type="button" class="btn" :aria-pressed="mode === 'accept'" @click="mode = 'accept'; err = ''">خلل حقيقي – أحيله</button>
-              <button type="button" class="btn" :aria-pressed="mode === 'reject'" @click="mode = 'reject'; err = ''">إنذار خاطئ</button>
+            <div x-show="!mode">
+              {% if fixable %}
+              <button type="button" class="btn btn-primary"
+                @click="mode = 'edit'; err = ''; if (!alts) { busy = gen = true; revise('{{ a.id }}').then(r => alts = r).catch(() => err = 'تعذّر إعداد الصياغات الآن. اكتب صياغتك بنفسك في الخانة أدناه، أو أعد المحاولة لاحقاً.').finally(() => { busy = gen = false; $nextTick(() => layout()) }) }">طبّق التصحيح</button>
+              {% else %}
+              {# الخلل في الأصل نفسه: الأصل لا يُعدَّل، فيُحال إلى مختص #}
+              <button type="button" class="btn btn-primary" @click="mode = 'accept'; err = ''">أحِله للمختص</button>
+              {% endif %}
+              <p style="margin:.4rem 0 0"><button type="button" class="btn-text" @click="mode = 'reject'; err = ''">ليس خطأ</button></p>
             </div>
-            <div x-show="mode" x-cloak style="margin-top:.5rem">
+            <div x-show="mode" x-cloak>
               <template x-if="mode === 'edit'">
                 <div>
-                  <p class="t14 muted" x-show="busy">نُعدّ ثلاث صياغات ونفحص كل واحدة قبل عرضها…</p>
+                  <p class="t14 muted" x-show="gen">نُعدّ ثلاث صياغات ونفحص كل واحدة قبل عرضها…</p>
                   <div class="alts" x-show="alts">
                     <template x-for="(r, i) in (alts || []).filter(r => r.passed)" :key="i">
                       <label class="alt"><input type="radio" name="alt-{{ a.id }}" @change="edited = r.text">
@@ -274,30 +258,54 @@
                     <p class="t14 muted" x-show="alts && alts.some(r => !r.passed)"
                        x-text="'استُبعدت ' + (alts || []).filter(r => !r.passed).length + ' صياغة لأنها كسرت ثابتاً.'"></p>
                   </div>
-                  <label class="lbl" for="ed-{{ a.id }}">الصياغة التي تعتمدها</label>
+                  <label class="lbl" for="ed-{{ a.id }}">اختر صياغة أو اكتب صياغتك</label>
                   <textarea id="ed-{{ a.id }}" class="field" rows="2" dir="auto" x-model="edited"></textarea>
                 </div>
               </template>
-              <label class="lbl" for="rs-{{ a.id }}" style="margin-top:.5rem">السبب (إلزامي)</label>
-              <input id="rs-{{ a.id }}" class="field" x-model="reason" placeholder="لماذا هذا القرار؟">
-              <p class="t14 tone-rubric" x-show="mode === 'edit' && reason.trim() && reason.trim() === edited.trim()" x-cloak>اكتب سبب القرار، لا الصياغة نفسها.</p>
+              <template x-if="mode !== 'edit'">
+                <div>
+                  <label class="lbl" for="rs-{{ a.id }}" x-text="mode === 'reject' ? 'لماذا ليس خطأ؟' : 'لماذا يُحال؟'"></label>
+                  <input id="rs-{{ a.id }}" class="field" x-model="reason" maxlength="200" placeholder="سبب قصير">
+                </div>
+              </template>
               <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
               <div class="acts">
                 <button type="button" class="btn btn-primary"
-                        :disabled="busy || reason.trim().length < 3 || (mode === 'edit' && (!edited.trim() || reason.trim() === edited.trim()))"
-                        @click="busy = true; err = ''; decide({{ ids | tojson | forceescape }}, mode, reason.trim(), edited.trim()).then(() => { change = false; mode = '' }).catch(e => err = e.message).finally(() => busy = false)"
-                        x-text="{edit: 'اعتمِد الإصلاح', accept: 'أحِله', reject: 'سجّله إنذاراً خاطئاً'}[mode]"></button>
+                        :disabled="busy || (mode === 'edit' ? !edited.trim() : reason.trim().length < 3)"
+                        @click="busy = true; err = ''; decide({{ ids | tojson | forceescape }}, mode, mode === 'edit' ? '' : reason.trim(), edited.trim()).then(() => { change = false; mode = '' }).catch(e => err = e.message).finally(() => busy = false)"
+                        x-text="{edit: 'طبّق', accept: 'أحِله', reject: 'سجّل أنه ليس خطأ'}[mode]"></button>
                 <button type="button" class="btn-text" @click="mode = ''; change = false">تراجع</button>
               </div>
             </div>
           </div>
         </template>
+        </div>
       </article>
       {% else %}
-      <p class="muted t14">لا ملاحظات. المعنى محفوظ في كل الحلقات بالقواعد الحالية، والقرار الأخير لك.</p>
+      <p class="a-empty">لا ملاحظات. المعنى محفوظ في كل الحلقات بالقواعد الحالية، والقرار الأخير لك.</p>
       {% endfor %}
-      {% if groups %}<p class="muted t14" x-show="!groups.some(g => g.links.includes(sel))" x-cloak>لا ملاحظات على هذه الحلقة. المعنى فيها محفوظ.</p>{% endif %}
+      {% if groups %}<p class="a-empty" x-show="!groups.some(g => g.links.includes(sel))" x-cloak>لا ملاحظات على هذه الحلقة. المعنى فيها محفوظ.</p>{% endif %}
+      </div>
+
+      <div class="light">
+        <span class="lamp lamp-{{ status.tone }}" :class="'lamp-' + statusTone()"></span>
+        <b class="mq-status tone-{{ status.tone }}" :class="'tone-' + statusTone()" x-text="statusText()" role="status">{{ status.text }}</b>
+      </div>
+      <div class="panel-acts">
+        <div class="mq-approve">
+          <button type="button" class="btn btn-primary" x-show="!approved"{% if approved %} x-cloak{% endif %}
+                  :disabled="!canApprove()" @click="exportReport()"
+                  x-text="approving ? 'يُصدَّر…' : 'صدّر التقرير'">صدّر التقرير</button>
+          <a class="btn btn-primary" x-show="approved"{% if not approved %} x-cloak{% endif %}
+             href="/api/report/{{ report.id }}/export.pdf" download>صدّر التقرير</a>
+          <p class="mq-hint" x-show="referral || levelD">المستوى (د) خارج النطاق: يُحال إلى مختص ولا يُصدَّر.</p>
+          <p class="mq-hint" x-show="!approved && !referral && !levelD && statusTone() === 'rubric'">يُصدَّر بعد حسم كل تنبيه أحمر.</p>
+          <p class="mq-hint" x-show="approved" x-cloak>تقرير PDF: المصدر، والنص المصحَّح، والتنبيهات وما تم في كل منها.</p>
+        </div>
+        <p class="mq-hint tone-rubric" x-show="approveError" x-cloak x-text="approveError"></p>
+      </div>
     </aside>
+  </div>
   </div>
 
   {# ---------- ملحقات المقابلة ---------- #}
@@ -323,16 +331,38 @@
       <h2>امتحان القارئ</h2>
       <p class="t14 muted">أسئلة عن معنى الأصل، أجاب عنها قارئ يرى الأصل وحده، وقارئ لكل حلقة يرى الحلقة وحدها.</p>
       {% set ex = report.reader_exam %}
+      {% set fixed = {} %}{% set ns.stale = false %}
+      {% for v in report.versions %}{% set fx = approved_text(report, v.label, v.text) %}
+        {% if fx[1] %}{% set fresh = v.label in ex.corrected and ex.corrected_text.get(v.label) == fx[0] %}
+          {% set _ = fixed.update({v.label: fresh}) %}{% if not fresh %}{% set ns.stale = true %}{% endif %}{% endif %}
+      {% endfor %}
       <div class="scroll-x"><table class="exam">
-        <thead><tr><th>السؤال</th><th>الأصل</th>{% for v in report.versions %}<th dir="ltr">{{ v.label }}</th>{% endfor %}</tr></thead>
+        <thead><tr><th>السؤال</th><th>الأصل</th>{% for v in report.versions %}
+          <th><bdi dir="ltr">{{ v.label }}</bdi>{% if v.label in fixed %}<small class="exam-when">قبل التصحيح</small>{% endif %}</th>
+          {% if fixed.get(v.label) %}<th><bdi dir="ltr">{{ v.label }}</bdi><small class="exam-when tone-verified">بعد التصحيح</small></th>{% endif %}
+        {% endfor %}</tr></thead>
         <tbody>
         {% for q in ex.questions %}{% set qi = loop.index0 %}{% set sa = (ex.answers.get('source') or []) %}{% set s = sa[qi] if sa | length > qi else none %}
           <tr><td>{{ q.question_ar }}</td><td>{{ q.options[s] if s is not none else '—' }}</td>
             {% for v in report.versions %}{% set ans = ex.answers.get(v.label) or [] %}{% set x = ans[qi] if ans | length > qi else none %}
-            <td class="{{ 'diff' if x is not none and s is not none and x != s }}">{{ q.options[x] if x is not none else '—' }}</td>{% endfor %}</tr>
+            <td class="{{ 'diff' if x is not none and s is not none and x != s }}">{{ q.options[x] if x is not none else '—' }}</td>
+            {% if fixed.get(v.label) %}{% set ca = ex.corrected.get(v.label) or [] %}{% set y = ca[qi] if ca | length > qi else none %}
+            <td class="{{ 'diff' if y is not none and s is not none and y != s else ('same' if y is not none and y == s and x != s) }}">{{ q.options[y] if y is not none else '—' }}</td>{% endif %}
+            {% endfor %}</tr>
         {% endfor %}
         </tbody>
       </table></div>
+      {% if fixed %}
+      <p class="t14 muted exam-note">إجابات «قبل التصحيح» تخص النسخة كما حُلّلت. أما «بعد التصحيح» فقارئ جديد يرى النص المصحَّح وحده ويجيب عن الأسئلة نفسها.</p>
+      {% endif %}
+      {% if ns.stale %}
+      <div x-data="{ busy: false, err: '' }">
+        <button type="button" class="btn btn-primary" :disabled="busy"
+                @click="busy = true; err = ''; fetch('/api/report/{{ report.id }}/reexam', { method: 'POST' }).then(r => { if (!r.ok) throw 0; location.reload() }).catch(() => { err = 'تعذّرت إعادة الامتحان الآن. أعد المحاولة.'; busy = false })"
+                x-text="busy ? 'يجيب القارئ عن النص المصحَّح…' : 'أعد الامتحان على النص المصحَّح'">أعد الامتحان على النص المصحَّح</button>
+        <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
+      </div>
+      {% endif %}
     </section>
     {% endif %}
 

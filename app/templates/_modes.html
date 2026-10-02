@@ -1,6 +1,0 @@
-{# مدخلا مِرآة: «مقابلة جديدة» (من الأصل إلى النسخ) و«قابِل ما قرأت» (من العبارة إلى الأصل) #}
-{% set path = request.url.path %}
-<nav class="modes" aria-label="نوع المقابلة">
-  <a href="/" {% if not path.startswith('/reverse') %}aria-current="page"{% endif %}>مقابلة جديدة<span class="t14 muted">من الأصل إلى ترجماته</span></a>
-  <a href="/reverse" {% if path.startswith('/reverse') %}aria-current="page"{% endif %}>قابِل ما قرأت<span class="t14 muted">من عبارة قرأتها إلى مصدرها</span></a>
-</nav>

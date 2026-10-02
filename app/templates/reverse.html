@@ -1,105 +1,122 @@
 {% extends "base.html" %}
-{% block title %}قابِل ما قرأت{% endblock %}
+{% block title %}تحقّق مما قرأت{% endblock %}
 {% block content %}
-{% set ruling_ar = {'obligatory': 'واجب', 'recommended': 'مستحب', 'permissible': 'مباح', 'disliked': 'مكروه', 'forbidden': 'محرّم', 'none': 'لا يذكر حكماً'} %}
 {% set type_ar = {'quran': 'قرآن', 'hadith': 'حديث', 'fiqh': 'فقه', 'term': 'مصطلح'} %}
+{% set kind_ar = {'claim': 'عبارة', 'question': 'سؤال', 'personal': 'حالة شخصية أو طلب فتوى', 'out_of_scope': 'خارج النطاق'} %}
 {% macro rv_form() %}
 <form method="post" action="/reverse" class="rv-form" x-data="{ text: {{ text | tojson | forceescape }}, sending: false }" @submit="sending = true">
-  <label class="lbl" for="rv-text">الصق ما قرأته أو اكتب سؤالك</label>
+  <label class="rv-form-lbl" for="rv-text">الصق ما قرأته أو اكتب سؤالك</label>
   <textarea id="rv-text" name="text" class="field" rows="3" dir="auto" maxlength="1000" x-model="text"
-            placeholder="مثال: ... is only recommended" required></textarea>
-  <div class="acts" style="align-items:center;justify-content:space-between">
-    <label class="t14" style="display:flex;gap:.4rem;align-items:center;min-height:44px">
-      <input type="checkbox" name="save" value="1"> احفظ هذه المقابلة برابط دائم (وإلا لا يُحفظ نصك)</label>
-    <span style="display:flex;gap:.75rem;align-items:center">
+            placeholder="مثال: الاعتكاف واجب على النساء" required></textarea>
+  <div class="rv-form-acts">
+    <label class="rv-save"><input type="checkbox" name="save" value="1"> احفظ برابط دائم (وإلا لا يُحفظ نصك)</label>
+    <span class="rv-form-go">
       <span class="t14 muted" x-text="text.length + ' / 1000'"></span>
-      <button class="btn btn-primary" :disabled="sending || text.trim().length < 3" x-text="sending ? 'نقابل…' : 'قابِل'">قابِل</button>
+      <button class="btn btn-primary" :disabled="sending || text.trim().length < 3" x-text="sending ? 'نتحقّق…' : 'تحقّق'">تحقّق</button>
     </span>
   </div>
 </form>
 {% endmacro %}
-{% include "_modes.html" %}
 
-{% if not result %}{{ rv_form() }}{% endif %}
-{% if error %}<p class="banner rubric" role="alert">{{ error }}</p>{% endif %}
+<div class="rv-page">
+<a href="/" class="rv-back">→ الرئيسية</a>
+
+{% if not result %}
+<header class="svc-page-h">
+  <h1>تحقّق مما قرأت</h1>
+  <p class="muted">الصق عبارة قرأتها عن حكم أو حديث، فتقابلها مِرآة بنص المصدر في مكتبتها الموثّقة. لا تعديل ولا فتوى: الحكم ومصدره فقط.</p>
+</header>
+<section class="rv-card">{{ rv_form() }}</section>
+<ul class="svc-verdicts rv-legend" aria-label="الأحكام الممكنة">
+  <li class="v-ok">مطابق للمصدر</li><li class="v-part">مطابق جزئياً</li><li class="v-bad">متعارض مع المصدر</li><li class="v-khilaf">مسألة خلافية</li><li class="v-none">لا مرجع كافٍ</li>
+</ul>
+{% endif %}
+{% if error %}<p class="rv-alert" role="alert">{{ error }}</p>{% endif %}
 
 {% if result %}{% set r = result %}
+{% set tone = r.tone if r.tone in ['rubric', 'saffron', 'verified'] else 'none' %}
 <section class="rv-result" aria-live="polite">
-  <p class="rv-verdict tone-{{ r.tone if r.tone not in ['ink', 'muted'] else 'none' }}">{{ r.headline_ar }}</p>
-  <p class="t14 muted" style="margin:.25rem 0 1rem">زمن التحليل {{ '%.1f' | format(r.elapsed_ms / 1000) }} ث{% if r.id %} · محفوظة: <a href="/reverse/{{ r.id }}">رابط دائم</a>{% else %} · لم يُحفظ نصك{% endif %}</p>
+
+  <header class="rv-head rv-{{ tone }}">
+    <span class="rv-icon" aria-hidden="true">{% if tone == 'rubric' %}✕{% elif tone == 'saffron' %}!{% elif tone == 'verified' %}✓{% else %}i{% endif %}</span>
+    <div>
+      <p class="rv-kicker">نتيجة التحقق</p>
+      <h1 class="rv-verdict">{{ r.headline_ar }}</h1>
+      <p class="rv-meta">
+        <span>{{ kind_ar[r.kind] }}</span>
+        <span>زمن التحليل {{ '%.1f' | format(r.elapsed_ms / 1000) }} ث</span>
+        {% if r.id %}<span>محفوظة · <a href="/reverse/{{ r.id }}">رابط دائم</a></span>{% else %}<span>لم يُحفظ نصك</span>{% endif %}
+      </p>
+    </div>
+  </header>
 
   {% if r.issue and 'TODO' in (r.issue.title_ar ~ r.issue.title_en) %}
-  <p class="banner">هذه مسألة تجريبية غير مراجعة في مكتبة مِرآة (TODO)، ومحتواها وهمي للاختبار فقط.</p>
+  <p class="rv-alert">هذه مسألة تجريبية غير مراجعة في مكتبة مِرآة (TODO)، ومحتواها وهمي للاختبار فقط.</p>
   {% elif r.issue and not r.issue.reviewed %}
-  <p class="banner">نص المصدر هنا مأخوذ حرفياً من نسخة ممسوحة ضوئياً، ولم تُراجَع المسألة بعدُ على صفحات الكتاب؛ اعتمد على الرابط إلى الصفحة.</p>
+  <p class="rv-alert">نص المصدر مأخوذ حرفياً من نسخة ممسوحة ضوئياً، ولم تُراجَع المسألة بعدُ على صفحات الكتاب؛ اعتمد على الرابط إلى الصفحة.</p>
   {% endif %}
 
   {% if r.issue %}{% set i = r.issue %}
-  <div class="rv-grid">
-    {# 1) الأصل الحرفي #}
-    <section aria-labelledby="rv-src">
-      <h2 id="rv-src" class="pane-title">الأصل · {{ i.title_ar }}</h2>
+    <section class="rv-card rv-card-src" aria-labelledby="rv-src">
+      <h2 id="rv-src" class="rv-h"><span class="rv-step">١</span> هكذا يقول المصدر</h2>
+      <p class="rv-topic">{{ i.title_ar }}</p>
       {% for s in i.sources %}
-      <div class="rv-source">
-        <p class="ar-source" dir="rtl" style="margin:0">{{ s.text_ar }}</p>
-        {% if s.translation_en %}<p class="latin t16" dir="ltr" style="margin:.4rem 0 0">{{ s.translation_en }}</p>{% endif %}
-        <p class="t14 muted" style="margin:.4rem 0 0">{{ type_ar.get(s.type, s.type) }}{% if s.grade %} · الدرجة: {{ s.grade }}{% endif %}{% if s.translation_source %} · الترجمة: <bdi>{{ s.translation_source }}</bdi>{% endif %}
-          · <a href="{{ s.url }}" target="_blank" rel="noopener">المصدر</a></p>
-      </div>
+      <blockquote class="rv-quote">
+        <p class="ar-source" dir="rtl">{{ s.text_ar }}</p>
+        {% if s.translation_en %}<p class="latin rv-tr" dir="ltr">{{ s.translation_en }}</p>{% endif %}
+        <footer class="rv-pills">
+          <span class="rv-pill">{{ type_ar.get(s.type, s.type) }}</span>
+          {% if s.grade %}<span class="rv-pill">الدرجة: {{ s.grade }}</span>{% endif %}
+          {% if s.translation_source %}<span class="rv-pill">الترجمة: <bdi>{{ s.translation_source }}</bdi></span>{% endif %}
+          <a class="rv-pill rv-pill-link" href="{{ s.url }}" target="_blank" rel="noopener">افتح المصدر ↗</a>
+        </footer>
+      </blockquote>
       {% endfor %}
     </section>
 
-    {# 2) ما كتبه المستخدم #}
-    <section aria-labelledby="rv-you">
-      <h2 id="rv-you" class="pane-title">ما كتبتَه</h2>
-      {% set d = r.diff_quote %}
-      <p class="rv-you {{ 'latin' if r.lang != 'ar' }}" dir="auto">{% if d and d in r.text %}{% set parts = r.text.split(d, 1) %}{{ parts[0] }}<mark class="mk mk-{{ 'rubric' if r.tone == 'rubric' else 'saffron' }}">{{ d }}</mark>{{ parts[1] }}{% else %}{{ r.text }}{% endif %}</p>
-      {% if r.kind == 'question' %}<p class="t14 muted">هذا سؤال، فتعرض مِرآة نصوص المصدر وترجمتها المعتمدة فقط، ولا تصوغ حكماً.</p>{% endif %}
-    </section>
+  <section class="rv-card" aria-labelledby="rv-cmp">
+    <h2 id="rv-cmp" class="rv-h"><span class="rv-step">٢</span> لماذا هذا الحكم؟</h2>
+    {% if r.findings %}
+    <ul class="rv-findings">{% for f in r.findings %}<li class="rv-f rv-f-{{ f.tone }}"><span class="rv-badge">{{ f.mark }}</span><span>{{ f.text_ar }}</span></li>{% endfor %}</ul>
+    {% elif r.verdict == 'matches' %}
+    <ul class="rv-findings"><li class="rv-f rv-f-verified"><span class="rv-badge">صح</span><span>العبارة توافق ما يذكره المصدر من الحكم والقيود.</span></li></ul>
+    {% endif %}
+    {% if r.explanation_ar %}<p class="rv-expl">{{ r.explanation_ar }}</p>
+    {% elif r.explanation_removed %}<p class="rv-expl muted">حُذف الشرح لأنه اقتبس ما ليس في مكتبة مِرآة، ويُعرض الحكم وحده.</p>{% endif %}
+    {% if i.position.khilaf %}
+    <p class="rv-sub">الأقوال كما في المصدر</p>
+    <ul class="rv-list">{% for o in i.position.opinions %}<li>{{ o }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if r.referral_ar %}<p class="rv-alert">{{ r.referral_ar }}</p>{% endif %}
+  </section>
 
-    {# 3) المقابلة والشرح #}
-    <section aria-labelledby="rv-cmp">
-      <h2 id="rv-cmp" class="pane-title">المقابلة</h2>
-      {% if r.findings %}
-      <ul class="rows">{% for f in r.findings %}<li><span class="tag tone-{{ f.tone }}">{{ f.mark }}</span> {{ f.text_ar }}</li>{% endfor %}</ul>
-      {% elif r.verdict == 'matches' %}<p><span class="tag tone-verified">صح</span> العبارة توافق ما يذكره المصدر من الحكم والقيود.</p>{% endif %}
-      {% if i.position.khilaf %}
-      <p class="t14" style="margin:.75rem 0 .25rem"><b>الأقوال كما في المصدر:</b></p>
-      <ul class="rows">{% for o in i.position.opinions %}<li>{{ o }}</li>{% endfor %}</ul>
-      {% endif %}
-      {% if r.explanation_ar %}<p class="t14" style="margin-top:.75rem">{{ r.explanation_ar }}</p>
-      {% elif r.explanation_removed %}<p class="t14 muted" style="margin-top:.75rem">حُذف الشرح لأنه اقتبس ما ليس في مكتبة مِرآة، ويُعرض الحكم وحده.</p>{% endif %}
-      {% if r.referral_ar %}<p class="banner" style="margin-top:.75rem">{{ r.referral_ar }}</p>{% endif %}
-    </section>
-  </div>
+  <section class="rv-card" aria-labelledby="rv-you">
+    <h2 id="rv-you" class="rv-h"><span class="rv-step">٣</span> ما قرأتَه{% if r.diff_quote and r.diff_quote in r.text %}، وموضع الاختلاف فيه{% endif %}</h2>
+    {% set d = r.diff_quote %}
+    <p class="rv-you {{ 'latin' if r.lang != 'ar' }}" dir="auto">{% if d and d in r.text %}{% set parts = r.text.split(d, 1) %}{{ parts[0] }}<mark class="rv-mark rv-mark-{{ tone }}">{{ d }}</mark>{{ parts[1] }}{% else %}{{ r.text }}{% endif %}</p>
+    {% if r.kind == 'question' %}<p class="t14 muted">هذا سؤال، فتعرض مِرآة نصوص المصدر وترجمتها المعتمدة فقط، ولا تصوغ حكماً.</p>{% endif %}
+  </section>
   {% elif r.referral_ar and r.verdict != 'no_reference' %}
-  <p class="banner">{{ r.referral_ar }}</p>
+  <p class="rv-alert">{{ r.referral_ar }}</p>
+  {% else %}
+  <section class="rv-card">
+    <h2 class="rv-h">ما قرأتَه</h2>
+    <p class="rv-you" dir="auto">{{ r.text }}</p>
+    <p class="t14 muted">مِرآة لا تجيب إلا من مكتبتها الموثّقة، ولا تولّد حكماً أو مرجعاً من ذاكرة النموذج.</p>
+  </section>
   {% endif %}
 
-  <details class="rv-details">
-    <summary>التفاصيل</summary>
-    <ul class="rows">
-      <li>نوع المدخل: {{ {'claim': 'عبارة', 'question': 'سؤال', 'personal': 'حالة شخصية أو طلب فتوى', 'out_of_scope': 'خارج النطاق'}[r.kind] }}</li>
-      {% if r.issue %}<li>المسألة: <bdi>{{ r.issue.id }}</bdi> · المستوى {{ r.issue.level }} · {{ 'مراجَعة' if r.issue.reviewed else 'غير مراجَعة' }} · ثقة المطابقة {{ (r.match_confidence * 100) | round | int }}٪</li>{% endif %}
-      {% if r.candidates %}<li>المرشّحون بالكلمات المفتاحية: <bdi>{{ r.candidates | join('، ') }}</bdi></li>{% endif %}
-      {% if r.fingerprint %}{% set fp = r.fingerprint %}
-      <li>بصمة العبارة: الحكم {{ ruling_ar[fp.ruling] }}{% if fp.conditions %} · شروط: <bdi>{{ fp.conditions | join('، ') }}</bdi>{% endif %}{% if fp.exceptions %} · استثناءات: <bdi>{{ fp.exceptions | join('، ') }}</bdi>{% endif %} · دعوى الاتفاق: {{ fp.consensus_claim }}</li>
-      {% endif %}
-      {% if r.issue and r.issue.position %}{% set p = r.issue.position %}
-      <li>موقف المصدر كما في المكتبة: الحكم <bdi>{{ p.ruling }}</bdi>{% if p.scope %} · النطاق: <bdi>{{ p.scope }}</bdi>{% endif %}{% if p.conditions %} · شروط: <bdi>{{ p.conditions | join('، ') }}</bdi>{% endif %}{% if p.exceptions %} · استثناءات: <bdi>{{ p.exceptions | join('، ') }}</bdi>{% endif %} · خلافية: {{ 'نعم' if p.khilaf else 'لا' }}</li>
-      {% endif %}
-      {% for v in r.verifications %}<li>الميزان: «<bdi>{{ v.quote }}</bdi>» · {{ v.note_ar }}</li>{% endfor %}
-      <li>زمن التحليل: {{ r.elapsed_ms }} ms</li>
-    </ul>
-  </details>
+  {% for v in r.verifications %}<p class="rv-alert">«<bdi>{{ v.quote }}</bdi>» · {{ v.note_ar }}</p>{% endfor %}
+</section>
+
+<p class="rv-bridge">هل أنت كاتب هذا النص أو مترجمه؟ <a href="/new">راجِعه قبل النشر</a>: تقارن نسختك بالأصل وتصحّحها بنفسك.</p>
+
+<section class="rv-card rv-again" aria-labelledby="rv-again-h">
+  <h2 id="rv-again-h" class="rv-h">تحقّق من عبارة أخرى</h2>
+  {{ rv_form() }}
 </section>
 {% endif %}
 
-{% if result %}
-<details class="rv-details" style="margin-top:2rem"{% if error %} open{% endif %}>
-  <summary>قابِل نصاً آخر</summary>
-  {{ rv_form() }}
-</details>
-{% endif %}
 <p class="rv-foot" role="note">{{ footer_ar }}</p>
+</div>
 {% endblock %}

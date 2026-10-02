@@ -18,9 +18,9 @@
     };
   }
 </script>
-<section class="seal" x-data="progressState()" x-init="poll()">
-  <h1 class="t28" x-text="status === 'failed' ? 'تعذّر التحليل' : (status === 'analyzed' ? 'اكتملت المقابلة' : 'تجري المقابلة…')" role="status">تجري المقابلة…</h1>
-  <p class="t14 muted" style="margin:.25rem 0 0">{{ report.title or 'مقابلة جديدة' }} · {{ report.versions | length }} حلقات</p>
+<section class="narrow" x-data="progressState()" x-init="poll()">
+  <h1 class="t28" x-text="status === 'failed' ? 'تعذّر التحليل' : (status === 'analyzed' ? 'اكتملت المراجعة' : 'تجري المراجعة…')" role="status">تجري المراجعة…</h1>
+  <p class="t14 muted" style="margin:.25rem 0 0">{{ report.title or 'مراجعة جديدة' }} · {{ report.versions | length }} حلقات</p>
   <ol class="steps" aria-label="مراحل المقابلة">
     <template x-for="(s, i) in steps" :key="i">
       <li :class="i < done ? 'done' : (i === done && status === 'analyzing' ? 'now' : '')" x-text="s"></li>
@@ -30,7 +30,7 @@
     <p style="margin:0 0 .25rem" x-text="(error || '').split('\n— التفاصيل التقنية: ')[0]"></p>
     <details x-show="(error || '').includes('التفاصيل التقنية')"><summary class="muted">التفاصيل التقنية</summary>
       <p dir="ltr" class="hash" style="word-break:break-all" x-text="(error || '').split('\n— التفاصيل التقنية: ')[1]"></p></details>
-    <a class="btn btn-quiet" href="/" style="margin-top:.5rem">ابدأ مقابلة جديدة</a>
+    <a class="btn btn-quiet" href="/new" style="margin-top:.5rem">ابدأ مراجعة جديدة</a>
   </div>
 </section>
 {% endblock %}

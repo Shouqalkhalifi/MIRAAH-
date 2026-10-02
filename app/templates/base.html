@@ -8,29 +8,45 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/app.css">
+  <link rel="stylesheet" href="/static/app.css?v=24">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="apple-touch-icon" href="/static/favicon-180.png">
 </head>
 <body{% if request.url.path == '/' %} class="is-home"{% endif %}>
 {% set path = request.url.path %}
+{% set service = 'publish' if path == '/new' or path.startswith(('/analyze/', '/report/', '/review/')) else ('read' if path.startswith('/reverse') else '') %}
   <header class="topbar">
     <div class="topbar-in">
-      <a href="/" class="brand" aria-label="مِرآة — مقابلة جديدة"><img src="/static/favicon.svg" alt="" width="34" height="34">مِرآة <small dir="ltr">MIRAAH</small></a>
+      <a href="/" class="brand" aria-label="مِرآة — الرئيسية">مِرآة <small dir="ltr">MIRAAH</small></a>
       <nav class="topnav" aria-label="التنقل">
-        <a href="/" {% if path in ['/', '/new'] %}aria-current="page"{% endif %}>مقابلة جديدة</a>
-        <a href="/reverse" {% if path.startswith('/reverse') %}aria-current="page"{% endif %}>قابِل ما قرأت</a>
+        <a href="/" {% if path == '/' %}aria-current="page"{% endif %}>الرئيسية</a>
+        <a href="/#about">عن المنصة</a>
+        <a href="/#features">قدرات المنصة</a>
+        <a href="/#how">الدقة في كل خطوة</a>
+        <a href="/#app">التطبيق</a>
+        <a href="/#faq">الأسئلة الشائعة</a>
         <a href="/docs">التوثيق</a>
       </nav>
+      <a href="/new" class="top-cta">ابدأ مقابلة جديدة</a>
     </div>
   </header>
-  {% block hero %}{% endblock %}
-  <main class="page">{% block content %}{% endblock %}</main>
+  <main class="page">
+    {% if service == 'publish' %}<p class="svc-line"><span class="svc-dot svc-dot-pub" aria-hidden="true"></span>أنت في <b>راجِع قبل النشر</b> · للمترجمين والمحررين والجهات: تصحّح نصك قبل نشره</p>
+    {% elif service == 'read' %}<p class="svc-line"><span class="svc-dot svc-dot-read" aria-hidden="true"></span>أنت في <b>تحقّق مما قرأت</b> · للقرّاء: تعرف الحكم ومصدره، بلا تعديل</p>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
   <footer class="foot">
     <div class="foot-in">
-      <p role="note">{{ DISCLAIMER }}.</p>
-      <p>نحافظ على المعنى، لا على الكلمات فقط</p>
+      <p class="foot-brand">مِرآة.</p>
+      <p class="foot-tag">نحافظ على المعنى، لا على الكلمات فقط</p>
+      <nav class="foot-nav" aria-label="روابط التذييل">
+        <a href="/">الرئيسية</a><a href="/new">راجِع قبل النشر</a><a href="/reverse">تحقّق مما قرأت</a><a href="/#about">عن مِرآة</a><a href="/#faq">الأسئلة الشائعة</a><a href="/docs">التوثيق للمطوّرين</a>
+      </nav>
+      <div class="foot-bottom">
+        <p role="note">{{ DISCLAIMER }}.</p>
+        <p>© 2026 مِرآة · بيانات الأمثلة اصطناعية</p>
+      </div>
     </div>
   </footer>
 </body>
