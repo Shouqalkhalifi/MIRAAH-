@@ -1,36 +1,67 @@
 {% extends "base.html" %}
 {% block title %}مقابلة جديدة{% endblock %}
-{% block content %}
+
+{% macro ornament(cls='') %}
+<div class="orn {{ cls }}" aria-hidden="true"><span></span>
+  <svg viewBox="0 0 24 24"><path d="M12 1.5 15 9l7.5 3-7.5 3-3 7.5L9 15l-7.5-3L9 9z" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="7.5" y="7.5" width="9" height="9" transform="rotate(45 12 12)" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+<span></span></div>
+{% endmacro %}
+
+{% block hero %}
 <section class="hero" aria-labelledby="hero-h">
-  <p class="hero-kicker"><span class="dot" aria-hidden="true"></span> الترجمة والتحقق في المحتوى الإسلامي</p>
-  <h1 id="hero-h" class="hero-title">تتبّع <span class="hl">أثر المعنى</span><br>من الأصل العربي إلى كل ترجمة</h1>
-  <p class="hero-sub">تكشف مِرآة أين سقط شرط، أو ارتفعت درجة يقين، أو نُسب قول إلى النبي ﷺ بلا مصدر، وفي أي حلقة دخل الخلل. والقرار للمراجع.</p>
+  <svg class="hero-pattern" aria-hidden="true" width="100%" height="100%">
+    <defs>
+      <pattern id="khatam" width="72" height="72" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="22" y="22" width="28" height="28"/>
+          <rect x="22" y="22" width="28" height="28" transform="rotate(45 36 36)"/>
+          <circle cx="36" cy="36" r="6"/>
+          <path d="M0 36h16M56 36h16M36 0v16M36 56v16"/>
+          <rect x="-14" y="-14" width="28" height="28" transform="rotate(45 0 0)"/>
+          <rect x="58" y="-14" width="28" height="28" transform="rotate(45 72 0)"/>
+          <rect x="-14" y="58" width="28" height="28" transform="rotate(45 0 72)"/>
+          <rect x="58" y="58" width="28" height="28" transform="rotate(45 72 72)"/>
+        </g>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#khatam)"/>
+  </svg>
 
-  <p class="hero-ask">قرأتَ عبارة عن حكم أو حديث؟ <b>قابِلها بمصدرها</b></p>
-  <form class="hero-bar" method="post" action="/reverse" x-data="{ t: '', sending: false }" @submit="sending = true">
-    <svg class="hero-bar-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-4.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-    <label class="sr-only" for="hero-in">الصق ما قرأته أو اكتب سؤالك</label>
-    <input id="hero-in" name="text" x-model="t" dir="auto" minlength="3" maxlength="1000" required
-           placeholder="الصق عبارة قرأتها أو اكتب سؤالك…" autocomplete="off">
-    <button class="hero-go" :disabled="sending || t.trim().length < 3" aria-label="قابِل ما قرأت">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-  </form>
-  <div class="hero-hints"><span>اضغط Enter للمقابلة</span><span>لا يُحفظ نصك</span><span>لا تُصدر فتوى</span></div>
+  <div class="hero-in">
+    <p class="hero-kicker">الترجمة والتحقق في المحتوى الإسلامي</p>
+    <h1 id="hero-h" class="hero-title">نحفظ <span class="hl">أثر المعنى</span><br>من الأصل العربي إلى كل ترجمة</h1>
+    {{ ornament('orn-light') }}
+    <p class="hero-sub">تكشف مِرآة أين سقط شرط، أو ارتفعت درجة يقين، أو نُسب قولٌ إلى النبي ﷺ بلا مصدر، وفي أي حلقة دخل الخلل. والقرار للمراجع.</p>
 
-  {% if examples is defined and examples %}
-  <div class="try chips">
-    <span class="muted">جرّب:</span>
-    {% for ex in examples %}
-    <form method="post" action="/examples/{{ ex.name }}"><button class="chip">{{ ex.title }}</button></form>
-    {% endfor %}
+    <form class="hero-bar" method="post" action="/reverse" x-data="{ t: '', sending: false }" @submit="sending = true">
+      <label class="sr-only" for="hero-in">الصق ما قرأته أو اكتب سؤالك</label>
+      <input id="hero-in" name="text" x-model="t" dir="auto" minlength="3" maxlength="1000" required
+             placeholder="الصق عبارة قرأتها عن حكم أو حديث…" autocomplete="off">
+      <button class="hero-go" :disabled="sending || t.trim().length < 3" x-text="sending ? 'نقابل…' : 'قابِلها بمصدرها'">قابِلها بمصدرها</button>
+    </form>
+    <p class="hero-hints">تُعرض نصوص المصادر كما وردت · لا يُحفظ نصك · لا تُصدر مِرآة فتوى</p>
+
+    {% if examples is defined and examples %}
+    <div class="try hero-try">
+      <span>جرّب:</span>
+      {% for ex in examples %}
+      <form method="post" action="/examples/{{ ex.name }}"><button class="btn-text">{{ ex.title }}</button></form>{% if not loop.last %}<span aria-hidden="true">·</span>{% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
 </section>
+{% endblock %}
 
+{% block content %}
 {# عرض توضيحي ثابت من المثال الاصطناعي «رخصة الفطر للمسافر» #}
 <section class="demo" aria-labelledby="demo-h" x-data="demoWires()" x-init="draw()" @resize.window.debounce.100ms="draw()">
-  <h2 id="demo-h" class="sr-only">مثال توضيحي لتقرير مِرآة</h2>
+  <header class="sec-h">
+    <h2 id="demo-h">كيف تقرأ مِرآة سلسلة الترجمة</h2>
+    {{ ornament() }}
+    <p class="muted t14">مثال توضيحي اصطناعي: حكم مقيّد بالمسافر يصير عاماً في الملخص.</p>
+  </header>
+
   <ol class="demo-chain" aria-label="سلسلة النسخ">
     <li class="ok"><span class="k"></span>الأصل العربي</li>
     <li class="ok"><span class="k"></span><bdi dir="ltr">en-translation</bdi></li>
@@ -47,42 +78,41 @@
         <p><span data-w="1">يجوز <mark class="m-ok">للمسافر</mark> أن يفطر في رمضان.</span></p>
         <p><span data-w="2">ويجب عليه قضاء ما أفطره من أيام.</span></p>
       </div>
-      <footer class="panel-f"><span class="pill">مستوى المحتوى B</span><span class="pill">المرجع: يُضاف المصدر الرسمي</span></footer>
+      <footer class="panel-f"><span>مستوى المحتوى B</span><span>المرجع: يُضاف المصدر الرسمي</span></footer>
     </article>
 
     <article class="panel">
       <header class="panel-h"><span>النسخة المترجمة</span><small dir="ltr">en-summary</small></header>
       <div class="panel-b latin" dir="ltr">
         <p><span data-w="1" data-to="1"><mark class="m-red">Muslims</mark> may break the fast in Ramadan.</span>
-          <span class="bubble b-red" dir="rtl">تحذير: سقط الشرط «للمسافر»<small dir="ltr">Constraint loss</small></span></p>
-        <p><span data-w="2" data-to="2" class="gap">— sentence missing —</span>
-          <span class="bubble b-yel" dir="rtl">تنبيه: جملة القضاء بلا مقابل<small dir="ltr">Sentence dropped</small></span></p>
+          <span class="gloss g-red" dir="rtl"><b>لحق</b> سقط الشرط «للمسافر»</span></p>
+        <p><span data-w="2" data-to="2" class="gap">sentence missing</span>
+          <span class="gloss g-yel" dir="rtl"><b>يُنظر</b> جملة القضاء بلا مقابل</span></p>
       </div>
-      <footer class="panel-f"><span class="pill">راجع 2 من 2 جملة</span></footer>
+      <footer class="panel-f"><span>راجع 2 من 2 جملة</span></footer>
     </article>
 
     <aside class="panel panel-alerts">
       <header class="panel-h"><span>تنبيهات المراجعة والتحقق</span></header>
       <ul class="alerts">
-        <li class="a-red"><span class="ab">أثر</span><div><b>سقط الشرط</b><small>خاص بالمسافر ← عام لكل المسلمين</small></div></li>
-        <li class="a-yel"><span class="ab">أثر</span><div><b>اتّسع النطاق</b><small>من «المسافر» إلى «Muslims»</small></div></li>
-        <li class="a-grn"><span class="ab">ميزان</span><div><b>لا نسبة غير موثّقة</b><small>لم يُنسب قول إلى النبي ﷺ</small></div></li>
-        <li class="a-pur"><span class="ab">فهم</span><div><b>مخاطر فهم محتملة</b><small>قد يُفهم أن الفطر مباح للجميع</small></div></li>
+        <li class="a-red"><small>الأثر</small><b>سقط الشرط</b><span>خاص بالمسافر، فصار عاماً لكل المسلمين</span></li>
+        <li class="a-yel"><small>الأثر</small><b>اتّسع النطاق</b><span>من «المسافر» إلى <bdi dir="ltr">Muslims</bdi></span></li>
+        <li class="a-grn"><small>الميزان</small><b>لا نسبة غير موثّقة</b><span>لم يُنسب قول إلى النبي ﷺ</span></li>
+        <li class="a-pur"><small>الفهم</small><b>مخاطر فهم محتملة</b><span>قد يُفهم أن الفطر مباح للجميع</span></li>
       </ul>
-      <div class="light"><span class="lamp red"></span><b>لا تنشر</b><span class="muted t14">· حتى يُحسم التنبيه الخطير</span></div>
+      <p class="verdict"><span class="lamp"></span><b>لا تنشر</b> حتى يُحسم التنبيه الخطير</p>
       <div class="panel-acts">
-        <a href="#compose" class="btn btn-primary">حلّل بمِرآة</a>
+        <a href="#compose" class="btn btn-primary">حلّل نصك بمِرآة</a>
         <form method="post" action="/examples/traveler-fasting"><button class="btn btn-quiet">افتح التقرير الكامل</button></form>
       </div>
     </aside>
   </div>
-  <p class="demo-note t14 muted">مثال توضيحي اصطناعي. التقرير الحقيقي يربط كل تنبيه بموضعه وبالمصدر، ويقترح صياغة آمنة.</p>
 </section>
 
 <section class="pillars" aria-label="وحدات مِرآة">
-  <div class="pillar"><span class="pi pi-ink">أثر</span><h3>ATHAR · السلسلة</h3><p>يقارن كل حلقة بأمها وبالأصل، ويحدد أول حلقة انكسر فيها المعنى.</p></div>
-  <div class="pillar"><span class="pi pi-pur">ميزان</span><h3>MIZAN · المصادر</h3><p>يبحث عن كل نسبة في مدونة محلية موثّقة، وإن لم يجدها قال «غير متحقق».</p></div>
-  <div class="pillar"><span class="pi pi-tq">فهم</span><h3>FAHM · المصطلحات</h3><p>يفحص المصطلحات بضوابطها، ويمتحن ما يفهمه قارئ الأصل وقارئ النسخة.</p></div>
+  <div class="pillar"><h3>الأثر <small dir="ltr">ATHAR</small></h3><p>يقارن كل حلقة بأمها وبالأصل، ويحدد أول حلقة انكسر فيها المعنى.</p></div>
+  <div class="pillar"><h3>الميزان <small dir="ltr">MIZAN</small></h3><p>يبحث عن كل نسبة في مدونة محلية موثّقة، فإن لم يجدها قال: غير متحقق.</p></div>
+  <div class="pillar"><h3>الفهم <small dir="ltr">FAHM</small></h3><p>يفحص المصطلحات بضوابطها، ويقابل ما يفهمه قارئ الأصل بما يفهمه قارئ النسخة.</p></div>
 </section>
 
 <section id="compose" class="compose-card">
@@ -106,10 +136,10 @@
           const pa = from.closest('.panel').getBoundingClientRect(), pb = to.closest('.panel').getBoundingClientRect();
           const x1 = pa.left - g.left, y1 = a.top - g.top + Math.min(a.height / 2, 20);
           const x2 = pb.right - g.left, y2 = b.top - g.top + Math.min(b.height / 2, 16);
-          const mx = (x1 + x2) / 2, bad = to.dataset.to === '1' ? '#E5484D' : '#D9A21B';
+          const mx = (x1 + x2) / 2, c = to.dataset.to === '1' ? '#B4232F' : '#B7791F';
           svg.insertAdjacentHTML('beforeend',
-            `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${bad}" stroke-width="1.6" stroke-dasharray="4 4"/>` +
-            `<circle cx="${x1}" cy="${y1}" r="4" fill="${bad}"/><circle cx="${x2}" cy="${y2}" r="4" fill="${bad}"/>`);
+            `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="1.2" stroke-dasharray="3 4"/>` +
+            `<circle cx="${x1}" cy="${y1}" r="3" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="3" fill="${c}"/>`);
         });
       }
     };
