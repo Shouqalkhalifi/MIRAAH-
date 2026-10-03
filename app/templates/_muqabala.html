@@ -309,53 +309,81 @@
   </div>
 
   {# ---------- ملحقات المقابلة ---------- #}
+  {% set vmedium = {} %}{% for v in report.versions %}{% set _ = vmedium.update({v.label: medium_ar.get(v.medium or '', '')}) %}{% endfor %}
+  {% macro where_chip(label) %}<span class="where-chip">{% if label == 'source' %}الأصل{% else %}<bdi dir="ltr">{{ label }}</bdi>{% if vmedium.get(label) %} · {{ vmedium[label] }}{% endif %}{% endif %}</span>{% endmacro %}
+
+  <header class="annex-h">
+    <h2>تفاصيل الفحص</h2>
+    <p>فحوص مساندة للتنبيهات أعلاه. كل بطاقة تبدأ بسؤال، ثم سطر يشرح ما تفحصه وكيف تُقرأ.</p>
+  </header>
   <div class="annex">
     {% if report.verifications %}
     <section>
-      <h2>الميزان: النصوص المنسوبة</h2>
-      <p class="t14 muted">بحثٌ في المدونة المحلية وحدها. ما لا يوجد فيها لا يُحكم عليه، بل يُحال إلى المراجع.</p>
-      {% set vword = {'supported': ('صح', 'verified', 'موجود في المدونة'), 'partially_supported': ('يُنظر', 'saffron', 'مدعوم جزئياً'),
-                      'conflicting': ('تغيّر', 'rubric', 'متعارض'), 'unsupported': ('تغيّر', 'rubric', 'غير مدعوم'),
-                      'unverified': ('يُنظر', 'saffron', 'غير متحقق')} %}
-      <ul class="rows">
+      <p class="annex-mod">الميزان · الدليل والإسناد</p>
+      <h2>هل النصوص المنسوبة إلى الله ورسوله ﷺ موجودة في المصادر؟</h2>
+      <p class="annex-what">نبحث عن كل نص منسوب في مدونة مِرآة المحلية الموثّقة وحدها. ما لا نجده لا نحكم عليه بصحة ولا بوضع، بل نحيله إلى المراجع.</p>
+      {% set vword = {'supported': ('verified', 'موجود في المصادر'), 'partially_supported': ('saffron', 'مطابق جزئياً'),
+                      'conflicting': ('rubric', 'يخالف المصدر'), 'unsupported': ('rubric', 'لا يدعمه المصدر'),
+                      'unverified': ('saffron', 'لم نعثر عليه')} %}
+      <ul class="cards">
         {% for v in report.verifications %}{% set w = vword[v.status] %}
-        <li><span class="tag tone-{{ w[1] }}">{{ w[0] }}</span> <b>{{ w[2] }}</b> · {{ 'الأصل' if v.label == 'source' else v.label }}:
-          <span dir="auto">«{{ v.quote }}»</span><br><span class="muted">{{ v.note_ar }}{% if v.item_id %} · {% if v.source_url %}<a href="{{ v.source_url }}" target="_blank" rel="noopener">{{ v.source_name }}</a>{% else %}{{ v.source_name }}{% endif %}{% endif %}</span></li>
+        <li class="card card-{{ w[0] }}">
+          <div class="card-top"><span class="state state-{{ w[0] }}">{{ w[1] }}</span>{{ where_chip(v.label) }}</div>
+          <p class="card-quote">«<bdi>{{ v.quote }}</bdi>»</p>
+          <p class="card-note">{{ v.note_ar }}{% if v.item_id %} · المصدر: {% if v.source_url %}<a href="{{ v.source_url }}" target="_blank" rel="noopener">{{ v.source_name }}</a>{% else %}{{ v.source_name }}{% endif %}{% endif %}</p>
+        </li>
         {% endfor %}
       </ul>
     </section>
     {% endif %}
 
-    {% if report.reader_exam and report.reader_exam.questions %}
-    <section>
-      <h2>امتحان القارئ</h2>
-      <p class="t14 muted">أسئلة عن معنى الأصل، أجاب عنها قارئ يرى الأصل وحده، وقارئ لكل حلقة يرى الحلقة وحدها.</p>
-      {% set ex = report.reader_exam %}
-      {% set fixed = {} %}{% set ns.stale = false %}
-      {% for v in report.versions %}{% set fx = approved_text(report, v.label, v.text) %}
-        {% if fx[1] %}{% set fresh = v.label in ex.corrected and ex.corrected_text.get(v.label) == fx[0] %}
-          {% set _ = fixed.update({v.label: fresh}) %}{% if not fresh %}{% set ns.stale = true %}{% endif %}{% endif %}
-      {% endfor %}
-      <div class="scroll-x"><table class="exam">
-        <thead><tr><th>السؤال</th><th>الأصل</th>{% for v in report.versions %}
-          <th><bdi dir="ltr">{{ v.label }}</bdi>{% if v.label in fixed %}<small class="exam-when">قبل التصحيح</small>{% endif %}</th>
-          {% if fixed.get(v.label) %}<th><bdi dir="ltr">{{ v.label }}</bdi><small class="exam-when tone-verified">بعد التصحيح</small></th>{% endif %}
-        {% endfor %}</tr></thead>
-        <tbody>
-        {% for q in ex.questions %}{% set qi = loop.index0 %}{% set sa = (ex.answers.get('source') or []) %}{% set s = sa[qi] if sa | length > qi else none %}
-          <tr><td>{{ q.question_ar }}</td><td>{{ q.options[s] if s is not none else '—' }}</td>
-            {% for v in report.versions %}{% set ans = ex.answers.get(v.label) or [] %}{% set x = ans[qi] if ans | length > qi else none %}
-            <td class="{{ 'diff' if x is not none and s is not none and x != s }}">{{ q.options[x] if x is not none else '—' }}</td>
-            {% if fixed.get(v.label) %}{% set ca = ex.corrected.get(v.label) or [] %}{% set y = ca[qi] if ca | length > qi else none %}
-            <td class="{{ 'diff' if y is not none and s is not none and y != s else ('same' if y is not none and y == s and x != s) }}">{{ q.options[y] if y is not none else '—' }}</td>{% endif %}
-            {% endfor %}</tr>
+    {% set xv = ui.exam_view(report) %}
+    {% if xv.questions %}
+    <section class="annex-wide">
+      <p class="annex-mod">الفهم · امتحان القارئ</p>
+      <h2>هل يفهم قارئ النسخة ما يفهمه قارئ الأصل؟</h2>
+      <p class="annex-what">نطرح الأسئلة نفسها على قارئ آلي يرى الأصل وحده، وعلى قارئ آخر لكل نسخة يرى تلك النسخة وحدها، ثم نقارن الإجابات.</p>
+      <ul class="legend">
+        <li><span class="state state-verified">✓ فهم مثل الأصل</span></li>
+        <li><span class="state state-saffron">○ سكتت النسخة</span> لا تذكر ما يذكره الأصل، فلا يعرفه قارئها</li>
+        <li><span class="state state-rubric">✕ فهم مختلف</span> النسخة توحي بمعنى غير معنى الأصل</li>
+      </ul>
+
+      <div class="score-row">
+        {% for v in xv.versions %}
+        {% set n = v.same_after if v.same_after is not none else v.same %}
+        {% set tone = 'verified' if n == v.total else ('rubric' if n * 2 < v.total else 'saffron') %}
+        <div class="score score-{{ tone }}">
+          <span class="score-name"><bdi dir="ltr">{{ v.label }}</bdi>{% if v.medium %}<small>{{ v.medium }}</small>{% endif %}</span>
+          <b>{{ n }} <span>من {{ v.total }}</span></b>
+          <small>{% if v.same_after is not none %}أسئلة فُهمت كالأصل بعد التصحيح (كان {{ v.same }}){% else %}أسئلة فُهمت كالأصل{% endif %}</small>
+        </div>
         {% endfor %}
-        </tbody>
-      </table></div>
-      {% if fixed %}
-      <p class="t14 muted exam-note">إجابات «قبل التصحيح» تخص النسخة كما حُلّلت. أما «بعد التصحيح» فقارئ جديد يرى النص المصحَّح وحده ويجيب عن الأسئلة نفسها.</p>
-      {% endif %}
-      {% if ns.stale %}
+      </div>
+
+      <ol class="xq-list">
+        {% for q in xv.questions %}
+        <li class="xq">
+          <p class="xq-q"><span class="xq-n">س{{ loop.index }}</span>{{ q.text }}</p>
+          <p class="xq-src"><span>قارئ الأصل يفهم:</span> <b>{{ q.source or '—' }}</b></p>
+          <ul class="xq-rows">
+            {% for r in q.rows %}{% set st = r.after.state if r.after else r.state %}{% set ans = r.after.answer if r.after else r.answer %}
+            <li class="xr xr-{{ st }}">
+              <span class="xr-name"><bdi dir="ltr">{{ r.label }}</bdi>{% if r.medium %} <small>{{ r.medium }}</small>{% endif %}</span>
+              <span class="xr-ans">
+                {% if st == 'same' %}✓ مثل الأصل
+                {% elif st == 'silent' %}○ سكتت عن ذلك
+                {% elif st == 'diff' %}✕ يفهم: «{{ ans }}»
+                {% else %}—{% endif %}
+                {% if r.after and r.after.state != r.state %}<small class="xr-was">قبل التصحيح: {{ {'same': 'مثل الأصل', 'silent': 'سكتت', 'diff': '«' ~ r.answer ~ '»'}.get(r.state, '—') }}</small>{% endif %}
+              </span>
+            </li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endfor %}
+      </ol>
+      {% if xv.stale %}
       <div x-data="{ busy: false, err: '' }">
         <button type="button" class="btn btn-primary" :disabled="busy"
                 @click="busy = true; err = ''; fetch('/api/report/{{ report.id }}/reexam', { method: 'POST' }).then(r => { if (!r.ok) throw 0; location.reload() }).catch(() => { err = 'تعذّرت إعادة الامتحان الآن. أعد المحاولة.'; busy = false })"
@@ -368,15 +396,27 @@
 
     {% if report.understanding_risks %}
     <section>
-      <h2>مخاطر فهم محتملة</h2>
-      <p class="t14 muted">احتمالات للمراجعة، لا أحكام، ولا تفترض شيئاً عن هوية القارئ.</p>
-      <ul class="rows">{% for r in report.understanding_risks %}<li>{{ r.risk_ar }}<br><span class="muted">في الأصل: «{{ r.quote }}». {{ r.reason_ar }}</span></li>{% endfor %}</ul>
+      <p class="annex-mod">الفهم · مخاطر الفهم</p>
+      <h2>ما الذي قد يُساء فهمه في الأصل نفسه؟</h2>
+      <p class="annex-what">مواضع في الأصل قد يفهمها القارئ على غير وجهها. هي احتمالات للمراجعة، لا أخطاء ولا أحكام، ولا تفترض شيئاً عن هوية القارئ.</p>
+      <ul class="cards">
+        {% for r in report.understanding_risks %}
+        <li class="card card-ink">
+          <div class="card-top"><span class="state state-ink">احتمال</span><span class="where-chip">الأصل</span></div>
+          <p class="card-lead">{{ r.risk_ar }}</p>
+          <p class="card-quote ar-q">«{{ r.quote }}»</p>
+          {% if r.reason_ar %}<p class="card-note">{{ r.reason_ar }}</p>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
     </section>
     {% endif %}
 
     {% if report.locks %}
     <section>
-      <h2>أقفال المعنى</h2>
+      <p class="annex-mod">الأثر · أقفال المعنى</p>
+      <h2>هل حُفظت المقاطع المقفلة في كل النسخ؟</h2>
+      <p class="annex-what">مقاطع من الأصل حُدّدت ثوابتَ لا يجوز أن تسقط أو تتغير في أي نسخة.</p>
       {% set lk = ui.lock_rows(report) %}
       <ul class="rows">
         {% for r in lk.rows %}

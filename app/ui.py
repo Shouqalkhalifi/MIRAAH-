@@ -221,3 +221,53 @@ def lock_rows(report) -> dict:
             tag = ("rubric", "انكسر")
         rows.append({"lock": lock, "tone": tag[0], "tag": tag[1], "where": where})
     return {"rows": rows, "stale": stale}
+
+
+def _exam_state(q, src: int | None, ans: int | None) -> str:
+    """same = فهم كقارئ الأصل · silent = النسخة سكتت عمّا يذكره الأصل · diff = فهم مختلف · none = لا إجابة."""
+    from app.pipeline.reader_exam import NOT_STATED
+
+    if ans is None or src is None:
+        return "none"
+    if ans == src:
+        return "same"
+    return "silent" if q.options[ans] == NOT_STATED else "diff"
+
+
+def exam_view(report) -> dict:
+    """امتحان القارئ مرتباً للعرض: لكل سؤال إجابة قارئ الأصل وإجابة قارئ كل حلقة وحالتها،
+    ولكل حلقة عدد ما فهمه قارئها كما فهمه قارئ الأصل (قبل التصحيح وبعده إن أُعيد الامتحان)."""
+    from app.export import approved_text
+
+    ex = report.reader_exam
+    if not ex or not ex.questions:
+        return {"questions": [], "versions": [], "stale": False}
+    src = ex.answers.get("source") or []
+    versions, stale = [], False
+    for v in report.versions:
+        text, applied = approved_text(report, v.label, v.text)
+        fresh = bool(applied) and ex.corrected_text.get(v.label) == text and v.label in ex.corrected
+        stale = stale or (bool(applied) and not fresh)
+        versions.append({"label": v.label, "medium": MEDIUM_AR.get(v.medium or "", ""),
+                         "answers": ex.answers.get(v.label) or [],
+                         "after": (ex.corrected.get(v.label) or []) if fresh else None})
+    questions = []
+    for i, q in enumerate(ex.questions):
+        s = src[i] if i < len(src) else None
+        rows = []
+        for v in versions:
+            a = v["answers"][i] if i < len(v["answers"]) else None
+            row = {"label": v["label"], "medium": v["medium"], "state": _exam_state(q, s, a),
+                   "answer": q.options[a] if a is not None else "", "after": None}
+            if v["after"] is not None:
+                b = v["after"][i] if i < len(v["after"]) else None
+                row["after"] = {"state": _exam_state(q, s, b), "answer": q.options[b] if b is not None else ""}
+            rows.append(row)
+        questions.append({"text": q.question_ar, "source": q.options[s] if s is not None else "", "rows": rows})
+    total = len(questions)
+    for k, v in enumerate(versions):
+        v["same"] = sum(1 for q in questions if q["rows"][k]["state"] == "same")
+        v["same_after"] = (sum(1 for q in questions if (q["rows"][k]["after"] or {}).get("state") == "same")
+                           if v["after"] is not None else None)
+        v["total"] = total
+    return {"questions": questions, "versions": versions, "stale": stale}

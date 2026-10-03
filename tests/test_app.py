@@ -197,13 +197,14 @@ def test_reader_exam_can_be_rerun_on_the_corrected_text():
     assert decide(rid, fix["id"], action="edit", reason="",
                   edited_text="A traveler may break the fast in Ramadan.").status_code == 200
     page = client.get(f"/report/{rid}").text
-    assert "قبل التصحيح" in page and "أعد الامتحان على النص المصحَّح" in page and "tone-verified\">بعد التصحيح" not in page
+    assert "أعد الامتحان على النص المصحَّح" in page and "بعد التصحيح (كان" not in page
 
     exam = client.post(f"/api/report/{rid}/reexam").json()
     assert exam["answers"]["en-summary"] == [1]  # النسخة كما حُلّلت: «لكل المسلمين»
     assert exam["corrected"] == {"en-summary": [0]}  # بعد التصحيح: «للمسافر» كالأصل
     page = client.get(f"/report/{rid}").text
-    assert "tone-verified\">بعد التصحيح" in page and 'class="same"' in page and "أعد الامتحان على النص المصحَّح" not in page
+    assert "بعد التصحيح (كان 0)" in page and "xr xr-same" in page and "قبل التصحيح: «" in page
+    assert "أعد الامتحان على النص المصحَّح" not in page
 
 
 def test_not_an_error_needs_a_reason():
