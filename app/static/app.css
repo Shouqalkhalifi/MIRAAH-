@@ -243,6 +243,10 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .annex .cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); }
 .annex-mod { margin: 0 0 .35rem; font-size: .75rem; font-weight: 700; color: var(--accent); letter-spacing: .02em; }
 .annex section > h2 { font-size: 1.15rem; margin-bottom: .45rem; }
+.annex-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.annex-top h2 { font-size: 1.15rem; margin: 0; }
+.annex-more { flex-shrink: 0; white-space: nowrap; }
+.annex-body { margin-top: 1rem; }
 .annex-what { margin: 0 0 1rem; padding: .6rem .85rem; background: var(--paper); border-radius: 12px; font-size: var(--t14); color: var(--ink); line-height: 1.7; }
 
 .state { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; font-weight: 700; padding: .1rem .6rem; border-radius: 999px; white-space: nowrap; }

@@ -263,16 +263,23 @@
 
   {# ---------- ملحقات المقابلة ---------- #}
   {% macro where_chip(label) %}<span class="where-chip">{{ vnames.get(label, label) }}</span>{% endmacro %}
+  {% macro annex_top(mod, question) %}
+      <div class="annex-top">
+        <div><p class="annex-mod">{{ mod }}</p><h2>{{ question }}</h2></div>
+        <button type="button" class="btn btn-quiet btn-sm annex-more" @click="more = !more" :aria-expanded="more"
+                x-text="more ? 'أخفِ التفاصيل' : 'اعرض التفاصيل'">اعرض التفاصيل</button>
+      </div>
+  {% endmacro %}
 
   <header class="annex-h">
     <h2>تفاصيل الفحص</h2>
-    <p>فحوص مساندة للتنبيهات أعلاه. كل بطاقة تبدأ بسؤال، ثم سطر يشرح ما تفحصه وكيف تُقرأ.</p>
+    <p>فحوص مساندة للتنبيهات أعلاه. اضغط «اعرض التفاصيل» بجانب أي سؤال.</p>
   </header>
   <div class="annex">
     {% if report.verifications %}
-    <section>
-      <p class="annex-mod">الميزان · الدليل والإسناد</p>
-      <h2>هل النصوص المنسوبة إلى الله ورسوله ﷺ موجودة في المصادر؟</h2>
+    <section x-data="{ more: false }">
+      {{ annex_top('الميزان · الدليل والإسناد', 'هل النصوص المنسوبة إلى الله ورسوله ﷺ موجودة في المصادر؟') }}
+      <div class="annex-body" x-show="more" x-cloak>
       <p class="annex-what">نبحث عن كل نص منسوب في مدونة مِرآة المحلية الموثّقة وحدها. ما لا نجده لا نحكم عليه بصحة ولا بوضع، بل نحيله إلى المراجع.</p>
       {% set vword = {'supported': ('verified', 'موجود في المصادر'), 'partially_supported': ('saffron', 'مطابق جزئياً'),
                       'conflicting': ('rubric', 'يخالف المصدر'), 'unsupported': ('rubric', 'لا يدعمه المصدر'),
@@ -286,14 +293,15 @@
         </li>
         {% endfor %}
       </ul>
+      </div>
     </section>
     {% endif %}
 
     {% set xv = ui.exam_view(report) %}
     {% if xv.questions %}
-    <section class="annex-wide">
-      <p class="annex-mod">الفهم · امتحان القارئ</p>
-      <h2>هل يفهم قارئ النسخة ما يفهمه قارئ الأصل؟</h2>
+    <section class="annex-wide" x-data="{ more: false }">
+      {{ annex_top('الفهم · امتحان القارئ', 'هل يفهم قارئ النسخة ما يفهمه قارئ الأصل؟') }}
+      <div class="annex-body" x-show="more" x-cloak>
       <p class="annex-what">نطرح الأسئلة نفسها على قارئ آلي يرى الأصل وحده، وعلى قارئ آخر لكل نسخة يرى تلك النسخة وحدها، ثم نقارن الإجابات.</p>
       <ul class="legend">
         <li><span class="state state-verified">✓ فهم مثل الأصل</span></li>
@@ -343,13 +351,14 @@
         <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
       </div>
       {% endif %}
+      </div>
     </section>
     {% endif %}
 
     {% if report.understanding_risks %}
-    <section>
-      <p class="annex-mod">الفهم · مخاطر الفهم</p>
-      <h2>ما الذي قد يُساء فهمه في الأصل نفسه؟</h2>
+    <section x-data="{ more: false }">
+      {{ annex_top('الفهم · مخاطر الفهم', 'ما الذي قد يُساء فهمه في الأصل نفسه؟') }}
+      <div class="annex-body" x-show="more" x-cloak>
       <p class="annex-what">مواضع في الأصل قد يفهمها القارئ على غير وجهها. هي احتمالات للمراجعة، لا أخطاء ولا أحكام، ولا تفترض شيئاً عن هوية القارئ.</p>
       <ul class="cards">
         {% for r in report.understanding_risks %}
@@ -361,13 +370,14 @@
         </li>
         {% endfor %}
       </ul>
+      </div>
     </section>
     {% endif %}
 
     {% if report.locks %}
-    <section>
-      <p class="annex-mod">الأثر · أقفال المعنى</p>
-      <h2>هل حُفظت المقاطع المقفلة في كل النسخ؟</h2>
+    <section x-data="{ more: false }">
+      {{ annex_top('الأثر · أقفال المعنى', 'هل حُفظت المقاطع المقفلة في كل النسخ؟') }}
+      <div class="annex-body" x-show="more" x-cloak>
       <p class="annex-what">مقاطع من الأصل حُدّدت ثوابتَ لا يجوز أن تسقط أو تتغير في أي نسخة.</p>
       {% set lk = ui.lock_rows(report) %}
       <ul class="rows">
@@ -386,6 +396,7 @@
         <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
       </div>
       {% endif %}
+      </div>
     </section>
     {% endif %}
   </div>
