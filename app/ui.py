@@ -271,3 +271,55 @@ def exam_view(report) -> dict:
                            if v["after"] is not None else None)
         v["total"] = total
     return {"questions": questions, "versions": versions, "stale": stale}
+
+
+# الدليل بلغة يفهمها المراجع: لا أسماء حقول داخلية ولا أسطر فارغة
+FIELD_AR = {
+    "certainty": "درجة اليقين", "ruling": "نوع الحكم", "attribution.to": "نسبة القول",
+    "attribution.form": "صيغة النسبة", "scope.restricted_to": "نطاق الحكم", "restriction_hasr": "أداة الحصر",
+    "consensus_claim": "دعوى الإجماع", "disagreement_stated": "ذكر الخلاف بين العلماء",
+    "hadith_mentions.grade_stated": "درجة الحديث", "negations": "عدد أدوات النفي", "numbers": "الأرقام",
+    "conditions": "الشرط", "exceptions": "الاستثناء",
+}
+VALUE_AR = {
+    "definite": "قطعي", "probable": "راجح", "possible": "محتمل", "unstated": "غير مذكور",
+    "obligatory": "واجب", "recommended": "مستحب", "permissible": "مباح", "disliked": "مكروه",
+    "forbidden": "محرّم", "allah": "الله تعالى", "prophet": "النبي ﷺ", "companion": "صحابي",
+    "scholar": "عالم", "author": "الكاتب", "religion": "الإسلام نفسه", "tamrid": "صيغة تمريض (رُوي، قيل)",
+    "assertive": "صيغة جزم", "some_scholars": "بعض العلماء", "majority": "الجمهور", "ijma": "الإجماع",
+    "all": "الجميع", "some": "بعضهم", "specific": "فئة محددة", "unspecified": "غير محدد",
+    "sahih": "صحيح", "hasan": "حسن", "daif": "ضعيف", "true": "موجود", "false": "غير موجود", "none": "لا يوجد",
+}
+
+
+def _val(field: str, v: str) -> str:
+    v = (v or "").strip()
+    if v in ("", "—"):
+        return "غير مذكور"
+    if field == "disagreement_stated" and v != "true":
+        return "غير مذكور"
+    return VALUE_AR.get(v, v)
+
+
+def evidence_rows(alert) -> list[dict]:
+    """كل دليل ← {label, text}؛ يُسقط الأسطر التقنية التي لا تضيف للمراجع شيئاً."""
+    rows = []
+    for e in alert.evidence:
+        detail = (e.detail or "").strip()
+        if e.kind == "fingerprint" and " → " in detail:
+            if e.ref not in FIELD_AR:
+                continue
+            before, after = detail.split(" → ", 1)
+            rows.append({"label": FIELD_AR[e.ref],
+                         "text": f"في الحلقة الأم: {_val(e.ref, before)} ← في النسخة: {_val(e.ref, after)}"})
+        elif e.kind == "text_span" and e.ref.startswith("source:"):
+            rows.append({"label": "في الأصل", "text": f"«{detail}»"})
+        elif e.kind == "corpus":
+            text = ("بحثنا في المدونة فلم نجد نصاً قريباً بما يكفي من هذه العبارة"
+                    if e.ref in ("", "—") else detail or "لا مرجع في المدونة")
+            rows.append({"label": "من مدونة مِرآة", "text": text})
+        elif e.kind == "reader_exam":
+            rows.append({"label": "امتحان القارئ", "text": detail.replace(" | ", "، ")})
+        elif detail:
+            rows.append({"label": "ملاحظة", "text": detail})
+    return rows
