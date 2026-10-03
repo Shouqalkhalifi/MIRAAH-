@@ -12,6 +12,7 @@ FONTS = Path(__file__).resolve().parent / "static" / "fonts"
 NAVY, PURPLE, MUTED = (18, 24, 63), (97, 80, 234), (91, 96, 128)
 LINE, BANNER_LINE = (221, 224, 240), (240, 214, 138)
 SEVERITY = {"red": (229, 72, 77), "yellow": (217, 162, 27), "info": (138, 144, 176)}
+VERDICT = {"rubric": (180, 35, 47), "saffron": (138, 90, 18), "verified": (10, 107, 89)}
 RTL = {"ar", "ur"}
 PAD = 3.5
 
@@ -87,7 +88,7 @@ def render(d: dict) -> bytes:
     p.ln(2)
     meta = [("مرجع المصدر", d["source"]["source_ref"] or "غير مسجّل"),
             ("مستوى المحتوى", d["source"]["content_level"]),
-            ("تاريخ التصدير", d["approved_at"]),
+            ("تاريخ التقرير", d["exported_at"]),
             ("رقم التقرير", d["report_id"])]
     for label, value in meta:
         y = p.y
@@ -95,8 +96,10 @@ def render(d: dict) -> bytes:
         p.set_y(y)
         _write(p, value, 10.5, NAVY, bold=True, w=p.epw - 35)
     p.ln(2)
-    _box(p, [("هذا التقرير سجلّ داخلي لقرارات المراجعة. ليس شهادة اعتماد عامة، ولا يُصدر حكماً شرعياً.",
-              10.5, NAVY, False, True)], border=BANNER_LINE, accent=BANNER_LINE)
+    tone = VERDICT[d["verdict"]["tone"]]
+    _box(p, [("حكم مِرآة", 10, MUTED, False, True), (d["verdict"]["text"], 14, tone, True, True)],
+         border=tone, accent=tone)
+    _box(p, [(d["notice_ar"], 10.5, NAVY, False, True)], border=BANNER_LINE, accent=BANNER_LINE)
 
     _heading(p, "المصدر")
     _box(p, [(d["source"]["text"], 12.5, NAVY, False, d["source"]["lang"] in RTL)])
@@ -112,19 +115,16 @@ def render(d: dict) -> bytes:
             parts.append("دخل هنا الخلل")
         _write(p, "\u200f" + " · ".join(parts), 11, SEVERITY["red"] if broken else NAVY, bold=broken)
 
-    _heading(p, "النص المصحَّح لكل حلقة")
+    _heading(p, "نص كل حلقة")
     for n in d["chain"]:
-        if n["label"] == "source":
-            note = "الأصل لا يُعدَّل"
-        elif n["applied_edits"]:
-            note = f"طُبّقت {len(n['applied_edits'])} صياغة اعتمدها المراجع"
-        else:
-            note = "بلا تعديل"
-        _box(p, [("\u200f" + f"{n['name']} · {LANG_AR.get(n['lang'], n['lang'])} · {note}", 9.5, MUTED, False, True),
+        meta = [n["name"]] + ([n["medium_ar"]] if n.get("medium_ar") else []) + [LANG_AR.get(n["lang"], n["lang"])]
+        if n["applied_edits"]:
+            meta.append(f"طُبّقت {len(n['applied_edits'])} صياغة اعتمدها المراجع")
+        _box(p, [("\u200f" + " · ".join(meta), 9.5, MUTED, False, True),
                  (n["approved_text"], 12, NAVY, False, n["lang"] in RTL)],
              accent=PURPLE if n["applied_edits"] else None)
 
-    _heading(p, "التنبيهات وما تم في كل منها")
+    _heading(p, "التنبيهات")
     if not d["alerts"]:
         _write(p, "لم تُسجَّل تنبيهات على هذه المقابلة.", 11)
     for a in d["alerts"]:
@@ -132,6 +132,11 @@ def render(d: dict) -> bytes:
         lines = [(f"[{a['severity_ar']}] {a['headline_ar']}", 11.5, NAVY, True, True),
                  ("\u200f" + f"في {a['version_label']} · دخل في {where}", 9.5, MUTED, False, True),
                  (a["explanation_ar"], 10.5, NAVY, False, True)]
+        if a.get("why_it_matters_ar"):
+            lines.append(("لماذا يهم: " + a["why_it_matters_ar"], 10, MUTED, False, True))
+        for s in a.get("suggestions", [])[:1]:
+            lines.append(("صياغة مقترحة (" + s["label_ar"] + "):", 10, PURPLE, True, True))
+            lines.append((s["text"], 10.5, NAVY, False, not s["text"].isascii()))
         dec = a["decision"]
         if dec:
             lines.append(("القرار: " + dec["action_ar"], 10.5, PURPLE, True, True))
@@ -141,8 +146,6 @@ def render(d: dict) -> bytes:
             if dec["reason"]:
                 lines.append(("السبب: " + dec["reason"], 10.5, NAVY, False, True))
             lines.append((dec["decided_at"], 9, MUTED, False, True))
-        else:
-            lines.append(("بلا قرار (ليس تنبيهاً خطيراً)", 10, (154, 107, 0), False, True))
         _box(p, lines, accent=SEVERITY.get(a["severity"]))
 
     if d.get("locks"):

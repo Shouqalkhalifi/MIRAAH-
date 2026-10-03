@@ -131,13 +131,13 @@ def test_all_screens_render_with_disclaimer():
 def test_report_page_colors_broken_link_and_highlights():
     rid = client.post("/api/analyze", json=CHAIN).json()["id"]
     html = client.get(f"/report/{rid}").text
-    assert "لا تنشر · 1 لحق" in html  # الحالة نص صريح بلغة المقابلة
+    assert "لا تنشر · 1 سقط" in html  # الحالة نص صريح بلغة المقابلة
     # خيط السند: ينكسر عند en-summary، وما بعده بعد الخلل
     assert re.search(r'class="st-break[^"]*"[^>]*>\s*<span class="knot"[^>]*></span>\s*<button[^>]*>\s*<span class="node-name" dir="ltr">en-summary', html)
     assert 'class="st-after' in html  # fr-translation
-    # الموضع مسطّر، وعلامة «لحق» مرتفعة عنده، والرمز التقني في التلميح فقط
+    # الموضع مسطّر، وعلامة «سقط» مرتفعة عنده، والرمز التقني في التلميح فقط
     assert re.search(r'<mark class="mk mk-rubric" title="سقط الشرط «للمسافر» · condition_dropped">للمسافر</mark>', html)
-    assert '<sup class="sigla tone-rubric">لحق</sup>' in html
+    assert '<sup class="sigla tone-rubric">سقط</sup>' in html
     assert 'href="#alert-' in html and 'id="alert-' in html  # الموضع يقود إلى ملاحظته في الحاشية
     assert "<b title=\"condition_dropped\">سقط الشرط «للمسافر»</b>" in html  # الملاحظة مسمّاة بالمشكلة
     assert "أعراضه (" in html  # اتساع النطاق وامتحان القارئ مطويان تحتها
@@ -233,7 +233,7 @@ def test_unknown_alert_rejected():
     assert decide(rep["id"], "nope").status_code == 404
 
 
-EXPORT_TITLE = "تقرير مقابلة – للاستخدام الداخلي، وليس شهادة اعتماد عامة"
+EXPORT_TITLE = "تقرير مراجعة مِرآة – للمراجعة قبل النشر، وليس شهادة اعتماد"
 
 
 def approve(rid):
@@ -244,9 +244,10 @@ def test_approve_locked_until_all_reds_decided_then_export_and_audit():
     rep, reds = _analyzed()
     rid = rep["id"]
     assert approve(rid).status_code == 409
-    assert client.get(f"/api/report/{rid}/export.json").status_code == 409  # لا تصدير قبل الاعتماد
-    assert client.get(f"/api/report/{rid}/export.html").status_code == 409
-    assert client.get(f"/api/report/{rid}/export.pdf").status_code == 409
+    # التقرير يُشارَك ويُنزَّل دائماً، وفيه حكم مِرآة؛ الاعتماد عبر الواجهة البرمجية اختياري
+    early = client.get(f"/api/report/{rid}/export.json").json()
+    assert early["verdict"]["tone"] == "rubric" and early["verdict"]["text"].startswith("لا تنشر")
+    assert client.get(f"/api/report/{rid}/export.pdf").status_code == 200
     for aid in reds:
         assert decide(rid, aid).status_code == 200
     r = approve(rid)
@@ -276,15 +277,15 @@ def test_approve_locked_until_all_reds_decided_then_export_and_audit():
     assert f"<title>{EXPORT_TITLE}</title>" in html and DISCLAIMER in html
     assert "اصطناعي" in html and "صفة المراجع" not in html and "بتوقيت الرياض" in html
     assert "ليس خطأ" in html and "السبب:" in html and "window.print()" in html
-    assert html.index("المصدر") < html.index("حلقات السلسلة") < html.index("النص المصحَّح لكل حلقة") \
-        < html.index("التنبيهات وما تم في كل منها")
+    assert html.index("حكم مِرآة") < html.index("<h2>المصدر</h2>") < html.index("حلقات السلسلة") < html.index("نص كل حلقة") \
+        < html.index("<h2>التنبيهات</h2>")
 
     p = client.get(f"/api/report/{rid}/export.pdf")
     assert p.status_code == 200 and p.headers["content-type"] == "application/pdf"
     assert f'miraah-report-{rid}.pdf' in p.headers["content-disposition"]
     assert p.content.startswith(b"%PDF") and len(p.content) > 5000
     page = client.get(f"/report/{rid}").text
-    assert f"/api/report/{rid}/export.pdf" in page and "this.download('pdf')" in page and "تقرير HTML" not in page
+    assert "download('pdf')" in page and "share()" in page and "تقرير HTML" not in page
 
 
 def test_riyadh_time_is_utc_plus_3():
@@ -304,9 +305,8 @@ def test_level_d_can_never_be_approved():
             decide(rep["id"], a["id"])
     r = approve(rep["id"])
     assert r.status_code == 409 and "مختص" in r.json()["detail"]
-    assert client.get(f"/api/report/{rep['id']}/export.json").status_code == 409
-    page_html = client.get(f"/report/{rep['id']}").text
-    assert "&#34;levelD&#34;: true" in page_html  # الزر معطّل دائماً في الواجهة
+    d = client.get(f"/api/report/{rep['id']}/export.json").json()
+    assert d["verdict"]["tone"] == "rubric" and "مختص" in d["verdict"]["text"]  # التقرير يقول بوضوح: يُحال
 
 
 def test_seal_is_gone():
@@ -314,7 +314,7 @@ def test_seal_is_gone():
     assert client.get(f"/seal/{rep['id']}").status_code == 404
     assert client.post("/api/publish", json={"report_id": rep["id"], "reviewer_role": "مترجم"}).status_code == 404
     html = client.get(f"/report/{rep['id']}").text
-    assert "/seal/" not in html and "اختِم" not in html and "صدّر التقرير" in html
+    assert "/seal/" not in html and "اختِم" not in html and "شارك التقرير" in html
     assert "ختم" not in client.get("/").text
 
 
@@ -468,10 +468,12 @@ def test_export_records_rejected_red_alerts_with_reason():
     assert "ليس خطأ" in html and "رأيتُه إنذاراً خاطئاً" in html
 
 
-def test_simplified_decision_ui():
+def test_report_page_is_review_only_with_share_and_pdf():
     rep, _ = _analyzed()
     html = client.get(f"/report/{rep['id']}").text
-    assert "طبّق التصحيح" in html and "ليس خطأ" in html
-    for gone in ("صفتك", "خلل حقيقي", "إنذار خاطئ", "أصلحه الآن", "اعتمِد وصدّر", "export.json"):
+    assert "اعرض صياغة مقترحة" in html and "لا تُطبَّق على النص" in html
+    assert "شارك التقرير" in html and "نزّل PDF" in html
+    for gone in ("طبّق التصحيح", "ليس خطأ", "/api/decision", "/api/approve", "صدّر التقرير",
+                 "صفتك", "خلل حقيقي", "إنذار خاطئ", "أصلحه الآن", "اعتمِد وصدّر", "export.json"):
         assert gone not in html, gone
 

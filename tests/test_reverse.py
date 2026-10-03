@@ -64,7 +64,7 @@ def test_partially_matches_with_missing_parts():
     r = run("Zorblat is obligatory for everyone.")
     assert r.verdict == "partial"
     assert r.headline_ar == "مطابق جزئياً: ينقص شرط واستثناء، اتسع النطاق"
-    assert [f.mark for f in r.findings] == ["لحق", "لحق", "تغيّر"]
+    assert [f.mark for f in r.findings] == ["سقط", "سقط", "تغيّر"]
 
 
 def test_contradicts_source():

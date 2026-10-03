@@ -22,7 +22,7 @@
 <script>
   function muqabala(cfg) {
     return {
-      ...cfg, showSrc: true, approveError: '', approving: false,
+      ...cfg, showSrc: true, shareMsg: '',
       decided(ids) { return ids.every(id => this.decisions[id]); },
       statusTone() { return this.statusCalc().tone; },
       statusText() { return this.statusCalc().text; },
@@ -35,9 +35,8 @@
         }
         const y = pending.filter(g => g.yellow).length;
         if (y) return { tone: 'saffron', text: `يُنظر · ${y} ${y === 1 ? 'موضع' : 'مواضع'}` };
-        return { tone: 'verified', text: 'بلغ مقابلة' };
+        return { tone: 'verified', text: 'جاهز للنشر بعد نظرتك' };
       },
-      canApprove() { return !this.referral && !this.levelD && !this.approved && !this.approving && this.statusTone() !== 'rubric'; },
       select(label) { this.sel = label; this.$nextTick(() => this.layout()); },
       mirror(indices) {
         document.querySelectorAll('.src-sent.is-mirror').forEach(e => e.classList.remove('is-mirror'));
@@ -48,14 +47,6 @@
         const data = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(typeof data.detail === 'string' ? data.detail : (data.detail?.[0]?.msg || 'لم يُحفظ. أعد المحاولة.'));
         return data;
-      },
-      async decide(ids, action, reason, edited) {
-        for (const id of ids) {
-          const d = await this.post('/api/decision', { report_id: this.reportId, alert_id: id, action, reason,
-            edited_text: action === 'edit' ? edited : null });
-          this.decisions[id] = d.decisions[id];
-        }
-        this.$nextTick(() => this.layout());
       },
       async revise(id) {
         if (this.revs[id]) return this.revs[id];
@@ -69,14 +60,17 @@
         a.download = `miraah-report-${this.reportId}.${ext}`;
         document.body.appendChild(a); a.click(); a.remove();
       },
-      async exportReport() {
-        this.approveError = ''; this.approving = true;
-        try {
-          await this.post('/api/approve', { report_id: this.reportId });
-          this.approved = true;
-          this.download('pdf');
-        } catch (e) { this.approveError = e.message; }
-        finally { this.approving = false; }
+      // الجوال: قائمة المشاركة (واتساب وغيره). الحاسوب: نسخ الرابط
+      async share() {
+        const url = location.origin + '/report/' + this.reportId;
+        const title = document.querySelector('.mq-title')?.textContent.trim() || 'تقرير مِرآة';
+        this.shareMsg = '';
+        if (navigator.share) {
+          try { await navigator.share({ title, text: 'تقرير مراجعة من مِرآة: ' + title, url }); return; }
+          catch (e) { if (e.name === 'AbortError') return; }
+        }
+        try { await navigator.clipboard.writeText(url); this.shareMsg = 'نُسخ رابط التقرير، الصقه حيث تشاء.'; }
+        catch { this.shareMsg = 'انسخ الرابط: ' + url; }
       },
       // خيوط تصل كل موضع منبَّه عليه في النسخة بجملته في الأصل، كما في عرض الرئيسية
       layout() {
@@ -187,7 +181,7 @@
       <footer class="panel-f"><span class="pill">راجع <b>{{ flagged | length }}</b> من <b>{{ source_sentences | length }}</b> جملة</span><span class="pill">{% if report.witnesses.enabled %}اتفاق الشاهدين {{ ((report.witnesses.agreement or 0) * 100) | round | int }}٪{% else %}شاهد واحد{% endif %}</span></footer>
     </article>
 
-    {# التنبيهات والقرار #}
+    {# التنبيهات #}
     <aside class="panel panel-alerts hashiya" x-ref="hashiya" aria-label="تنبيهات المراجعة والتحقق">
       <header class="panel-h"><span>تنبيهات المراجعة والتحقق</span><small>اضغط على تنبيه لتراجعه</small></header>
       <div class="alerts">
@@ -197,7 +191,7 @@
       {% set fixable = a.version_label != 'source' %}
       <article id="alert-{{ a.id }}" class="note {{ 'a-red tone-rubric-n' if ui.tone(a) == 'rubric' else 'a-yel' }}" data-ids="{{ ids | join(' ') }}"
                x-show="{{ links | tojson | forceescape }}.includes(sel)" :class="decided({{ ids | tojson | forceescape }}) && 'is-decided'"
-               x-data="{ open: false, mode: '', reason: '', edited: '', alts: null, busy: false, gen: false, err: '', change: false }"
+               x-data="{ open: false, alts: null, gen: false, err: '' }"
                @mouseenter="light({{ ids | tojson | forceescape }}, true)" @mouseleave="light([], false)">
         {% for s in g.symptoms %}<span id="alert-{{ s.id }}"></span>{% endfor %}
         <button type="button" class="a-head" @click="open = !open" :aria-expanded="open">
@@ -222,63 +216,24 @@
           <p class="muted">{{ tier_labels[a.tier] }} · الثقة {{ (a.confidence * 100) | round | int }}٪</p>
         </details>
 
-        {# قرار محفوظ #}
-        <template x-if="decided({{ ids | tojson | forceescape }}) && !change">
-          <div class="t14">
-            <p style="margin:.25rem 0"><b class="tone-verified" x-text="{edit: 'طُبّق التصحيح', accept: 'أُحيل للمختص', reject: 'ليس خطأ'}[decisions['{{ a.id }}'].action]"></b>
-              <span x-show="decisions['{{ a.id }}'].reason"> · <span x-text="decisions['{{ a.id }}'].reason"></span></span></p>
-            <p x-show="decisions['{{ a.id }}'].edited_text" class="quote" style="margin-bottom:0">الصياغة المعتمدة:</p>
-            <span x-show="decisions['{{ a.id }}'].edited_text" class="qb latin" dir="auto" x-text="decisions['{{ a.id }}'].edited_text"></span>
-            <button type="button" class="btn-text" x-show="!approved" @click="change = true; mode = ''">غيّر القرار</button>
+        {# اقتراح للاطلاع فقط: مِرآة لا تعدّل النص، والكاتب يراجع ويقرر قبل النشر #}
+        {% if fixable %}
+        <div class="suggest-box">
+          <button type="button" class="btn btn-quiet btn-sm" x-show="!alts && !gen"
+                  @click="gen = true; err = ''; revise('{{ a.id }}').then(r => alts = r).catch(() => err = 'تعذّر إعداد صياغة مقترحة الآن. أعد المحاولة لاحقاً.').finally(() => { gen = false; $nextTick(() => layout()) })">اعرض صياغة مقترحة</button>
+          <p class="t14 muted" x-show="gen" x-cloak>نُعدّ صياغات أدق ونفحص كل واحدة قبل عرضها…</p>
+          <div x-show="alts" x-cloak>
+            <p class="suggest-h">صياغات مقترحة للاطلاع (لا تُطبَّق على النص):</p>
+            <template x-for="(r, i) in (alts || []).filter(r => r.passed)" :key="i">
+              <div class="suggest-item"><b x-text="r.label_ar"></b><span dir="auto" x-text="r.text"></span></div>
+            </template>
+            <p class="t14 muted" x-show="alts && !alts.some(r => r.passed)">لم تجتز أي صياغة الفحص، فراجع الموضع بنفسك.</p>
           </div>
-        </template>
-
-        {# فعل رئيسي واحد، ورابط «ليس خطأ» تحته #}
-        <template x-if="!approved && (!decided({{ ids | tojson | forceescape }}) || change)">
-          <div>
-            <div x-show="!mode">
-              {% if fixable %}
-              <button type="button" class="btn btn-primary"
-                @click="mode = 'edit'; err = ''; if (!alts) { busy = gen = true; revise('{{ a.id }}').then(r => alts = r).catch(() => err = 'تعذّر إعداد الصياغات الآن. اكتب صياغتك بنفسك في الخانة أدناه، أو أعد المحاولة لاحقاً.').finally(() => { busy = gen = false; $nextTick(() => layout()) }) }">طبّق التصحيح</button>
-              {% else %}
-              {# الخلل في الأصل نفسه: الأصل لا يُعدَّل، فيُحال إلى مختص #}
-              <button type="button" class="btn btn-primary" @click="mode = 'accept'; err = ''">أحِله للمختص</button>
-              {% endif %}
-              <p style="margin:.4rem 0 0"><button type="button" class="btn-text" @click="mode = 'reject'; err = ''">ليس خطأ</button></p>
-            </div>
-            <div x-show="mode" x-cloak>
-              <template x-if="mode === 'edit'">
-                <div>
-                  <p class="t14 muted" x-show="gen">نُعدّ ثلاث صياغات ونفحص كل واحدة قبل عرضها…</p>
-                  <div class="alts" x-show="alts">
-                    <template x-for="(r, i) in (alts || []).filter(r => r.passed)" :key="i">
-                      <label class="alt"><input type="radio" name="alt-{{ a.id }}" @change="edited = r.text">
-                        <span><b x-text="r.label_ar"></b> <span dir="auto" x-text="r.text"></span></span></label>
-                    </template>
-                    <p class="t14 muted" x-show="alts && alts.some(r => !r.passed)"
-                       x-text="'استُبعدت ' + (alts || []).filter(r => !r.passed).length + ' صياغة لأنها كسرت ثابتاً.'"></p>
-                  </div>
-                  <label class="lbl" for="ed-{{ a.id }}">اختر صياغة أو اكتب صياغتك</label>
-                  <textarea id="ed-{{ a.id }}" class="field" rows="2" dir="auto" x-model="edited"></textarea>
-                </div>
-              </template>
-              <template x-if="mode !== 'edit'">
-                <div>
-                  <label class="lbl" for="rs-{{ a.id }}" x-text="mode === 'reject' ? 'لماذا ليس خطأ؟' : 'لماذا يُحال؟'"></label>
-                  <input id="rs-{{ a.id }}" class="field" x-model="reason" maxlength="200" placeholder="سبب قصير">
-                </div>
-              </template>
-              <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
-              <div class="acts">
-                <button type="button" class="btn btn-primary"
-                        :disabled="busy || (mode === 'edit' ? !edited.trim() : reason.trim().length < 3)"
-                        @click="busy = true; err = ''; decide({{ ids | tojson | forceescape }}, mode, mode === 'edit' ? '' : reason.trim(), edited.trim()).then(() => { change = false; mode = '' }).catch(e => err = e.message).finally(() => busy = false)"
-                        x-text="{edit: 'طبّق', accept: 'أحِله', reject: 'سجّل أنه ليس خطأ'}[mode]"></button>
-                <button type="button" class="btn-text" @click="mode = ''; change = false">تراجع</button>
-              </div>
-            </div>
-          </div>
-        </template>
+          <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
+        </div>
+        {% else %}
+        <p class="suggest-h">الخلل في الأصل نفسه، والأصل لا يُعدَّل: يُعرض على مختص قبل النشر.</p>
+        {% endif %}
         </div>
       </article>
       {% else %}
@@ -293,16 +248,13 @@
       </div>
       <div class="panel-acts">
         <div class="mq-approve">
-          <button type="button" class="btn btn-primary" x-show="!approved"{% if approved %} x-cloak{% endif %}
-                  :disabled="!canApprove()" @click="exportReport()"
-                  x-text="approving ? 'يُصدَّر…' : 'صدّر التقرير'">صدّر التقرير</button>
-          <a class="btn btn-primary" x-show="approved"{% if not approved %} x-cloak{% endif %}
-             href="/api/report/{{ report.id }}/export.pdf" download>صدّر التقرير</a>
-          <p class="mq-hint" x-show="referral || levelD">المستوى (د) خارج النطاق: يُحال إلى مختص ولا يُصدَّر.</p>
-          <p class="mq-hint" x-show="!approved && !referral && !levelD && statusTone() === 'rubric'">يُصدَّر بعد حسم كل تنبيه أحمر.</p>
-          <p class="mq-hint" x-show="approved" x-cloak>تقرير PDF: المصدر، والنص المصحَّح، والتنبيهات وما تم في كل منها.</p>
+          <div class="share-row">
+            <button type="button" class="btn btn-primary" @click="share()">شارك التقرير</button>
+            <button type="button" class="btn" @click="download('pdf')">نزّل PDF</button>
+          </div>
+          <p class="mq-hint" role="status" x-show="shareMsg" x-cloak x-text="shareMsg"></p>
+          <p class="mq-hint">شاركه مع من يراجع معك قبل النشر، أو نزّله PDF للطباعة.</p>
         </div>
-        <p class="mq-hint tone-rubric" x-show="approveError" x-cloak x-text="approveError"></p>
       </div>
     </aside>
   </div>

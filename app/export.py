@@ -1,4 +1,4 @@
-"""تصدير تقرير المقابلة بعد اعتماد المراجع: JSON و HTML قابل للطباعة، للاستخدام الداخلي فقط."""
+"""تصدير تقرير المراجعة: JSON و HTML قابل للطباعة و PDF، للمراجعة قبل النشر لا شهادة اعتماد."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -7,7 +7,9 @@ from app import ui
 from app.models import Report
 from app.pipeline.locks import LOCK_TYPE_AR
 
-TITLE = "تقرير مقابلة – للاستخدام الداخلي، وليس شهادة اعتماد عامة"
+TITLE = "تقرير مراجعة مِرآة – للمراجعة قبل النشر، وليس شهادة اعتماد"
+NOTICE_AR = ("هذا التقرير نتيجة فحص آلي مساعد يراجعه الإنسان قبل النشر، والقرار الأخير للمراجع البشري. "
+             "ليس شهادة اعتماد، ولا يُصدر حكماً شرعياً.")
 RIYADH = timezone(timedelta(hours=3), "Asia/Riyadh")  # الرياض بلا توقيت صيفي، فلا حاجة إلى tzdata
 LANG_AR = {"ar": "العربية", "en": "الإنجليزية", "fr": "الفرنسية", "id": "الإندونيسية", "ur": "الأردية"}
 ACTION_AR = {"edit": "طُبّق التصحيح", "reject": "ليس خطأ", "accept": "أُحيل للمختص"}  # accept: خلل في الأصل نفسه
@@ -36,6 +38,16 @@ def approved_text(r: Report, label: str, text: str) -> tuple[str, list[str]]:
     return text, applied
 
 
+def _verdict(r: Report) -> dict:
+    """الإشارة الضوئية نفسها التي في صفحة التقرير: rubric لا تنشر · saffron يحتاج نظرة · verified جاهز."""
+    if r.referral:
+        return {"tone": "rubric", "text": "خارج نطاق مِرآة (المستوى D): يُحال إلى مختص قبل النشر"}
+    s = ui.status_line(r)
+    if s["tone"] == "verified":
+        return {"tone": "verified", "text": "لم تجد مِرآة ما يمنع النشر، والقرار الأخير للمراجع"}
+    return s
+
+
 def build(r: Report, disclaimer: str) -> dict:
     nodes = {n["label"]: n for n in ui.thread(r)}
     chain = [{"label": "source", "name": "الأصل", "lang": r.source.lang, "derived_from": None,
@@ -56,6 +68,9 @@ def build(r: Report, disclaimer: str) -> dict:
             "severity_ar": SEVERITY_AR[a.severity.value], "headline_ar": ui.headline(a),
             "explanation_ar": a.explanation_ar, "version_label": a.version_label, "introduced_at": a.introduced_at,
             "source_span": a.source_span.text, "version_span": a.version_span.text,
+            "why_it_matters_ar": a.why_it_matters_ar,
+            "suggestions": [{"label_ar": s.label_ar, "text": s.text}
+                            for s in r.revisions.get(a.id, []) if s.passed],
             "decision": None if d is None else {
                 "action": d.action, "action_ar": ACTION_AR[d.action], "reason": d.reason,
                 "edited_text": d.edited_text,
@@ -67,6 +82,9 @@ def build(r: Report, disclaimer: str) -> dict:
         "report_id": r.id,
         "report_title": r.title,
         "approved_at": riyadh_time(r.approved_at),
+        "exported_at": riyadh_time(datetime.now(timezone.utc)),
+        "notice_ar": NOTICE_AR,
+        "verdict": _verdict(r),
         "source": {"text": r.source.text, "lang": r.source.lang, "source_ref": r.source.source_ref,
                    "content_level": r.source.content_level.value},
         "chain": chain,

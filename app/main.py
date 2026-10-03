@@ -70,7 +70,7 @@ def highlight(text: str, alerts, side: str, label: str | None = None) -> Markup:
         out += [escape(text[pos:s]),
                 Markup(f'<a href="#alert-{a.id}" class="anchor" data-alert="{a.id}">'
                        f'<mark class="mk mk-{tone}" title="{tip}">'), escape(text[s:e]), Markup("</mark>")]
-        if side == "version":  # علامة النسّاخ مرتفعة عند حدّ الموضع: «لحق» / «زيادة» / «تغيّر» / «يُنظر»
+        if side == "version":  # علامة النسّاخ مرتفعة عند حدّ الموضع: «سقط» / «زيادة» / «تغيّر» / «يُنظر»
             out.append(Markup(f'<sup class="sigla tone-{tone}">{escape(word)}</sup>'))
         out.append(Markup("</a>"))
         pos = e
@@ -155,10 +155,10 @@ def api_approve(body: ApproveIn):
     return _review_call(review.approve, body.report_id)
 
 
-def _approved(report_id: str) -> Report:
+def _exportable(report_id: str) -> Report:
     r = _get(report_id)
-    if r.status != ReportStatus.approved:
-        raise HTTPException(409, "لم يُعتمد هذا التقرير بعد")
+    if r.status in (ReportStatus.analyzing, ReportStatus.failed):
+        raise HTTPException(409, "لم يكتمل تحليل هذا التقرير بعد")
     return r
 
 
@@ -168,25 +168,25 @@ def _download(name: str) -> dict:
 
 @app.get("/api/report/{report_id}/export.json")
 def api_export_json(report_id: str):
-    """تقرير المقابلة المعتمد بصيغة JSON: للاستخدام الداخلي، وليس شهادة اعتماد عامة."""
-    r = _approved(report_id)
+    """تقرير المراجعة بصيغة JSON: للمراجعة قبل النشر، وليس شهادة اعتماد."""
+    r = _exportable(report_id)
     return JSONResponse(export.build(r, DISCLAIMER), headers=_download(f"miraah-report-{r.id}.json"))
 
 
 @app.get("/api/report/{report_id}/export.html", response_class=HTMLResponse)
 def api_export_html(request: Request, report_id: str):
-    """تقرير المقابلة المعتمد صفحةً مستقلة قابلة للطباعة."""
-    r = _approved(report_id)
+    """تقرير المراجعة صفحةً مستقلة قابلة للطباعة."""
+    r = _exportable(report_id)
     html = templates.get_template("export.html").render(d=export.build(r, DISCLAIMER), lang_ar=export.LANG_AR)
     return HTMLResponse(html, headers=_download(f"miraah-report-{r.id}.html"))
 
 
 @app.get("/api/report/{report_id}/export.pdf")
 def api_export_pdf(report_id: str):
-    """تقرير المقابلة المعتمد ملف PDF: المصدر، والنص المصحَّح لكل حلقة، والتنبيهات وما تم في كل منها."""
+    """تقرير المراجعة ملف PDF: الحكم، والمصدر، ونص كل حلقة، والتنبيهات مع سببها وما يُقترح فيها."""
     from app import pdf
 
-    r = _approved(report_id)
+    r = _exportable(report_id)
     return Response(pdf.render(export.build(r, DISCLAIMER)), media_type="application/pdf",
                     headers=_download(f"miraah-report-{r.id}.pdf"))
 

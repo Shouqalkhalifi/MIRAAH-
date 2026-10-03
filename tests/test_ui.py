@@ -16,7 +16,7 @@ def rep(alerts, decisions=None):
 
 
 def test_mark_words_and_headlines():
-    assert ui.mark_word("condition_dropped") == "لحق"
+    assert ui.mark_word("condition_dropped") == "سقط"
     assert ui.mark_word("consensus_inflated") == "زيادة"
     assert ui.mark_word("ruling_shift") == "تغيّر"
     assert ui.mark_word("unverified_attribution") == "يُنظر"
@@ -38,13 +38,13 @@ def test_thread_breaks_at_defect_and_marks_recheck_after_edit():
     r = rep([a], {a.id: Decision(alert_id=a.id, action="edit", edited_text="A traveler may...", reason="أصلحت الشرط")})
     states = [(n["label"], n["state"], n["recheck"], n["marks"]) for n in ui.thread(r)]
     assert states == [("source", "ok", False, []), ("en", "ok", False, []),
-                      ("sum", "break", False, ["لحق"]), ("fr", "after", True, [])]
+                      ("sum", "break", False, ["سقط"]), ("fr", "after", True, [])]
 
 
 def test_status_line():
     red, yellow = A(T.condition_dropped), A(T.ruling_shift, "yellow", at="en", idx=(1,))
-    assert ui.status_line(rep([red, yellow])) == {"tone": "rubric", "text": "لا تنشر · 1 لحق"}
+    assert ui.status_line(rep([red, yellow])) == {"tone": "rubric", "text": "لا تنشر · 1 سقط"}
     decided = {red.id: Decision(alert_id=red.id, action="accept", reason="خلل حقيقي")}
     assert ui.status_line(rep([red, yellow], decided)) == {"tone": "saffron", "text": "يُنظر · 1 موضع"}
     decided[yellow.id] = Decision(alert_id=yellow.id, action="reject", reason="ليس خللاً")
-    assert ui.status_line(rep([red, yellow], decided))["text"] == "بلغ مقابلة"
+    assert ui.status_line(rep([red, yellow], decided))["text"] == "جاهز للنشر بعد نظرتك"

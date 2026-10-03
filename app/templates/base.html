@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/app.css?v=28">
+  <link rel="stylesheet" href="/static/app.css?v=29">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="apple-touch-icon" href="/static/favicon-180.png">
@@ -32,7 +32,7 @@
     </div>
   </header>
   <main class="page">
-    {% if service == 'publish' %}<p class="svc-line"><span class="svc-dot svc-dot-pub" aria-hidden="true"></span>أنت في <b>راجِع قبل النشر</b> · للمترجمين والمحررين والجهات: تصحّح نصك قبل نشره</p>
+    {% if service == 'publish' %}<p class="svc-line"><span class="svc-dot svc-dot-pub" aria-hidden="true"></span>أنت في <b>راجِع قبل النشر</b> · للمترجمين والمحررين والجهات: راجِع نصك قبل نشره</p>
     {% elif service == 'read' %}<p class="svc-line"><span class="svc-dot svc-dot-read" aria-hidden="true"></span>أنت في <b>تحقّق مما قرأت</b> · للقرّاء: تعرف الحكم ومصدره، بلا تعديل</p>{% endif %}
     {% block content %}{% endblock %}
   </main>

@@ -46,7 +46,7 @@ _PERSONAL = re.compile(
 
 # ---------- النتيجة ----------
 class Finding(BaseModel):
-    mark: Literal["لحق", "زيادة", "تغيّر", "يُنظر"]
+    mark: Literal["سقط", "زيادة", "تغيّر", "يُنظر"]
     text_ar: str
     tone: Literal["rubric", "saffron"] = "saffron"
 
@@ -203,7 +203,7 @@ def compare(fp: MeaningFingerprint, issue: Issue, text: str, lang: str,
 
     missing: list[str] = []
     if pos.ruling != "none" and fp.ruling == "none":
-        findings.append(Finding(mark="لحق", text_ar=f"لم تذكر العبارة الحكم؛ المصدر يذكره {RULING_AR[pos.ruling]}."))
+        findings.append(Finding(mark="سقط", text_ar=f"لم تذكر العبارة الحكم؛ المصدر يذكره {RULING_AR[pos.ruling]}."))
         missing.append("الحكم")
 
     def kept(item: str, pool: list[str], kind: str) -> bool:
@@ -213,11 +213,11 @@ def compare(fp: MeaningFingerprint, issue: Issue, text: str, lang: str,
 
     for c in pos.conditions:
         if not kept(c, fp.conditions + ([fp.scope.restricted_to] if fp.scope.restricted_to else []), "condition"):
-            findings.append(Finding(mark="لحق", text_ar=f"سقط شرط يذكره المصدر: {_iso(c)}"))
+            findings.append(Finding(mark="سقط", text_ar=f"سقط شرط يذكره المصدر: {_iso(c)}"))
             missing.append("شرط")
     for e in pos.exceptions:
         if not kept(e, fp.exceptions, "exception"):
-            findings.append(Finding(mark="لحق", text_ar=f"سقط استثناء يذكره المصدر: {_iso(e)}"))
+            findings.append(Finding(mark="سقط", text_ar=f"سقط استثناء يذكره المصدر: {_iso(e)}"))
             missing.append("استثناء")
     if pos.scope and fp.scope.quantifier == "all" and not fp.scope.restricted_to:
         findings.append(Finding(mark="تغيّر", text_ar=f"اتسع النطاق: المصدر يقصره على {_iso(pos.scope)}."))

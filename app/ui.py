@@ -74,12 +74,12 @@ def meta(alert_type: str) -> tuple[str, str, str]:
 
 
 # ---------- لغة المقابلة: علامات النسّاخ ----------
-# «لحق»: شيء سقط · «زيادة»: شيء أُضيف · «تغيّر»: معنى تحوّل · «يُنظر»: يحتاج مختصاً أو مرجعاً
+# «سقط»: شيء سقط · «زيادة»: شيء أُضيف · «تغيّر»: معنى تحوّل · «يُنظر»: يحتاج مختصاً أو مرجعاً
 MARK_WORD = {
-    "condition_dropped": "لحق", "exception_dropped": "لحق", "sentence_dropped": "لحق", "hasr_lost": "لحق",
-    "hadith_grade_dropped": "لحق", "lock_violated": "لحق",
+    "condition_dropped": "سقط", "exception_dropped": "سقط", "sentence_dropped": "سقط", "hasr_lost": "سقط",
+    "hadith_grade_dropped": "سقط", "lock_violated": "سقط",
     "new_prophetic_attribution": "زيادة", "consensus_inflated": "زيادة", "attribution_generalized": "زيادة",
-    "disagreement_collapsed": "لحق",
+    "disagreement_collapsed": "سقط",
     "certainty_raised": "تغيّر", "ruling_shift": "تغيّر", "scope_widened": "تغيّر", "scope_narrowed": "تغيّر",
     "negation_mismatch": "تغيّر", "number_mismatch": "تغيّر", "term_narrowing": "تغيّر",
     "attribution_upgraded": "تغيّر", "quote_wording_differs": "تغيّر", "source_conflict": "تغيّر",
@@ -174,7 +174,7 @@ def thread(report) -> list[dict]:
 
 
 def status_line(report) -> dict:
-    """حالة التقرير نصاً صريحاً: «لا تنشر · 2 لحق» أو «يُنظر · 3 مواضع» أو «بلغ مقابلة»."""
+    """حالة التقرير نصاً صريحاً: «لا تنشر · 2 سقط» أو «يُنظر · 3 مواضع» أو «جاهز للنشر بعد نظرتك»."""
     pending = [g for g in group_alerts(report.alerts)
                if any(x.id not in report.decisions for x in [g["root"], *g["symptoms"]])]
     red = [g for g in pending if any(x.severity.value == "red" for x in [g["root"], *g["symptoms"]])]
@@ -188,7 +188,7 @@ def status_line(report) -> dict:
     if yellow:
         n = len(yellow)
         return {"tone": "saffron", "text": f"يُنظر · {n} {'موضع' if n == 1 else 'مواضع'}"}
-    return {"tone": "verified", "text": "بلغ مقابلة"}
+    return {"tone": "verified", "text": "جاهز للنشر بعد نظرتك"}
 
 
 def lock_rows(report) -> dict:

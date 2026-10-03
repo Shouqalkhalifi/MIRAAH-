@@ -25,6 +25,10 @@
   .alert p { margin: .2rem 0; font-size: .92rem; }
   .decision { background: #F2F4FF; border-radius: 8px; padding: .4rem .7rem; margin-top: .4rem; }
   .pending { color: #9A6B00; }
+  .verdict { margin-top: 1rem; border: 1.5px solid; border-radius: 10px; padding: .6rem 1rem; display: grid; }
+  .verdict small { color: #5B6080; } .verdict b { font-size: 1.15rem; }
+  .v-rubric { border-color: #B4232F; color: #B4232F; } .v-saffron { border-color: #B7791F; color: #8A5A12; } .v-verified { border-color: #0E8F77; color: #0A6B59; }
+  .suggest { background: #F4F2FF; border-radius: 8px; padding: .4rem .7rem; margin-top: .4rem; }
   .banner { background: #FFF6DF; border: 1px solid #F0D68A; border-radius: 10px; padding: .6rem 1rem; font-size: .9rem; margin-top: 1rem; }
   footer { margin-top: 2rem; padding-top: .75rem; border-top: 1px solid #DDE0F0; font-size: .82rem; color: #5B6080; }
   .print { margin-top: 1rem; font: inherit; padding: .4rem 1rem; border-radius: 8px; border: 1px solid #12183F; background: #12183F; color: #fff; cursor: pointer; }
@@ -39,10 +43,11 @@
     <dl class="meta">
       <dt>مرجع المصدر</dt><dd>{{ d.source.source_ref or 'غير مسجّل' }}</dd>
       <dt>مستوى المحتوى</dt><dd>{{ d.source.content_level }}</dd>
-      <dt>تاريخ التصدير</dt><dd>{{ d.approved_at }}</dd>
+      <dt>تاريخ التقرير</dt><dd>{{ d.exported_at }}</dd>
       <dt>رقم التقرير</dt><dd dir="ltr" style="text-align:right">{{ d.report_id }}</dd>
     </dl>
-    <p class="banner">هذا التقرير سجلّ داخلي لقرارات المراجعة. ليس شهادة اعتماد عامة، ولا يُصدر حكماً شرعياً.</p>
+    <div class="verdict v-{{ d.verdict.tone }}"><small>حكم مِرآة</small><b>{{ d.verdict.text }}</b></div>
+    <p class="banner">{{ d.notice_ar }}</p>
     <button type="button" class="print" onclick="window.print()">اطبع التقرير</button>
   </header>
 
@@ -59,22 +64,24 @@
   </section>
 
   <section>
-    <h2>النص المصحَّح لكل حلقة</h2>
+    <h2>نص كل حلقة</h2>
     {% for n in d.chain %}
     <div class="box">
-      <p class="muted" style="margin:0"><bdi>{{ n.name }}</bdi> · {{ lang_ar.get(n.lang, n.lang) }}{% if n.label == 'source' %} · الأصل لا يُعدَّل{% elif n.applied_edits %} · طُبّقت {{ n.applied_edits | length }} صياغة اعتمدها المراجع{% else %} · بلا تعديل{% endif %}</p>
+      <p class="muted" style="margin:0"><bdi>{{ n.name }}</bdi>{% if n.medium_ar %} · {{ n.medium_ar }}{% endif %} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.applied_edits %} · طُبّقت {{ n.applied_edits | length }} صياغة اعتمدها المراجع{% endif %}</p>
       <p class="text {{ '' if n.lang in ['ar', 'ur'] else 'ltr' }}" style="margin:.3rem 0 0">{{ n.approved_text }}</p>
     </div>
     {% endfor %}
   </section>
 
   <section>
-    <h2>التنبيهات وما تم في كل منها</h2>
+    <h2>التنبيهات</h2>
     {% for a in d.alerts %}
     <div class="box alert">
       <h3><span class="tag {{ a.severity }}">{{ a.severity_ar }}</span> {{ a.headline_ar }}</h3>
       <p class="muted">في <bdi>{{ a.version_label }}</bdi> · دخل في <bdi>{{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }}</bdi></p>
       <p>{{ a.explanation_ar }}</p>
+      {% if a.why_it_matters_ar %}<p class="muted">لماذا يهم: {{ a.why_it_matters_ar }}</p>{% endif %}
+      {% for s in a.suggestions[:1] %}<div class="suggest"><p><b>صياغة مقترحة ({{ s.label_ar }}):</b> <bdi>{{ s.text }}</bdi></p></div>{% endfor %}
       {% if a.decision %}
       <div class="decision">
         <p><b>القرار:</b> {{ a.decision.action_ar }}</p>
@@ -82,8 +89,6 @@
         {% if a.decision.reason %}<p><b>السبب:</b> {{ a.decision.reason }}</p>{% endif %}
         <p class="muted">{{ a.decision.decided_at }}</p>
       </div>
-      {% else %}
-      <p class="pending">بلا قرار (ليس تنبيهاً خطيراً)</p>
       {% endif %}
     </div>
     {% else %}

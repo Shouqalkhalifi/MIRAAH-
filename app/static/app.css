@@ -191,6 +191,13 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .mq .note .field { border-radius: 10px; background: var(--white); }
 .mq .panel-acts .btn { border-radius: 12px; }
 .mq-approve { display: grid; gap: .5rem; }
+.share-row { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.share-row .btn { width: 100%; border-radius: 12px; }
+.suggest-box { margin-top: .5rem; }
+.btn-sm { min-height: 36px; padding: .3rem .85rem; font-size: .82rem; border-radius: 999px; }
+.suggest-h { margin: .5rem 0 .3rem; font-size: .8rem; font-weight: 600; color: var(--muted); }
+.suggest-item { display: grid; gap: .1rem; background: var(--white); border-inline-start: 3px solid var(--accent); border-radius: 8px; padding: .45rem .7rem; margin-bottom: .4rem; font-size: var(--t14); }
+.suggest-item b { font-size: .75rem; color: var(--accent); }
 .alts { display: grid; gap: .5rem; margin: .5rem 0; }
 .sym { list-style: none; margin: .4rem 0 .2rem; padding: 0; display: grid; gap: .4rem; }
 .sym li { display: block; padding: .5rem .7rem; border: none; border-inline-start: 3px solid var(--line); border-radius: 8px; background: var(--white); line-height: 1.55; }
