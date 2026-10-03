@@ -38,6 +38,16 @@ def approved_text(r: Report, label: str, text: str) -> tuple[str, list[str]]:
     return text, applied
 
 
+def report_ref(r: Report) -> str:
+    """رقم تقرير مقروء: تاريخ الإنشاء بتوقيت الرياض ثم أربعة أرقام مشتقة من المعرّف (20261003-4821)."""
+    created = r.created_at if r.created_at.tzinfo else r.created_at.replace(tzinfo=timezone.utc)
+    try:
+        n = int(r.id[:8], 16)
+    except ValueError:
+        n = sum(map(ord, r.id))
+    return f"{created.astimezone(RIYADH):%Y%m%d}-{n % 10000:04d}"
+
+
 def _verdict(r: Report) -> dict:
     """الإشارة الضوئية نفسها التي في صفحة التقرير: rubric لا تنشر · saffron يحتاج نظرة · verified جاهز."""
     if r.referral:
@@ -84,6 +94,7 @@ def build(r: Report, disclaimer: str) -> dict:
     return {
         "title": TITLE,
         "report_id": r.id,
+        "report_ref": report_ref(r),
         "report_title": r.title,
         "approved_at": riyadh_time(r.approved_at),
         "exported_at": riyadh_time(datetime.now(timezone.utc)),

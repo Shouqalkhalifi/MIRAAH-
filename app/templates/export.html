@@ -44,7 +44,7 @@
       <dt>مرجع المصدر</dt><dd>{{ d.source.source_ref or 'غير مسجّل' }}</dd>
       <dt>مستوى المحتوى</dt><dd>{{ d.source.content_level }}</dd>
       <dt>تاريخ التقرير</dt><dd>{{ d.exported_at }}</dd>
-      <dt>رقم التقرير</dt><dd dir="ltr" style="text-align:right">{{ d.report_id }}</dd>
+      <dt>رقم التقرير</dt><dd dir="ltr" style="text-align:right">{{ d.report_ref }}</dd>
     </dl>
     <div class="verdict v-{{ d.verdict.tone }}"><small>حكم مِرآة</small><b>{{ d.verdict.text }}</b></div>
     <p class="banner">{{ d.notice_ar }}</p>
