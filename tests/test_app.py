@@ -133,7 +133,8 @@ def test_report_page_colors_broken_link_and_highlights():
     html = client.get(f"/report/{rid}").text
     assert "لا تنشر · 1 سقط" in html  # الحالة نص صريح بلغة المقابلة
     # خيط السند: ينكسر عند en-summary، وما بعده بعد الخلل
-    assert re.search(r'class="st-break[^"]*"[^>]*>\s*<span class="knot"[^>]*></span>\s*<button[^>]*>\s*<span class="node-name" dir="ltr">en-summary', html)
+    assert re.search(r'class="st-break[^"]*"[^>]*>\s*<span class="knot"[^>]*></span>\s*<button[^>]*>\s*<span class="node-name">النسخة 2</span>', html)
+    assert 'class="node-name" dir="ltr"' not in html  # أسماء الحلقات بالعربية لا بالتسمية التقنية
     assert 'class="st-after' in html  # fr-translation
     # الموضع مسطّر، وعلامة «سقط» مرتفعة عنده، والرمز التقني في التلميح فقط
     assert re.search(r'<mark class="mk mk-rubric" title="سقط الشرط «للمسافر» · condition_dropped">للمسافر</mark>', html)

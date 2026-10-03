@@ -145,6 +145,38 @@ def group_alerts(alerts) -> list[dict]:
     return groups
 
 
+LANG_ADJ = {"ar": "عربية", "en": "إنجليزية", "fr": "فرنسية", "id": "إندونيسية", "ur": "أردية"}
+ORDINAL = ["", "الثانية", "الثالثة", "الرابعة", "الخامسة", "السادسة"]
+
+
+def version_names(report) -> dict[str, str]:
+    """اسم عربي لكل حلقة من نوعها ولغتها («ترجمة إنجليزية»، «ملخص»)، بدل التسمية التقنية التي كتبها المستخدم."""
+    names = {"source": "الأصل"}
+    base = {}
+    for i, v in enumerate(report.versions, 1):
+        m = MEDIUM_AR.get(v.medium or "", "")
+        if not m or v.medium == "other":
+            base[v.label] = f"النسخة {i}"
+        elif v.medium == "translation":
+            base[v.label] = f"ترجمة {LANG_ADJ.get(v.lang, v.lang)}".strip()
+        else:
+            base[v.label] = m
+    seen: dict[str, int] = {}
+    for v in report.versions:
+        b = base[v.label]
+        k = seen[b] = seen.get(b, 0) + 1
+        names[v.label] = b if k == 1 else f"{b} {ORDINAL[k - 1] if k <= len(ORDINAL) else k}"
+    return names
+
+
+def name_text(report, text: str) -> str:
+    """يستبدل التسميات التقنية داخل نصوص محفوظة («قارئ summary يفهم») بأسماء الحلقات العربية."""
+    for lb, nm in sorted(version_names(report).items(), key=lambda x: -len(x[0])):
+        if lb != "source":
+            text = text.replace(f"قارئ {lb} ", f"قارئ {nm} ").replace(f"، {lb}: ", f"، {nm}: ")
+    return text
+
+
 def thread(report) -> list[dict]:
     """عقد خيط السند: الأصل ثم الحلقات، وحالة كل عقدة.
 
@@ -162,10 +194,12 @@ def thread(report) -> list[dict]:
     nodes = [{"label": "source", "name": "الأصل", "lang": report.source.lang, "parent": None, "medium": "",
               "state": "break" if "source" in broken else "ok", "recheck": False, "marks": marks.get("source", [])}]
     by_label = {"source": nodes[0]}
+    names = version_names(report)
     for v in report.versions:
         parent = by_label.get(v.derived_from, nodes[0])
         state = "break" if v.label in broken else ("after" if parent["state"] != "ok" else "ok")
-        node = {"label": v.label, "name": v.label, "lang": v.lang, "parent": v.derived_from, "state": state,
+        node = {"label": v.label, "name": names[v.label], "lang": v.lang, "parent": v.derived_from,
+                "parent_name": names.get(v.derived_from or "source", ""), "state": state,
                 "medium": MEDIUM_AR.get(v.medium or "", ""),
                 "recheck": parent["label"] in edited or parent["recheck"], "marks": marks.get(v.label, [])}
         nodes.append(node)
@@ -301,7 +335,7 @@ def _val(field: str, v: str) -> str:
     return VALUE_AR.get(v, v)
 
 
-def evidence_rows(alert) -> list[dict]:
+def evidence_rows(alert, alert_report=None) -> list[dict]:
     """كل دليل ← {label, text}؛ يُسقط الأسطر التقنية التي لا تضيف للمراجع شيئاً."""
     rows = []
     for e in alert.evidence:
@@ -319,7 +353,8 @@ def evidence_rows(alert) -> list[dict]:
                     if e.ref in ("", "—") else detail or "لا مرجع في المدونة")
             rows.append({"label": "من مدونة مِرآة", "text": text})
         elif e.kind == "reader_exam":
-            rows.append({"label": "امتحان القارئ", "text": detail.replace(" | ", "، ")})
+            rows.append({"label": "امتحان القارئ", "text": name_text(alert_report, detail.replace(" | ", "، "))
+                         if alert_report else detail.replace(" | ", "، ")})
         elif detail:
             rows.append({"label": "ملاحظة", "text": detail})
     return rows

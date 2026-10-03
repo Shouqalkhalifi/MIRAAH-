@@ -59,7 +59,7 @@
   <section>
     <h2>حلقات السلسلة</h2>
     <ol class="chain">
-      {% for n in d.chain %}<li class="{{ 'break' if n.state == 'break' else '' }}">{{ loop.index }}. <bdi>{{ n.name }}</bdi>{% if n.medium_ar %} · {{ n.medium_ar }}{% endif %} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.derived_from %} · عن <bdi>{{ 'الأصل' if n.derived_from == 'source' else n.derived_from }}</bdi>{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</li>{% endfor %}
+      {% for n in d.chain %}<li class="{{ 'break' if n.state == 'break' else '' }}">{{ loop.index }}. {{ n.name }} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.derived_from %} · عن {{ n.derived_from_name }}{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</li>{% endfor %}
     </ol>
   </section>
 
@@ -67,7 +67,7 @@
     <h2>نص كل حلقة</h2>
     {% for n in d.chain %}
     <div class="box">
-      <p class="muted" style="margin:0"><bdi>{{ n.name }}</bdi>{% if n.medium_ar %} · {{ n.medium_ar }}{% endif %} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.applied_edits %} · طُبّقت {{ n.applied_edits | length }} صياغة اعتمدها المراجع{% endif %}</p>
+      <p class="muted" style="margin:0">{{ n.name }} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.applied_edits %} · طُبّقت {{ n.applied_edits | length }} صياغة اعتمدها المراجع{% endif %}</p>
       <p class="text {{ '' if n.lang in ['ar', 'ur'] else 'ltr' }}" style="margin:.3rem 0 0">{{ n.approved_text }}</p>
     </div>
     {% endfor %}
@@ -78,7 +78,7 @@
     {% for a in d.alerts %}
     <div class="box alert">
       <h3><span class="tag {{ a.severity }}">{{ a.severity_ar }}</span> {{ a.headline_ar }}</h3>
-      <p class="muted">في <bdi>{{ a.version_label }}</bdi> · دخل في <bdi>{{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }}</bdi></p>
+      <p class="muted">في {{ a.version_name }} · دخل في {{ a.introduced_name }}</p>
       <p>{{ a.explanation_ar }}</p>
       {% if a.why_it_matters_ar %}<p class="muted">لماذا يهم: {{ a.why_it_matters_ar }}</p>{% endif %}
       {% for s in a.suggestions[:1] %}<div class="suggest"><p><b>صياغة مقترحة ({{ s.label_ar }}):</b> <bdi>{{ s.text }}</bdi></p></div>{% endfor %}
@@ -100,7 +100,7 @@
   <section>
     <h2>أقفال المعنى</h2>
     {% for lk in d.locks %}
-    <p><b>[{{ lk.status_ar }}]</b> «{{ lk.span_text }}» · قفل {{ lk.lock_type_ar }}{% if lk.where %} · في {% for w in lk.where %}<bdi>{{ w.label }}</bdi>{{ '، ' if not loop.last }}{% endfor %}{% endif %}</p>
+    <p><b>[{{ lk.status_ar }}]</b> «{{ lk.span_text }}» · قفل {{ lk.lock_type_ar }}{% if lk.where %} · في {% for w in lk.where %}{{ w.name }}{{ '، ' if not loop.last }}{% endfor %}{% endif %}</p>
     {% endfor %}
   </section>
   {% endif %}

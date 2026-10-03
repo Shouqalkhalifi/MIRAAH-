@@ -106,10 +106,9 @@ def render(d: dict) -> bytes:
 
     _heading(p, "حلقات السلسلة")
     for i, n in enumerate(d["chain"], 1):
-        parts = [f"{i}. {n['name']}"] + ([n["medium_ar"]] if n.get("medium_ar") else []) \
-            + [LANG_AR.get(n["lang"], n["lang"])]
+        parts = [f"{i}. {n['name']}", LANG_AR.get(n["lang"], n["lang"])]
         if n["derived_from"]:
-            parts.append("عن " + ("الأصل" if n["derived_from"] == "source" else n["derived_from"]))
+            parts.append("عن " + n["derived_from_name"])
         broken = n["state"] == "break"
         if broken:
             parts.append("دخل هنا الخلل")
@@ -117,7 +116,7 @@ def render(d: dict) -> bytes:
 
     _heading(p, "نص كل حلقة")
     for n in d["chain"]:
-        meta = [n["name"]] + ([n["medium_ar"]] if n.get("medium_ar") else []) + [LANG_AR.get(n["lang"], n["lang"])]
+        meta = [n["name"], LANG_AR.get(n["lang"], n["lang"])]
         if n["applied_edits"]:
             meta.append(f"طُبّقت {len(n['applied_edits'])} صياغة اعتمدها المراجع")
         _box(p, [("\u200f" + " · ".join(meta), 9.5, MUTED, False, True),
@@ -128,9 +127,8 @@ def render(d: dict) -> bytes:
     if not d["alerts"]:
         _write(p, "لم تُسجَّل تنبيهات على هذه المقابلة.", 11)
     for a in d["alerts"]:
-        where = "الأصل" if a["introduced_at"] == "source" else a["introduced_at"]
         lines = [(f"[{a['severity_ar']}] {a['headline_ar']}", 11.5, NAVY, True, True),
-                 ("\u200f" + f"في {a['version_label']} · دخل في {where}", 9.5, MUTED, False, True),
+                 ("\u200f" + f"في {a['version_name']} · دخل في {a['introduced_name']}", 9.5, MUTED, False, True),
                  (a["explanation_ar"], 10.5, NAVY, False, True)]
         if a.get("why_it_matters_ar"):
             lines.append(("لماذا يهم: " + a["why_it_matters_ar"], 10, MUTED, False, True))
@@ -152,7 +150,7 @@ def render(d: dict) -> bytes:
         _heading(p, "أقفال المعنى")
         for lk in d["locks"]:
             ok = not lk["status_ar"].startswith(("انكسر", "ما زال"))
-            where = "، ".join(w["label"] for w in lk["where"])
+            where = "، ".join(w["name"] for w in lk["where"])
             _write(p, "\u200f" + f"[{lk['status_ar']}] «{lk['span_text']}» · قفل {lk['lock_type_ar']}"
                    + (f" · في {where}" if where else ""), 11, NAVY if ok else SEVERITY["red"])
 

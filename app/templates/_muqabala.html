@@ -5,6 +5,7 @@
 {% set approved = report.status.value == 'approved' %}
 {% set first_label = nodes[first_tab + 1].label if report.versions else 'source' %}
 {% set lang_ar = {'ar': 'العربية', 'en': 'الإنجليزية', 'fr': 'الفرنسية', 'id': 'الإندونيسية', 'ur': 'الأردية'} %}
+{% set vnames = ui.version_names(report) %}
 {% set ns = namespace() %}
 {% set dec = {} %}{% for k, d in report.decisions.items() %}{% set _ = dec.update({k: d.model_dump(mode='json')}) %}{% endfor %}
 {% set revs = {} %}{% for k, v in report.revisions.items() %}{% set lst = [] %}{% for x in v %}{% set _ = lst.append(x.model_dump(mode='json')) %}{% endfor %}{% set _ = revs.update({k: lst}) %}{% endfor %}
@@ -15,7 +16,7 @@
                           'word': ui.mark_word(g.root.type.value),
                           'links': [g.root.introduced_at] + g.root.propagated_to}) %}{% endfor %}
 {% macro bubble(a) %}{% set red = a.severity.value == 'red' %}
-<a href="#alert-{{ a.id }}" class="bubble {{ 'b-red' if red else 'b-yel' }}" dir="rtl">{{ 'تحذير' if red else 'تنبيه' }}: {{ ui.headline(a) }}<small dir="ltr">{{ ui.meta(a.type.value)[2].split(': ')[-1] }}</small></a>
+<a href="#alert-{{ a.id }}" class="bubble {{ 'b-red' if red else 'b-yel' }}" dir="rtl">{{ 'تحذير' if red else 'تنبيه' }}: {{ ui.headline(a) }}</a>
 {% endmacro %}
 {% set src_of = {} %}{% for a in report.alerts %}{% set _ = src_of.update({a.id: a.source_sentence_indices}) %}{% endfor %}
 
@@ -127,9 +128,9 @@
         <li class="st-{{ n.state }}{% if n.recheck %} recheck{% endif %}{% if nxt and nxt.state != 'ok' %} seg-broken{% endif %}" style="--i: {{ loop.index0 }}">
           <span class="knot" aria-hidden="true"></span>
           <button type="button" class="node" @click="select('{{ n.label }}')" :aria-current="sel === '{{ n.label }}'">
-            <span class="node-name" {% if n.lang != 'ar' %}dir="ltr"{% endif %}>{{ n.name }}</span>
+            <span class="node-name">{{ n.name }}</span>
             {% if n.marks %}<sup class="sigla tone-rubric">{{ n.marks[0] }}</sup>{% endif %}
-            <span class="node-sub">{% if n.medium %}{{ n.medium }} · {% endif %}{{ lang_ar.get(n.lang, n.lang) }}{% if n.parent and n.parent != 'source' %} · عن <bdi>{{ n.parent }}</bdi>{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</span>
+            <span class="node-sub">{{ lang_ar.get(n.lang, n.lang) }}{% if n.parent and n.parent != 'source' %} · عن {{ n.parent_name }}{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</span>
           </button>
         </li>
         {% endfor %}
@@ -144,7 +145,7 @@
     <svg class="demo-wires" x-ref="wires" aria-hidden="true"></svg>
     {# الأصل (المرآة) #}
     <article class="panel source-pane" x-show="sel !== 'source'" {% if not report.versions %}x-cloak{% endif %} aria-label="الأصل">
-      <header class="panel-h"><span>المصدر العربي</span><small dir="ltr">Arabic Source</small></header>
+      <header class="panel-h"><span>المصدر العربي</span><small>الأصل</small></header>
       <div class="panel-b ar-source" dir="rtl">
         {% for seg in source_sentences %}<span class="src-sent" data-i="{{ seg.index }}">{{ seg.text | hl(report.alerts, 'source') }}</span> {% endfor %}
       </div>
@@ -153,7 +154,7 @@
 
     {# المتن #}
     <article class="panel matn" aria-label="المتن">
-      <header class="panel-h"><span x-text="sel === 'source' ? 'المصدر العربي' : 'النسخة المترجمة'">{{ 'المصدر العربي' if first_label == 'source' else 'النسخة المترجمة' }}</span><small dir="ltr" x-text="sel === 'source' ? 'Arabic Source' : sel">{{ first_label }}</small></header>
+      <header class="panel-h"><span x-text="sel === 'source' ? 'المصدر العربي' : 'النسخة المترجمة'">{{ 'المصدر العربي' if first_label == 'source' else 'النسخة المترجمة' }}</span><small x-text="{{ vnames | tojson | forceescape }}[sel] || ''">{{ vnames.get(first_label, '') }}</small></header>
       <div class="panel-b">
       <div class="matn-pane" x-show="sel === 'source'" {% if first_label != 'source' %}x-cloak{% endif %}>
         <div class="ar-source matn-text" dir="rtl">{{ report.source.text | hl(report.alerts, 'source') }}</div>
@@ -161,7 +162,7 @@
       {% for v in report.versions %}
       {% set vsents = sentences(v.text) %}
       <div class="matn-pane" x-show="sel === '{{ v.label }}'" {% if v.label != first_label %}x-cloak{% endif %}>
-        <p class="mq-vmeta">{{ lang_ar.get(v.lang, v.lang) }} · مأخوذة عن <bdi>{{ 'الأصل' if v.derived_from == 'source' else v.derived_from }}</bdi></p>
+        <p class="mq-vmeta">{{ lang_ar.get(v.lang, v.lang) }} · مأخوذة عن {{ vnames.get(v.derived_from or 'source', 'الأصل') }}</p>
         <div class="matn-text {{ '' if v.lang in ['ar', 'ur'] else 'latin' }}" dir="{{ 'rtl' if v.lang in ['ar', 'ur'] else 'ltr' }}">
           {% for seg in vsents %}
             {% set ns.src = [] %}
@@ -196,23 +197,23 @@
         {% for s in g.symptoms %}<span id="alert-{{ s.id }}"></span>{% endfor %}
         <button type="button" class="a-head" @click="open = !open" :aria-expanded="open">
           <span class="ab" x-text="decided({{ ids | tojson | forceescape }}) ? 'حُسم' : '{{ ui.mark_word(a.type.value) }}'">{{ ui.mark_word(a.type.value) }}</span>
-          <span class="a-txt"><b title="{{ a.type.value }}">{{ ui.headline(a) }}</b><small>{{ a.explanation_ar }}</small></span>
+          <span class="a-txt"><b title="{{ a.type.value }}">{{ ui.headline(a) }}</b><small>{{ ui.name_text(report, a.explanation_ar) }}</small></span>
           <span class="chev" aria-hidden="true"></span>
         </button>
         <div class="a-body" x-show="open" x-cloak>
-        <p class="a-where">دخل في <bdi>{{ 'الأصل' if a.introduced_at == 'source' else a.introduced_at }}</bdi>{% if a.propagated_to %} وانتقل إلى {% for p in a.propagated_to %}<bdi>{{ p }}</bdi>{{ '، ' if not loop.last }}{% endfor %}{% endif %}</p>
+        <p class="a-where">دخل في {{ vnames.get(a.introduced_at, a.introduced_at) }}{% if a.propagated_to %} وانتقل إلى {% for p in a.propagated_to %}{{ vnames.get(p, p) }}{{ '، ' if not loop.last }}{% endfor %}{% endif %}</p>
         {% if a.version_span.text %}<p class="quote" style="margin-bottom:0">في النسخة:</p><span class="qb latin" dir="auto">{{ a.version_span.text }}</span>{% endif %}
         {% if a.witnesses_agree == false %}<p class="quote tone-saffron">اختلف فيه الشاهدان، فانظر فيه بنفسك.</p>{% endif %}
         {% if g.symptoms %}
         <details @toggle="$nextTick(() => layout())">
           <summary>أعراضه ({{ g.symptoms | length }})</summary>
-          <ul class="sym">{% for s in g.symptoms %}<li class="s-{{ s.severity.value }}" title="{{ s.type.value }}"><b>{{ ui.headline(s) }}</b><span dir="auto">{{ s.explanation_ar }}</span></li>{% endfor %}</ul>
+          <ul class="sym">{% for s in g.symptoms %}<li class="s-{{ s.severity.value }}" title="{{ s.type.value }}"><b>{{ ui.headline(s) }}</b><span dir="auto">{{ ui.name_text(report, s.explanation_ar) }}</span></li>{% endfor %}</ul>
         </details>
         {% endif %}
         <details @toggle="$nextTick(() => layout())">
           <summary>لماذا يهم؟ والدليل</summary>
           <p>{{ a.why_it_matters_ar }}</p>
-          <ul class="rows">{% for e in ui.evidence_rows(a) %}<li><b>{{ e.label }}:</b> <span dir="auto">{{ e.text }}</span></li>{% endfor %}</ul>
+          <ul class="rows">{% for e in ui.evidence_rows(a, report) %}<li><b>{{ e.label }}:</b> <span dir="auto">{{ e.text }}</span></li>{% endfor %}</ul>
           <p class="muted">{{ tier_labels[a.tier] }} · الثقة {{ (a.confidence * 100) | round | int }}٪</p>
         </details>
 
@@ -261,8 +262,7 @@
   </div>
 
   {# ---------- ملحقات المقابلة ---------- #}
-  {% set vmedium = {} %}{% for v in report.versions %}{% set _ = vmedium.update({v.label: medium_ar.get(v.medium or '', '')}) %}{% endfor %}
-  {% macro where_chip(label) %}<span class="where-chip">{% if label == 'source' %}الأصل{% else %}<bdi dir="ltr">{{ label }}</bdi>{% if vmedium.get(label) %} · {{ vmedium[label] }}{% endif %}{% endif %}</span>{% endmacro %}
+  {% macro where_chip(label) %}<span class="where-chip">{{ vnames.get(label, label) }}</span>{% endmacro %}
 
   <header class="annex-h">
     <h2>تفاصيل الفحص</h2>
@@ -306,7 +306,7 @@
         {% set n = v.same_after if v.same_after is not none else v.same %}
         {% set tone = 'verified' if n == v.total else ('rubric' if n * 2 < v.total else 'saffron') %}
         <div class="score score-{{ tone }}">
-          <span class="score-name"><bdi dir="ltr">{{ v.label }}</bdi>{% if v.medium %}<small>{{ v.medium }}</small>{% endif %}</span>
+          <span class="score-name">{{ vnames.get(v.label, v.label) }}</span>
           <b>{{ n }} <span>من {{ v.total }}</span></b>
           <small>{% if v.same_after is not none %}أسئلة فُهمت كالأصل بعد التصحيح (كان {{ v.same }}){% else %}أسئلة فُهمت كالأصل{% endif %}</small>
         </div>
@@ -321,7 +321,7 @@
           <ul class="xq-rows">
             {% for r in q.rows %}{% set st = r.after.state if r.after else r.state %}{% set ans = r.after.answer if r.after else r.answer %}
             <li class="xr xr-{{ st }}">
-              <span class="xr-name"><bdi dir="ltr">{{ r.label }}</bdi>{% if r.medium %} <small>{{ r.medium }}</small>{% endif %}</span>
+              <span class="xr-name">{{ vnames.get(r.label, r.label) }}</span>
               <span class="xr-ans">
                 {% if st == 'same' %}✓ مثل الأصل
                 {% elif st == 'silent' %}○ سكتت عن ذلك
@@ -374,7 +374,7 @@
         {% for r in lk.rows %}
         <li><span class="tag tone-{{ r.tone }}">{{ r.tag }}</span>
           «{{ r.lock.span_text }}» · قفل {{ lock_types[r.lock.lock_type.value] }}
-          {% if r.where %}<span class="t14 muted"> · في {% for w in r.where %}<bdi dir="ltr">{{ w.label }}</bdi>{% if w.state == 'fixed' %} (حُفظ بعد التصحيح){% elif w.state == 'still' %} (ما زال منكسراً){% endif %}{{ '، ' if not loop.last }}{% endfor %}</span>{% endif %}</li>
+          {% if r.where %}<span class="t14 muted"> · في {% for w in r.where %}{{ vnames.get(w.label, w.label) }}{% if w.state == 'fixed' %} (حُفظ بعد التصحيح){% elif w.state == 'still' %} (ما زال منكسراً){% endif %}{{ '، ' if not loop.last }}{% endfor %}</span>{% endif %}</li>
         {% endfor %}
       </ul>
       {% if lk.stale %}

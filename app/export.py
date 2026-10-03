@@ -50,13 +50,15 @@ def _verdict(r: Report) -> dict:
 
 def build(r: Report, disclaimer: str) -> dict:
     nodes = {n["label"]: n for n in ui.thread(r)}
-    chain = [{"label": "source", "name": "الأصل", "lang": r.source.lang, "derived_from": None,
+    names = ui.version_names(r)
+    chain = [{"label": "source", "name": "الأصل", "lang": r.source.lang, "derived_from": None, "derived_from_name": "",
               "medium": None, "medium_ar": "",
               "state": nodes["source"]["state"], "original_text": r.source.text, "approved_text": r.source.text,
               "applied_edits": []}]
     for v in r.versions:
         text, applied = approved_text(r, v.label, v.text)
-        chain.append({"label": v.label, "name": v.label, "lang": v.lang, "derived_from": v.derived_from,
+        chain.append({"label": v.label, "name": names[v.label], "lang": v.lang, "derived_from": v.derived_from,
+                      "derived_from_name": names.get(v.derived_from or "source", "الأصل"),
                       "medium": v.medium, "medium_ar": ui.MEDIUM_AR.get(v.medium or "", ""),
                       "state": nodes[v.label]["state"], "original_text": v.text, "approved_text": text,
                       "applied_edits": applied})
@@ -66,7 +68,9 @@ def build(r: Report, disclaimer: str) -> dict:
         alerts.append({
             "id": a.id, "type": a.type.value, "severity": a.severity.value,
             "severity_ar": SEVERITY_AR[a.severity.value], "headline_ar": ui.headline(a),
-            "explanation_ar": a.explanation_ar, "version_label": a.version_label, "introduced_at": a.introduced_at,
+            "explanation_ar": ui.name_text(r, a.explanation_ar), "version_label": a.version_label,
+            "introduced_at": a.introduced_at, "version_name": names.get(a.version_label, a.version_label),
+            "introduced_name": names.get(a.introduced_at, a.introduced_at),
             "source_span": a.source_span.text, "version_span": a.version_span.text,
             "why_it_matters_ar": a.why_it_matters_ar,
             "suggestions": [{"label_ar": s.label_ar, "text": s.text}
@@ -91,6 +95,7 @@ def build(r: Report, disclaimer: str) -> dict:
         "alerts": alerts,
         "locks": [{"span_text": x["lock"].span_text, "lock_type": x["lock"].lock_type.value,
                    "lock_type_ar": LOCK_TYPE_AR[x["lock"].lock_type.value], "status_ar": x["tag"],
-                   "where": x["where"]} for x in ui.lock_rows(r)["rows"]],
+                   "where": [{**w, "name": names.get(w["label"], w["label"])} for w in x["where"]]}
+                  for x in ui.lock_rows(r)["rows"]],
         "disclaimer": disclaimer,
     }
