@@ -143,7 +143,9 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .mq .st-after .node-sub { color: #C62F35; }
 
 /* الأعمدة الثلاثة */
-.mq-grid { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, .95fr); gap: 2.25rem; align-items: start; }
+.mq-grid { position: relative; display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr) minmax(0, 1.15fr); gap: 2.25rem; align-items: stretch; }
+/* الأعمدة الثلاثة بارتفاع واحد: قائمة التنبيهات تتمرر داخل لوحتها فلا تمدّ الصفحة وتترك فراغاً تحت النصين */
+.mq-grid .panel-alerts .alerts { max-height: 380px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; align-content: start; }
 .mq-grid.is-src { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
 .mq .panel { min-width: 0; }
 .mq .panel-b.ar-source, .mq .matn-text.ar-source { font-size: 1.3rem; line-height: 2; }
@@ -201,6 +203,7 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 @media (max-width: 1100px) {
   .mq-grid, .mq-grid.is-src { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .mq-grid .panel-alerts { grid-column: 1 / -1; }
+  .mq-grid .panel-alerts .alerts { max-height: none; }
 }
 @media (max-width: 760px) {
   .mq-grid, .mq-grid.is-src { grid-template-columns: minmax(0, 1fr); }
@@ -229,7 +232,8 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .annex-h { margin: 2.5rem 0 1rem; }
 .annex-h h2 { font-size: 1.35rem; }
 .annex-h p { margin: .25rem 0 0; color: var(--muted); font-size: var(--t14); }
-.annex .annex-wide { grid-column: 1 / -1; }
+.annex { grid-template-columns: minmax(0, 1fr); }
+.annex .cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); }
 .annex-mod { margin: 0 0 .35rem; font-size: .75rem; font-weight: 700; color: var(--accent); letter-spacing: .02em; }
 .annex section > h2 { font-size: 1.15rem; margin-bottom: .45rem; }
 .annex-what { margin: 0 0 1rem; padding: .6rem .85rem; background: var(--paper); border-radius: 12px; font-size: var(--t14); color: var(--ink); line-height: 1.7; }
