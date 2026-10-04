@@ -284,16 +284,16 @@
       <span class="learn-kicker">اختبر فهمك</span>
       <h2 id="learn-h">ماذا تعلّمت اليوم؟</h2>
       <ul class="learn-scale" aria-label="درجات التقييم">
-        <li><span class="ls-stars">★★★</span> يطابق الأصل</li>
-        <li><span class="ls-stars">★★<i>★</i></span> قريب، ينقصه شيء</li>
-        <li><span class="ls-stars">★<i>★★</i></span> راجع الأصل</li>
+        <li><span class="ls-stars">★★★</span> يطابق</li>
+        <li><span class="ls-stars">★★<i>★</i></span> قريب</li>
+        <li><span class="ls-stars">★<i>★★</i></span> راجع</li>
       </ul>
     </div>
 
     <div class="learn-main">
       <form class="learn-box" @submit.prevent="check()">
-        <label class="learn-label" for="learn-t">ما تعلّمته من الأصل</label>
-        <textarea id="learn-t" rows="3" dir="auto" maxlength="600" x-model="text" @input="res = null"
+        <label class="sr-only" for="learn-t">ما تعلّمته من الأصل</label>
+        <textarea id="learn-t" rows="1" dir="auto" maxlength="600" x-model="text" @input="res = null"
                   placeholder="مثال: يجوز للمسافر أن يفطر في رمضان، ويجب عليه قضاء ما أفطره"></textarea>
         <div class="learn-bar">
           <span class="learn-count" x-text="text.length + ' / 600'">0 / 600</span>

@@ -292,23 +292,22 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .try { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; margin-bottom: 1.25rem; font-size: var(--t14); }
 .try form { display: inline; }
 /* ماذا تعلّمت اليوم؟ */
-.learn { display: grid; grid-template-columns: 220px 1fr; width: 100%; max-width: 760px; margin: 2.5rem auto 1rem; border-radius: 22px; overflow: hidden; background: var(--white); border: 1px solid var(--line); box-shadow: 0 18px 40px rgba(18, 24, 63, .08); }
-.learn-side { position: relative; display: flex; flex-direction: column; gap: .5rem; padding: 1.6rem 1.5rem; color: var(--white); background: radial-gradient(120% 90% at 100% 0%, rgba(97, 80, 234, .55), transparent 60%), var(--ink); }
+.learn { display: grid; grid-template-columns: 270px 1fr; margin: 2rem 0 1rem; border-radius: 22px; overflow: hidden; background: var(--white); border: 1px solid var(--line); box-shadow: 0 18px 40px rgba(18, 24, 63, .08); }
+.learn-side { position: relative; display: flex; flex-direction: column; justify-content: center; gap: .35rem; padding: 1rem 1.25rem; color: var(--white); background: radial-gradient(120% 90% at 100% 0%, rgba(97, 80, 234, .55), transparent 60%), var(--ink); }
 .learn-side::after { content: ""; position: absolute; inset-inline: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--identity), var(--accent)); }
 .learn-kicker { align-self: flex-start; padding: .2rem .65rem; border-radius: 999px; background: rgba(46, 242, 194, .14); color: var(--identity); font-size: .75rem; font-weight: 700; }
-.learn-side h2 { margin: .2rem 0 0; font-size: 1.45rem; line-height: 1.35; color: var(--white); }
+.learn-side h2 { margin: 0; font-size: 1.2rem; line-height: 1.35; color: var(--white); }
 .learn-side p { margin: 0; font-size: var(--t14); line-height: 1.8; color: rgba(255, 255, 255, .78); }
-.learn-scale { list-style: none; margin: auto 0 0; padding: .9rem 0 0; display: grid; gap: .35rem; border-top: 1px solid rgba(255, 255, 255, .12); font-size: .8rem; color: rgba(255, 255, 255, .8); }
-.learn-scale li { display: flex; align-items: center; gap: .6rem; }
-.ls-stars { min-width: 3.6em; color: #FFC53D; letter-spacing: .08em; }
+.learn-scale { list-style: none; margin: .2rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .2rem .8rem; font-size: .72rem; color: rgba(255, 255, 255, .8); }
+.learn-scale li { display: flex; align-items: center; gap: .3rem; }
+.ls-stars { color: #FFC53D; letter-spacing: .08em; }
 .ls-stars i { font-style: normal; color: rgba(255, 255, 255, .25); }
-.learn-main { display: flex; flex-direction: column; gap: .75rem; padding: 1.5rem; }
-.learn-box { border: 1.5px solid var(--line); border-radius: 16px; background: #FAFBFF; transition: border-color .15s, box-shadow .15s; }
+.learn-main { display: flex; flex-direction: column; justify-content: center; gap: .5rem; padding: 1rem 1.25rem; }
+.learn-box { display: flex; align-items: center; border: 1.5px solid var(--line); border-radius: 16px; background: #FAFBFF; transition: border-color .15s, box-shadow .15s; }
 .learn-box:focus-within { border-color: var(--accent); background: var(--white); box-shadow: 0 0 0 4px rgba(97, 80, 234, .12); }
-.learn-label { display: block; padding: .8rem 1rem 0; font-size: .8rem; font-weight: 700; color: var(--accent); }
-.learn-box textarea { display: block; width: 100%; min-height: 5.5rem; padding: .4rem 1rem .6rem; border: 0; outline: 0; resize: vertical; background: transparent; font: inherit; font-size: 1rem; line-height: 1.8; color: var(--ink); }
+.learn-box textarea { display: block; flex: 1; min-width: 0; min-height: 2.9rem; padding: .7rem 1rem; border: 0; outline: 0; resize: vertical; background: transparent; font: inherit; font-size: 1rem; line-height: 1.8; color: var(--ink); }
 .learn-box textarea::placeholder { color: #9AA0BC; }
-.learn-bar { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .55rem .6rem .55rem 1rem; border-top: 1px solid var(--line); }
+.learn-bar { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .35rem; flex: none; }
 .learn-count { font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .learn-res { padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid; animation: learn-in .3s ease-out; }
 .lr-great { background: linear-gradient(135deg, #EBFDF7, #F6FFFC); border-color: #B5EEDB; --lr: #17B892; }
