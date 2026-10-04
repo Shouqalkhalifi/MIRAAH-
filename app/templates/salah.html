@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}تعلّم الصلاة مع الذكاء الاصطناعي{% endblock %}
 {% block content %}
-<script src="/static/salah.js?v=1"></script>
+<script src="/static/salah.js?v=3"></script>
 <section class="salah" x-data="salahTrainer()" @beforeunload.window="stop()">
   <header class="salah-head">
     <h1>تعلّم الصلاة مع الذكاء الاصطناعي</h1>
@@ -39,9 +39,15 @@
       <p class="salah-dhikr ar-source"><span x-text="s.dhikr"></span><small x-show="s.times" x-text="s.times"></small></p>
       <p class="salah-src" x-text="'المرجع: ' + s.src"></p>
       <p class="salah-wait" x-show="state === 'run' && s.pose && !hit && !done"><i aria-hidden="true"></i><span x-text="'ننتظر وضعية: ' + {takbir: 'التكبير', qiyam: 'القيام', ruku: 'الركوع', sujud: 'السجود', julus: 'الجلوس'}[s.pose]"></span></p>
+      <p class="salah-wait salah-auto" x-show="autoHint" x-cloak><i aria-hidden="true"></i><span x-text="autoHint"></span></p>
       <div class="salah-acts">
-        <button type="button" class="btn btn-sm btn-quiet" @click="go(i - 1)" :disabled="i === 0">السابق</button>
-        <button type="button" class="btn btn-sm btn-primary" @click="next()" x-show="!done" x-text="i === steps.length - 1 ? 'أنهيت' : (state === 'run' && s.pose && !hit ? 'تخطَّ' : 'التالي')"></button>
+        <template x-if="state !== 'run'">
+          <span class="salah-acts">
+            <button type="button" class="btn btn-sm btn-quiet" @click="go(i - 1)" :disabled="i === 0">السابق</button>
+            <button type="button" class="btn btn-sm btn-primary" @click="next()" x-show="!done" x-text="i === steps.length - 1 ? 'أنهيت' : 'التالي'"></button>
+          </span>
+        </template>
+        <button type="button" class="btn-text salah-skip" @click="next()" x-show="state === 'run' && s.pose && !hit && !done" x-cloak>لم تُكتشف وضعيتي؟ تخطَّ</button>
         <button type="button" class="btn btn-sm btn-quiet" @click="go(0)" x-show="done" x-cloak>أعد التدريب</button>
         <button type="button" class="btn btn-sm btn-quiet" @click="stop()" x-show="state === 'run'" x-cloak>أوقف الكاميرا</button>
         <label class="salah-voice" x-show="voiceOk" x-cloak><input type="checkbox" x-model="voice"> الإرشاد الصوتي</label>

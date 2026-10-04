@@ -14,7 +14,7 @@ const SALAH_STEPS = [
     src: 'رفع اليدين حذو المنكبين عند التكبير: صحيح البخاري (735) عن ابن عمر رضي الله عنهما.' },
   { name: 'الفاتحة', pose: 'qiyam', title: 'القيام وقراءة الفاتحة',
     do: 'أنزل يديك وقف معتدلاً، ثم اقرأ سورة الفاتحة:', dhikr: FATIHA, quran: true,
-    say: 'قف معتدلاً، واقرأ سورة الفاتحة.', praise: 'أحسنت، أنت قائم. اقرأ الفاتحة',
+    say: 'قف معتدلاً، واقرأ سورة الفاتحة.', praise: 'أحسنت، أنت قائم. اقرأ الفاتحة', wait: 35,
     src: 'سورة الفاتحة. وفي صحيح البخاري (756): «لا صلاة لمن لم يقرأ بفاتحة الكتاب».' },
   { name: 'سورة', pose: null, title: 'ما تيسّر من القرآن',
     do: 'بعد الفاتحة اقرأ ما تيسّر لك من القرآن، مثل سورة الإخلاص:', dhikr: IKHLAS, quran: true,
@@ -41,13 +41,14 @@ const SALAH_STEPS = [
     src: 'صحيح مسلم (772) عن حذيفة رضي الله عنه.' },
   { name: 'التشهد', pose: 'julus', title: 'الجلوس للتشهد',
     do: 'هذا تدريب على ركعة واحدة؛ في الصلاة تُكمل ركعاتها، ثم تجلس في آخرها للتشهد، وتقول:', dhikr: TASHAHHUD,
-    say: 'اجلس للتشهد.', praise: 'أحسنت، جلست للتشهد',
+    say: 'اجلس للتشهد.', praise: 'أحسنت، جلست للتشهد. اقرأ التشهد', wait: 30,
     src: 'التشهد: صحيح البخاري (831) عن ابن مسعود. والصلاة على النبي ﷺ: صحيح البخاري (3370) عن كعب بن عجرة رضي الله عنهما.' },
   { name: 'التسليم', pose: null, title: 'التسليم',
     do: 'التفت إلى يمينك وقل، ثم إلى يسارك وقل:', dhikr: 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ',
-    say: 'التفت يميناً ثم يساراً وسلّم.', src: 'سنن أبي داود (996) عن ابن مسعود رضي الله عنه.' },
+    say: 'التفت يميناً ثم يساراً وسلّم.', wait: 8, src: 'سنن أبي داود (996) عن ابن مسعود رضي الله عنه.' },
 ];
 
+const POSE_DO = { takbir: 'كبّر', qiyam: 'قم', ruku: 'اركع', sujud: 'اسجد', julus: 'اجلس' };
 const POSE_AR = { absent: 'لا يظهر جسمك كاملاً', none: 'لا وضعية واضحة', takbir: 'تكبير', qiyam: 'قيام', ruku: 'ركوع', sujud: 'سجود', julus: 'جلوس' };
 
 /* النقاط: 0 الأنف، 11/12 الكتفان، 15/16 المعصمان، 23/24 الوركان، 25/26 الركبتان. الإحداثيات من 0 إلى 1 والمحور y للأسفل. */
@@ -97,9 +98,9 @@ function salahDraw(canvas, video, L, match) {
 }
 
 function salahTrainer() {
-  let landmarker = null, stream = null, raf = 0, lastT = -1, since = 0;
+  let landmarker = null, stream = null, raf = 0, lastT = -1, since = 0, timer = 0;
   return {
-    steps: SALAH_STEPS, i: 0, state: 'idle', err: '', pose: 'none', hit: false, done: false,
+    steps: SALAH_STEPS, i: 0, state: 'idle', err: '', pose: 'none', hit: false, done: false, countdown: 0,
     voice: true, voiceOk: false,
     get s() { return this.steps[this.i]; },
     get poseAr() { return POSE_AR[this.pose] || ''; },
@@ -119,12 +120,33 @@ function salahTrainer() {
       speechSynthesis.speak(u);
     },
 
-    enter() { this.hit = false; since = 0; this.say(this.s.say); },
+    /* أول خطوة بعد الحالية لها وضعية؛ الوصول إليها ينقل المتدرب تلقائياً */
+    get ahead() { for (let j = this.i + 1; j < this.steps.length; j++) if (this.steps[j].pose) return j; return -1; },
+    get autoHint() {
+      if (this.state !== 'run' || this.done || (this.s.pose && !this.hit)) return '';
+      const j = this.ahead;
+      if (this.countdown) return `ننتقل تلقائياً بعد ${this.countdown} ث` + (j > this.i + 1 ? `، أو ${POSE_DO[this.steps[j].pose]} متى أنهيت` : '');
+      return j < 0 ? '' : `حين تنتقل إلى ${POSE_AR[this.steps[j].pose]} ننتقل تلقائياً`;
+    },
+
+    enter() {
+      this.hit = false; since = 0; this.clearTimer(); this.say(this.s.say);
+      if (!this.s.pose) this.startTimer();
+    },
     go(n) { this.i = n; this.done = false; this.enter(); },
     next() {
+      this.clearTimer();
       if (this.i < this.steps.length - 1) return this.go(this.i + 1);
       this.done = true; this.say('أحسنت، أتممت التدريب على ركعة كاملة.');
     },
+
+    /* wait: ثوانٍ للقراءة قبل الانتقال (الفاتحة ← السورة، التشهد ← التسليم ← النهاية) */
+    startTimer() {
+      if (this.state !== 'run' || !this.s.wait) return;
+      this.countdown = this.s.wait;
+      timer = setInterval(() => { if (--this.countdown <= 0) this.next(); }, 1000);
+    },
+    clearTimer() { clearInterval(timer); timer = 0; this.countdown = 0; },
 
     async start() {
       this.err = ''; this.state = 'load';
@@ -151,7 +173,7 @@ function salahTrainer() {
     stop() {
       cancelAnimationFrame(raf);
       if (stream) stream.getTracks().forEach(t => t.stop());
-      stream = null; lastT = -1; this.state = 'idle'; this.pose = 'none';
+      stream = null; lastT = -1; this.state = 'idle'; this.pose = 'none'; this.clearTimer();
       if ('speechSynthesis' in window) speechSynthesis.cancel();
       const c = this.$refs.canvas; c.getContext('2d').clearRect(0, 0, c.width, c.height);
     },
@@ -169,12 +191,17 @@ function salahTrainer() {
       raf = requestAnimationFrame(() => this.loop());
     },
 
-    /* الوضعية المطلوبة ثابتة 700ms ← «أحسنت» */
+    /* الوضعية ثابتة 700ms ← «أحسنت». بعد إتمام الخطوة، الوصول إلى وضعية الخطوة التالية ينقل إليها. */
     track() {
-      if (!this.s.pose || this.hit || this.done) return;
-      if (this.pose !== this.s.pose) { since = 0; return; }
+      if (this.done) return;
+      const waiting = this.s.pose && !this.hit, j = waiting ? this.i : this.ahead;
+      if (j < 0 || this.pose !== this.steps[j].pose) { since = 0; return; }
       if (!since) { since = performance.now(); return; }
-      if (performance.now() - since > 700) { this.hit = true; this.say(this.s.praise); }
+      if (performance.now() - since < 700) return;
+      since = 0;
+      if (j !== this.i) { this.clearTimer(); this.i = j; }
+      this.hit = true; this.say(this.s.praise);
+      this.startTimer();
     },
   };
 }

@@ -653,6 +653,9 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .salah-wait i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: salahPulse 1.2s infinite; }
 @keyframes salahPulse { 50% { opacity: .25; } }
 .salah-acts { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.salah-auto { color: var(--verified-text); }
+.salah-auto i { background: var(--verified); }
+.salah-skip { font-size: .8rem; color: var(--muted); }
 .salah-voice { display: inline-flex; align-items: center; gap: .4rem; font-size: .82rem; color: var(--muted); margin-inline-start: auto; }
 .salah-err { color: var(--rubric); font-size: .88rem; margin: .5rem 0 0; }
 @media (max-width: 860px) { .salah-grid { grid-template-columns: 1fr; } }
