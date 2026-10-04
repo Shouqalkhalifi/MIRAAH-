@@ -209,7 +209,7 @@
         {% endif %}
         <details @toggle="$nextTick(() => layout())">
           <summary>لماذا يهم؟ والدليل</summary>
-          <p>{{ a.why_it_matters_ar }}</p>
+          <p>{{ ui.name_text(report, a.why_it_matters_ar, a) }}</p>
           <ul class="rows">{% for e in ui.evidence_rows(a, report) %}<li><b>{{ e.label }}:</b> <span dir="auto">{{ e.text }}</span></li>{% endfor %}</ul>
           <p class="muted">{{ tier_labels[a.tier] }} · الثقة {{ (a.confidence * 100) | round | int }}٪</p>
         </details>

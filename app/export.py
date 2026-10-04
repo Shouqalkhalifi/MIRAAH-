@@ -82,7 +82,7 @@ def build(r: Report, disclaimer: str) -> dict:
             "introduced_at": a.introduced_at, "version_name": names.get(a.version_label, a.version_label),
             "introduced_name": names.get(a.introduced_at, a.introduced_at),
             "source_span": a.source_span.text, "version_span": a.version_span.text,
-            "why_it_matters_ar": a.why_it_matters_ar,
+            "why_it_matters_ar": ui.name_text(r, a.why_it_matters_ar, a),
             "suggestions": [{"label_ar": s.label_ar, "text": s.text}
                             for s in r.revisions.get(a.id, []) if s.passed],
             "decision": None if d is None else {

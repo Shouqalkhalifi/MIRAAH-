@@ -227,6 +227,9 @@ def name_text(report, text: str, alert=None) -> str:
             text = text.replace(f"قارئ {lb} ", f"قارئ {nm} ").replace(f"، {lb}: ", f"، {nm}: ")
     text = re.sub(r"(بينما قارئ [^:«»]+?) يفهم أن:", r"\1:", text)
     text = re.sub(r"(ليس لها|لم يعد له) مقابل في النسخة", r"\1 مقابل في المصدر المنشور", text)
+    if text == "قد تحمل الجملة المحذوفة حكماً أو قيداً يحتاجه القارئ.":  # نص محفوظ في تقارير سابقة
+        from app.pipeline.rules import SENTENCE_DROPPED_WHY
+        text = SENTENCE_DROPPED_WHY
     return shown_option(text)
 
 
