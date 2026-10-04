@@ -424,7 +424,7 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 }
 
 /* ---------- الرئيسية: البطل، والعرض التوضيحي، والوحدات ---------- */
-body.is-home {
+body.is-home, body.is-khatam {
   background-color: var(--paper);
   background-image:
     radial-gradient(900px 420px at 50% -60px, rgba(97, 80, 234, .16), transparent 70%),

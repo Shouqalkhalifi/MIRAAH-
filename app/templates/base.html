@@ -8,12 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/app.css?v=30">
+  <link rel="stylesheet" href="/static/app.css?v=31">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="apple-touch-icon" href="/static/favicon-180.png">
 </head>
-<body{% if request.url.path == '/' %} class="is-home"{% endif %}>
+{% set p = request.url.path %}
+<body{% if p == '/' %} class="is-home"{% elif p.startswith(('/reverse', '/new', '/analyze', '/report', '/review')) %} class="is-khatam"{% endif %}>
 {% set path = request.url.path %}
 {% set service = 'publish' if path == '/new' or path.startswith(('/analyze/', '/report/', '/review/')) else ('read' if path.startswith('/reverse') else '') %}
   <header class="topbar">
