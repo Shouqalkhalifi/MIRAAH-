@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 {% block title %}تعلّم الصلاة مع الذكاء الاصطناعي{% endblock %}
 {% block content %}
-<script src="/static/salah.js?v=4"></script>
+<script src="/static/salah.js?v=5"></script>
 <section class="salah" x-data="salahTrainer()" @beforeunload.window="stop()">
   <header class="salah-head">
     <h1>تعلّم الصلاة مع الذكاء الاصطناعي</h1>
-    <p>تدريب على حركات ركعة واحدة: تتعرّف الكاميرا على وضعيتك وترشدك خطوة خطوة، مع الأذكار ومراجعها.</p>
+    <p>تدريب على ركعة واحدة: ترى الكاميرا وضعيتك، وتسمع مِرآة ما تقوله، وترشدك خطوة خطوة مع الأذكار ومراجعها.</p>
   </header>
   <div class="salah-notes" role="note">
     <span>🔒 تُحلَّل الصورة داخل متصفحك، ولا تُرفع ولا تُحفظ</span>
-    <span>تدريب على الحركات فقط، ولا يحكم بصحة صلاتك</span>
+    <span x-show="canListen">🎙️ الاستماع اختياري، وفي Chrome يُرسَل الصوت إلى خدمة Google للتعرّف على الكلام</span>
+    <span>تدريب فقط، ولا يحكم بصحة صلاتك</span>
     <span>ضع الجهاز جانبك على بُعد مترين تقريباً حتى يظهر جسمك كاملاً</span>
   </div>
 
@@ -24,8 +25,9 @@
         <p class="salah-err" x-show="err" x-text="err" role="alert" x-cloak></p>
       </div>
       <span class="salah-pose" :class="{ 'is-hit': s.pose && pose === s.pose }" x-show="state === 'run'" x-text="'وضعيتك: ' + poseAr" aria-live="polite" x-cloak></span>
+      <span class="salah-mic" x-show="listening" x-cloak><i aria-hidden="true"></i>نسمعك</span>
       <span class="salah-far" x-show="state === 'run' && pose === 'absent' && !done" role="status" x-cloak>ابتعد عن الكاميرا أو ضع الجهاز جانبك، حتى يظهر جسمك من الرأس إلى الركبتين</span>
-      <span class="salah-praise" x-show="state === 'run' && (hit || done) && pose !== 'absent'" x-text="done ? 'أحسنت، أتممت التدريب' : s.praise" role="status" x-cloak></span>
+      <span class="salah-praise" x-show="state === 'run' && pose !== 'absent' && (done || praiseText || hit)" x-text="done ? 'أحسنت، أتممت التدريب' : (praiseText || s.praise)" role="status" x-cloak></span>
     </div>
 
     <div class="salah-side">
@@ -35,12 +37,31 @@
         </template>
       </ol>
       <p class="salah-kicker" x-text="'الخطوة ' + (i + 1) + ' من ' + steps.length"></p>
-      <h2 x-text="s.title"></h2>
-      <p class="salah-do" x-text="s.do"></p>
-      <p class="salah-dhikr ar-source"><span x-text="s.dhikr"></span><small x-show="s.times" x-text="s.times"></small></p>
+      <div class="salah-how">
+        <figure class="salah-fig" x-show="fig" :class="{ 'is-ok': state === 'run' && hit }">
+          <span x-html="fig"></span>
+          <figcaption>هكذا تكون الوضعية</figcaption>
+        </figure>
+        <div>
+          <h2 x-text="s.title"></h2>
+          <p class="salah-do" x-text="s.do"></p>
+        </div>
+      </div>
+      <p class="salah-dhikr ar-source" :class="{ 'is-live': listening }">
+        <template x-for="(w, k) in hearing.tokens" :key="i + '-' + k"><span :class="listening && w.n ? (w.ok ? 'w-ok' : 'w-miss') : ''" x-text="w.t + ' '"></span></template>
+        <small x-show="s.times" x-text="s.times"></small>
+      </p>
+      <div class="salah-fb" x-show="listening" x-cloak aria-live="polite">
+        <p class="salah-bad" x-show="hearing.wrong" x-text="hearing.wrong"></p>
+        <p class="salah-good" x-show="hearing.ok">أحسنت، قلتها صحيحة</p>
+        <p x-show="!hearing.ok && !hearing.wrong && s.count && hearing.count" x-text="'سمعناها ' + hearing.count + ' من ' + s.count"></p>
+        <p x-show="!hearing.ok && !hearing.wrong && hearing.any && !s.count">الكلمات الخضراء سمعناها، والباهتة لم نسمعها بعد</p>
+        <p class="salah-heard" x-show="heard" x-text="'سمعنا: «' + heard.slice(-90) + '»'"></p>
+      </div>
       <p class="salah-src" x-text="'المرجع: ' + s.src"></p>
-      <p class="salah-wait" x-show="state === 'run' && s.pose && !hit && !done"><i aria-hidden="true"></i><span x-text="'ننتظر وضعية: ' + {takbir: 'التكبير', qiyam: 'القيام', ruku: 'الركوع', sujud: 'السجود', julus: 'الجلوس'}[s.pose]"></span></p>
+      <p class="salah-wait" x-show="state === 'run' && s.pose && !hit && !away && !done"><i aria-hidden="true"></i><span x-text="'ننتظر وضعية: ' + {takbir: 'التكبير', qiyam: 'القيام', ruku: 'الركوع', sujud: 'السجود', julus: 'الجلوس'}[s.pose]"></span></p>
       <p class="salah-wait salah-auto" x-show="autoHint" x-cloak><i aria-hidden="true"></i><span x-text="autoHint"></span></p>
+      <p class="salah-err" x-show="micErr" x-text="micErr" x-cloak></p>
       <div class="salah-acts">
         <template x-if="state !== 'run'">
           <span class="salah-acts">
@@ -48,10 +69,13 @@
             <button type="button" class="btn btn-sm btn-primary" @click="next()" x-show="!done" x-text="i === steps.length - 1 ? 'أنهيت' : 'التالي'"></button>
           </span>
         </template>
-        <button type="button" class="btn-text salah-skip" @click="next()" x-show="state === 'run' && s.pose && !hit && !done" x-cloak>لم تُكتشف وضعيتي؟ تخطَّ</button>
+        <button type="button" class="btn-text salah-skip" @click="next()" x-show="state === 'run' && !done && (listening ? true : (s.pose && !hit))" x-cloak x-text="listening ? 'لم نسمعك جيداً؟ تخطَّ' : 'لم تُكتشف وضعيتي؟ تخطَّ'"></button>
         <button type="button" class="btn btn-sm btn-quiet" @click="go(0)" x-show="done" x-cloak>أعد التدريب</button>
         <button type="button" class="btn btn-sm btn-quiet" @click="stop()" x-show="state === 'run'" x-cloak>أوقف الكاميرا</button>
-        <label class="salah-voice" x-show="voiceOk" x-cloak><input type="checkbox" x-model="voice"> الإرشاد الصوتي</label>
+        <span class="salah-toggles">
+          <label x-show="canListen" x-cloak><input type="checkbox" x-model="listen" @change="toggleListen()"> استمع إلى ما أقول</label>
+          <label x-show="voiceOk" x-cloak><input type="checkbox" x-model="voice"> الإرشاد الصوتي</label>
+        </span>
       </div>
     </div>
   </div>

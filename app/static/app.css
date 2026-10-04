@@ -657,10 +657,30 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .salah-auto { color: var(--verified-text); }
 .salah-auto i { background: var(--verified); }
 .salah-skip { font-size: .8rem; color: var(--muted); }
-.salah-voice { display: inline-flex; align-items: center; gap: .4rem; font-size: .82rem; color: var(--muted); margin-inline-start: auto; }
+.salah-toggles { display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin-inline-start: auto; }
+.salah-toggles label { display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem; color: var(--muted); }
+.salah-how { display: flex; gap: .9rem; align-items: flex-start; }
+.salah-fig { flex: none; width: 104px; margin: .2rem 0 .6rem; padding: .35rem .35rem .25rem; border-radius: 14px; background: var(--paper); text-align: center; transition: background .2s; }
+.salah-fig svg { width: 100%; height: auto; display: block; }
+.salah-fig .fg-ground { stroke: #C9CCE0; stroke-width: 2; }
+.salah-fig .fg-body { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.salah-fig .fg-head { fill: var(--ink); }
+.salah-fig figcaption { font-size: .66rem; color: var(--muted); }
+.salah-fig.is-ok { background: #EBFDF7; }
+.salah-fig.is-ok .fg-body { stroke: var(--verified); }
+.salah-fig.is-ok .fg-head { fill: var(--verified); }
+.salah-dhikr .w-miss { opacity: .45; }
+.salah-dhikr .w-ok { color: var(--verified-text); opacity: 1; }
+.salah-fb { font-size: .85rem; margin: 0 0 .7rem; }
+.salah-fb p { margin: 0 0 .3rem; color: var(--muted); }
+.salah-fb .salah-good { color: var(--verified-text); font-weight: 600; }
+.salah-fb .salah-bad { color: var(--rubric); font-weight: 600; }
+.salah-heard { font-size: .78rem; }
+.salah-mic { position: absolute; top: .8rem; inset-inline-end: .8rem; display: inline-flex; align-items: center; gap: .35rem; font-size: .8rem; font-weight: 600; padding: .3rem .75rem; border-radius: 999px; background: rgba(18, 24, 63, .7); }
+.salah-mic i { width: 8px; height: 8px; border-radius: 50%; background: #E5484D; animation: salahPulse 1.2s infinite; }
 .salah-err { color: var(--rubric); font-size: .88rem; margin: .5rem 0 0; }
 @media (max-width: 860px) { .salah-grid { grid-template-columns: 1fr; } }
-@media (prefers-reduced-motion: reduce) { .salah-wait i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .salah-wait i, .salah-mic i { animation: none; } }
 .b-grn { background: var(--ink); border-inline-end: 3px solid #17B892; }
 
 /* «تحقّق مما قرأت»: النتيجة بالعرض المتقابل نفسه في الرئيسية */
