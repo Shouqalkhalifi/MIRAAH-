@@ -36,14 +36,14 @@ def _skeleton(t: str) -> str:
     """حروف الكلمة الأصلية تقريباً: بلا حرف المضارعة ولا حروف المدّ، فتلتقي «إفطار» و«يفطر» و«أفطره»."""
     if len(t) >= 4 and t[0] in "يتنا":
         t = t[1:]
-    return "".join(c for c in t if c not in "اويى")
+    return "".join(c for c in t if c not in "اويىء")
 
 
 def _close(a: str, b: str) -> bool:
     if a == b or (min(len(a), len(b)) >= 3 and SequenceMatcher(None, a, b).ratio() >= 0.75):
         return True
     sa, sb = _skeleton(a), _skeleton(b)
-    return min(len(sa), len(sb)) >= 3 and sa == sb
+    return min(len(a), len(b)) >= 3 and len(sa) >= 2 and sa == sb
 
 
 def _negations(text: str) -> int:

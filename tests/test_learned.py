@@ -25,6 +25,8 @@ def test_exception_after_negation_is_not_a_flip():
     assert "يفطر" not in r["missing"] and "قضاء" in r["missing"]
     full = check(SRC, "لا يجوز الإفطار في رمضان إلا للمسافر، ويجب عليه قضاء الأيام التي أفطرها")
     assert full["verdict"] == "great" and not full["note"]
+    own = check(SRC, "لا يجوز افطار في رمضان الا اذا سافرت واقضي التي افطرته في السفر")
+    assert own["verdict"] == "great" and "قضاء" not in own["missing"]
 
 
 def test_unrelated_answer_asks_to_retry():
