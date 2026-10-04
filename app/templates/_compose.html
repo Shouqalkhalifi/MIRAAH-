@@ -51,18 +51,34 @@
 </script>
 
 {% if examples is defined and examples and not hide_try %}
-<div class="try">
-  <span class="muted">جرّب:</span>
-  {% for ex in examples %}
-  <form method="post" action="/examples/{{ ex.name }}"><button class="btn-text">{{ ex.title }}</button></form>{% if not loop.last %}<span class="muted" aria-hidden="true">·</span>{% endif %}
-  {% endfor %}
-</div>
+<section class="try-box" aria-labelledby="try-h">
+  <div class="try-head">
+    <h2 id="try-h">لا تملك نصاً الآن؟ جرّب مثالاً جاهزاً</h2>
+    <span class="t14 muted">أمثلة اصطناعية تعمل فوراً، وتفتح التقرير مباشرة</span>
+  </div>
+  <div class="try-grid">
+    {% for ex in examples %}{% set n = ex.request.versions | length %}
+    <form method="post" action="/examples/{{ ex.name }}">
+      <button class="try-card">
+        <span class="try-n">الأصل + {{ n }} {{ 'نسخة' if n == 1 else 'نسختان' if n == 2 else 'نسخ' }}</span>
+        <strong>{{ ex.title }}</strong>
+        <small>{{ ex.description }}</small>
+        <span class="try-go">شغّل المثال ←</span>
+      </button>
+    </form>
+    {% endfor %}
+  </div>
+</section>
+<p class="new-or"><span>أو ابدأ بنصك</span></p>
 {% endif %}
 
 <form class="compose" x-data="compose()" @submit.prevent="submit()" novalidate>
   {# الأصل #}
-  <section class="compose-col" aria-labelledby="src-h">
-    <h2 id="src-h">الأصل</h2>
+  <section class="compose-col step-card" aria-labelledby="src-h">
+    <header class="step-h">
+      <span class="step-n" aria-hidden="true">١</span>
+      <div><h2 id="src-h">الأصل العربي</h2><p>النص الذي تُقاس عليه كل النسخ، ولا تعدّله مِرآة.</p></div>
+    </header>
     <label class="sr-only" for="src">النص العربي الأصلي</label>
     <textarea id="src" class="field ar-source" dir="rtl" x-model="source.text" placeholder="الصق النص العربي الأصلي هنا" required></textarea>
     <div class="meta-grid">
@@ -74,34 +90,45 @@
           <option value="C">C · محتوى دعوي وتربوي</option>
           <option value="D">D · خارج النطاق، يُحال إلى مختص</option>
         </select></div>
-      <div style="grid-column:1/-1"><label class="lbl" for="ttl">عنوان المقابلة (اختياري)</label><input id="ttl" class="field" x-model="title" placeholder="مثال: رخصة الفطر للمسافر"></div>
+      <div style="grid-column:1/-1"><label class="lbl" for="ttl">عنوان المقابلة <span class="opt">اختياري</span></label><input id="ttl" class="field" x-model="title" placeholder="مثال: رخصة الفطر للمسافر"></div>
     </div>
 
-    <h2 class="t16" style="margin:1.25rem 0 .25rem">أقفال المعنى</h2>
-    <p class="t14 muted" style="margin:0 0 .5rem">مقطع من الأصل، كما ورد حرفياً، يجب ألا يتغيّر معناه في أي حلقة.</p>
-    <template x-for="(l, i) in locks" :key="i">
-      <div style="display:flex;gap:.5rem;margin-bottom:.4rem">
-        <input class="field" x-model="l.span_text" placeholder="المقطع، مثل: للمسافر" :aria-label="'مقطع القفل ' + (i + 1)">
-        <select class="field" style="width:8rem" x-model="l.lock_type" :aria-label="'نوع القفل ' + (i + 1)">
-          <template x-for="(name, key) in lockTypes" :key="key"><option :value="key" x-text="name"></option></template>
-        </select>
-        <button type="button" class="btn btn-quiet" @click="locks.splice(i, 1)">احذف</button>
+    <div class="lock-box">
+      <div class="lock-h">
+        <h3>أقفال المعنى <span class="opt">اختياري</span></h3>
+        <p>مقطع من الأصل، كما ورد حرفياً، يجب ألا يتغيّر معناه في أي نسخة. مثل الشرط «للمسافر».</p>
       </div>
-    </template>
-    <div class="acts">
-      <button type="button" class="btn btn-quiet" @click="suggestLocks()" :disabled="suggesting" x-text="suggesting ? 'نقترح الأقفال…' : 'اقترح أقفالاً'">اقترح أقفالاً</button>
-      <button type="button" class="btn btn-quiet" @click="locks.push({ span_text: '', lock_type: 'condition', origin: 'user' })">أضف قفلاً</button>
+      <template x-for="(l, i) in locks" :key="i">
+        <div class="lock-row">
+          <input class="field" x-model="l.span_text" placeholder="المقطع، مثل: للمسافر" :aria-label="'مقطع القفل ' + (i + 1)">
+          <select class="field" x-model="l.lock_type" :aria-label="'نوع القفل ' + (i + 1)">
+            <template x-for="(name, key) in lockTypes" :key="key"><option :value="key" x-text="name"></option></template>
+          </select>
+          <button type="button" class="btn btn-quiet btn-sm" @click="locks.splice(i, 1)" :aria-label="'احذف القفل ' + (i + 1)">احذف</button>
+        </div>
+      </template>
+      <div class="acts">
+        <button type="button" class="btn btn-quiet btn-sm" @click="suggestLocks()" :disabled="suggesting" x-text="suggesting ? 'نقترح الأقفال…' : 'اقترح أقفالاً من الأصل'">اقترح أقفالاً من الأصل</button>
+        <button type="button" class="btn btn-quiet btn-sm" @click="locks.push({ span_text: '', lock_type: 'condition', origin: 'user' })">أضف قفلاً بنفسك</button>
+      </div>
+      <p class="t14 muted" x-show="note" x-text="note" x-cloak></p>
     </div>
-    <p class="t14 muted" x-show="note" x-text="note" x-cloak></p>
   </section>
 
   {# الحلقات على الخيط #}
-  <section class="compose-col" aria-labelledby="links-h">
-    <h2 id="links-h">الحلقات</h2>
+  <section class="compose-col step-card" aria-labelledby="links-h">
+    <header class="step-h">
+      <span class="step-n" aria-hidden="true">٢</span>
+      <div><h2 id="links-h">ما أُخذ من الأصل</h2><p>كل نسخة حلقة في السلسلة، وتُقارن بأمها وبالأصل معاً.</p></div>
+    </header>
     <ol class="links">
       <template x-for="(v, i) in versions" :key="i">
-        <li>
-          <span class="knot" aria-hidden="true"></span>
+        <li class="link-card">
+          <span class="knot" aria-hidden="true" x-text="i + 1"></span>
+          <div class="link-top">
+            <b x-text="'الحلقة ' + (i + 1)"></b>
+            <button type="button" class="btn-text" x-show="versions.length > 1" @click="removeLink(i)">احذف</button>
+          </div>
           <div class="meta-grid" style="margin:0 0 .5rem">
             <div><label class="lbl" :for="'lb' + i">اسم الحلقة</label><input :id="'lb' + i" class="field" dir="auto" x-model="v.label" required></div>
             <div><label class="lbl" :for="'lg' + i">لغتها</label>
@@ -121,16 +148,19 @@
           <label class="lbl" :for="'tx' + i">نصها</label>
           <textarea :id="'tx' + i" class="field" rows="5" x-model="v.text" :dir="['ar', 'ur'].includes(v.lang) ? 'rtl' : 'ltr'"
                     :class="['ar', 'ur'].includes(v.lang) ? '' : 'latin'" placeholder="الصق نص الحلقة"></textarea>
-          <button type="button" class="btn-text" x-show="versions.length > 1" @click="removeLink(i)">احذف الحلقة</button>
         </li>
       </template>
     </ol>
-    <button type="button" class="btn btn-quiet" @click="addLink()" :disabled="versions.length >= maxLinks">أضف حلقة</button>
+    <button type="button" class="btn btn-quiet add-link" @click="addLink()" :disabled="versions.length >= maxLinks">+ أضف حلقة تالية</button>
     <p class="t14 muted" x-show="versions.length >= maxLinks" x-cloak x-text="'بلغت ' + maxLinks + ' حلقات، وهو الحد الأقصى.'"></p>
   </section>
 
-  <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;border-top:1px solid var(--line);padding-top:1rem">
-    <button class="btn btn-primary" :disabled="sending" x-text="sending ? 'بدأت المقابلة…' : 'قابِل النص'">قابِل النص</button>
-    <p class="t14 tone-rubric" x-show="error" x-text="error" x-cloak role="alert" style="margin:0"></p>
+  <div class="submit-bar">
+    <div class="submit-txt">
+      <strong>جاهز؟</strong>
+      <span>يستغرق التحليل نحو دقيقة. لا يُعدَّل الأصل، والتقرير للمراجعة والقرار لك.</span>
+      <p class="t14 tone-rubric" x-show="error" x-text="error" x-cloak role="alert" style="margin:.25rem 0 0"></p>
+    </div>
+    <button class="btn btn-primary btn-lg" :disabled="sending" x-text="sending ? 'بدأت المقابلة…' : 'قابِل النص'">قابِل النص</button>
   </div>
 </form>

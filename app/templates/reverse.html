@@ -145,7 +145,13 @@
   {% endif %}
 </section>
 
-{% if not result.issue %}<p class="rv-bridge">هل أنت كاتب هذا النص أو مترجمه؟ <a href="/new">راجِعه قبل النشر</a>: تقارن نسختك بالأصل وتعرف أين تغيّر المعنى.</p>{% endif %}
+{% if not result.issue %}
+<aside class="rv-bridge">
+  <span class="rv-bridge-ic" aria-hidden="true">✎</span>
+  <div><strong>هل أنت كاتب هذا النص أو مترجمه؟</strong><span>قارن نسختك بالأصل، واعرف أين تغيّر المعنى قبل أن تنشر.</span></div>
+  <a class="btn btn-primary btn-sm" href="/new">راجِعه قبل النشر</a>
+</aside>
+{% endif %}
 
 <section class="rv-card rv-again" aria-labelledby="rv-again-h">
   <h2 id="rv-again-h" class="rv-h">تحقّق من عبارة أخرى</h2>

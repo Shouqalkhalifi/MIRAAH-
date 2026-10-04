@@ -1,9 +1,18 @@
 {% extends "base.html" %}
 {% block title %}راجِع قبل النشر{% endblock %}
 {% block content %}
-<header class="svc-page-h">
+<div class="new-page">
+<header class="svc-page-h new-h">
   <h1>راجِع قبل النشر</h1>
-  <p class="muted">الصق الأصل العربي وما أُخذ منه من ترجمة أو ملخص، فتقابل مِرآة المعنى حلقةً حلقة.</p>
+  <p class="muted">قارن ترجمتك أو ملخصك بالأصل العربي، فتعرف أين تغيّر المعنى وفي أي حلقة دخل الخلل، قبل أن تنشر.</p>
 </header>
+
+<ol class="new-steps" aria-label="خطوات المراجعة">
+  <li><b>١</b><div><strong>الصق الأصل</strong><small>النص العربي ومرجعه</small></div></li>
+  <li><b>٢</b><div><strong>أضف ما أُخذ منه</strong><small>ترجمة، ملخص، منشور… حتى {{ max_versions }} حلقات</small></div></li>
+  <li><b>٣</b><div><strong>اقرأ التقرير</strong><small>كل تنبيه بموضعه ومصدره، والقرار لك</small></div></li>
+</ol>
+
 {% include "_compose.html" %}
+</div>
 {% endblock %}
