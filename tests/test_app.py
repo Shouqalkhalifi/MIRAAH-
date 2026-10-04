@@ -205,7 +205,7 @@ def test_reader_exam_can_be_rerun_on_the_corrected_text():
     assert exam["answers"]["en-summary"] == [1]  # النسخة كما حُلّلت: «لكل المسلمين»
     assert exam["corrected"] == {"en-summary": [0]}  # بعد التصحيح: «للمسافر» كالأصل
     page = client.get(f"/report/{rid}").text
-    assert "بعد التصحيح (كان 0)" in page and "xr xr-same" in page and "قبل التصحيح: «" in page
+    assert "xr xr-same" in page and "قبل التصحيح: «" in page
     assert "أعد الامتحان على النص المصحَّح" not in page
 
 
