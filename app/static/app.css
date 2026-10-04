@@ -510,6 +510,30 @@ mark { color: inherit; padding: 0 .15em; border-radius: 4px; }
 .panel-acts { display: grid; gap: .5rem; padding: .85rem; margin-top: auto; }
 .panel-acts .btn, .panel-acts form, .panel-acts form .btn { width: 100%; }
 .demo-note { text-align: center; margin: .9rem 0 0; }
+.b-grn { background: var(--ink); border-inline-end: 3px solid #17B892; }
+
+/* «تحقّق مما قرأت»: النتيجة بالعرض المتقابل نفسه في الرئيسية */
+.rv-page.rv-wide { max-width: 1280px; }
+@media (min-width: 1024px) {
+  .rv-grid > .rv-read { order: 2; }
+  .rv-grid > .panel-alerts { order: 3; }
+}
+.rv-grid .panel-b p { margin: 0 0 .75rem; }
+.rv-grid .panel-h > span { white-space: nowrap; }
+.rv-grid .panel-h small { text-align: end; }
+.rv-src + .rv-src { border-top: 1px dashed var(--line); padding-top: .9rem; margin-top: .9rem; }
+.rv-grid .rv-src-text { font-size: 1.2rem; line-height: 2; }
+.rv-grid .rv-tr { font-size: .95rem; line-height: 1.75; color: var(--muted); }
+.rv-grid .rv-pills { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; }
+.rv-you-b { font-size: 1.15rem; line-height: 1.9; }
+.rv-you-b.latin { font-size: 1.05rem; }
+.rv-m-yel { background: rgba(217, 162, 27, .18); box-shadow: inset 0 -2px 0 #D9A21B; }
+.rv-q-note { margin-top: .75rem; }
+.rv-grid .lamp { flex: none; }
+.lamp-none { background: var(--muted); box-shadow: 0 0 0 4px rgba(18, 24, 63, .12); }
+.rv-why { padding: .9rem 1rem; font-size: var(--t14); line-height: 1.9; }
+.rv-why p { margin: 0 0 .7rem; }
+.rv-why .rv-alert { margin: .5rem 0 0; }
 
 /* ---------- أقسام الرئيسية: عن المنصة، القدرات، الخطوات، الهاتف، الأسئلة ---------- */
 .sec { padding: 5rem 0 1rem; }

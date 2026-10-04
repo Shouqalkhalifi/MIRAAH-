@@ -18,7 +18,7 @@
 </form>
 {% endmacro %}
 
-<div class="rv-page">
+<div class="rv-page{% if result and result.issue %} rv-wide{% endif %}">
 <a href="/" class="rv-back">→ الرئيسية</a>
 
 {% if not result %}
@@ -57,45 +57,61 @@
   {% endif %}
 
   {% if r.issue %}{% set i = r.issue %}
-    <section class="rv-card rv-card-src" aria-labelledby="rv-src">
-      <h2 id="rv-src" class="rv-h"><span class="rv-step">١</span> هكذا يقول المصدر</h2>
-      <p class="rv-topic">{{ i.title_ar }}</p>
-      {% for s in i.sources %}
-      <blockquote class="rv-quote">
-        <p class="ar-source" dir="rtl">{{ s.text_ar }}</p>
-        {% if s.translation_en %}<p class="latin rv-tr" dir="ltr">{{ s.translation_en }}</p>{% endif %}
-        <footer class="rv-pills">
-          <span class="rv-pill">{{ type_ar.get(s.type, s.type) }}</span>
-          {% if s.grade %}<span class="rv-pill">الدرجة: {{ s.grade }}</span>{% endif %}
-          {% if s.translation_source %}<span class="rv-pill">الترجمة: <bdi>{{ s.translation_source }}</bdi></span>{% endif %}
-          <a class="rv-pill rv-pill-link" href="{{ s.url }}" target="_blank" rel="noopener">افتح المصدر ↗</a>
-        </footer>
-      </blockquote>
-      {% endfor %}
-    </section>
+  {% set wire = {'rubric': '#E5484D', 'saffron': '#D9A21B', 'verified': '#17B892'}.get(tone, '#6150EA') %}
+  {% set d = r.diff_quote if r.diff_quote and r.diff_quote in r.text else none %}
+  <div class="demo-grid rv-grid" x-data="demoWires()" x-ref="grid"
+       x-init="$nextTick(() => draw()); document.fonts && document.fonts.ready.then(() => draw())" @resize.window.debounce.100ms="draw()">
+    <svg class="demo-wires" x-ref="svg" aria-hidden="true"></svg>
 
-  <section class="rv-card" aria-labelledby="rv-cmp">
-    <h2 id="rv-cmp" class="rv-h"><span class="rv-step">٢</span> لماذا هذا الحكم؟</h2>
-    {% if r.findings %}
-    <ul class="rv-findings">{% for f in r.findings %}<li class="rv-f rv-f-{{ f.tone }}"><span class="rv-badge">{{ f.mark }}</span><span>{{ f.text_ar }}</span></li>{% endfor %}</ul>
-    {% elif r.verdict == 'matches' %}
-    <ul class="rv-findings"><li class="rv-f rv-f-verified"><span class="rv-badge">صح</span><span>العبارة توافق ما يذكره المصدر من الحكم والقيود.</span></li></ul>
-    {% endif %}
-    {% if r.explanation_ar %}<p class="rv-expl">{{ r.explanation_ar }}</p>
-    {% elif r.explanation_removed %}<p class="rv-expl muted">حُذف الشرح لأنه اقتبس ما ليس في مكتبة مِرآة، ويُعرض الحكم وحده.</p>{% endif %}
-    {% if i.position.khilaf %}
-    <p class="rv-sub">الأقوال كما في المصدر</p>
-    <ul class="rv-list">{% for o in i.position.opinions %}<li>{{ o }}</li>{% endfor %}</ul>
-    {% endif %}
-    {% if r.referral_ar %}<p class="rv-alert">{{ r.referral_ar }}</p>{% endif %}
-  </section>
+    <article class="panel" aria-labelledby="rv-src">
+      <header class="panel-h"><span id="rv-src">هكذا يقول المصدر</span><small>{{ i.title_ar }}</small></header>
+      <div class="panel-b">
+        {% for s in i.sources %}
+        <div class="rv-src">
+          <p class="ar-source rv-src-text" dir="rtl"><span {% if loop.first %}data-w="1"{% endif %}>{{ s.text_ar }}</span></p>
+          {% if s.translation_en %}<p class="latin rv-tr" dir="ltr">{{ s.translation_en }}</p>{% endif %}
+          <p class="rv-pills">
+            <span class="pill">{{ type_ar.get(s.type, s.type) }}</span>
+            {% if s.grade %}<span class="pill">الدرجة: {{ s.grade }}</span>{% endif %}
+            {% if s.translation_source %}<span class="pill">الترجمة: <bdi>{{ s.translation_source }}</bdi></span>{% endif %}
+            <a class="pill rv-pill-link" href="{{ s.url }}" target="_blank" rel="noopener">افتح المصدر ↗</a>
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
 
-  <section class="rv-card" aria-labelledby="rv-you">
-    <h2 id="rv-you" class="rv-h"><span class="rv-step">٣</span> ما قرأتَه{% if r.diff_quote and r.diff_quote in r.text %}، وموضع الاختلاف فيه{% endif %}</h2>
-    {% set d = r.diff_quote %}
-    <p class="rv-you {{ 'latin' if r.lang != 'ar' }}" dir="auto">{% if d and d in r.text %}{% set parts = r.text.split(d, 1) %}{{ parts[0] }}<mark class="rv-mark rv-mark-{{ tone }}">{{ d }}</mark>{{ parts[1] }}{% else %}{{ r.text }}{% endif %}</p>
-    {% if r.kind == 'question' %}<p class="t14 muted">هذا سؤال، فتعرض مِرآة نصوص المصدر وترجمتها المعتمدة فقط، ولا تصوغ حكماً.</p>{% endif %}
-  </section>
+    <aside class="panel panel-alerts" aria-labelledby="rv-why">
+      <header class="panel-h"><span id="rv-why">لماذا هذا الحكم؟</span></header>
+      <div class="rv-why">
+        {% if r.explanation_ar %}<p>{{ r.explanation_ar }}</p>
+        {% elif r.explanation_removed %}<p class="muted">حُذف الشرح لأنه اقتبس ما ليس في مكتبة مِرآة، ويُعرض الحكم وحده.</p>
+        {% elif r.verdict == 'matches' %}<p>العبارة توافق ما يذكره المصدر من الحكم والقيود.</p>{% endif %}
+        {% if i.position.khilaf %}
+        <p class="rv-sub">الأقوال كما في المصدر</p>
+        <ul class="rv-list">{% for o in i.position.opinions %}<li>{{ o }}</li>{% endfor %}</ul>
+        {% endif %}
+        {% if r.referral_ar %}<p class="rv-alert">{{ r.referral_ar }}</p>{% endif %}
+      </div>
+      <div class="light"><span class="lamp lamp-{{ tone }}"></span><b>{{ r.headline_ar }}</b></div>
+      <div class="panel-acts">
+        <a href="#rv-again-h" class="btn btn-primary">تحقّق من عبارة أخرى</a>
+        <a href="/new" class="btn btn-quiet">أنت كاتب النص؟ راجِعه قبل النشر</a>
+      </div>
+    </aside>
+
+    <article class="panel rv-read" aria-labelledby="rv-you">
+      <header class="panel-h"><span id="rv-you">ما قرأتَه</span><small>{{ kind_ar[r.kind] }}</small></header>
+      <div class="panel-b {{ 'latin' if r.lang != 'ar' }} rv-you-b" dir="auto">
+        <p>{% if d %}{% set parts = r.text.split(d, 1) %}{{ parts[0] }}<mark class="{{ 'm-red' if tone == 'rubric' else 'rv-m-yel' if tone == 'saffron' else 'm-ok' }}" data-w="1" data-to="1" data-tone="{{ wire }}">{{ d }}</mark>{{ parts[1] }}{% else %}<span data-w="1" data-to="1" data-tone="{{ wire }}">{{ r.text }}</span>{% endif %}</p>
+        {% for f in r.findings %}<span class="bubble {{ 'b-red' if f.tone == 'rubric' else 'b-yel' }}" dir="rtl">{{ f.mark }}: {{ f.text_ar }}</span>{% endfor %}
+        {% if r.verdict == 'matches' and not r.findings %}<span class="bubble b-grn" dir="rtl">مطابق: العبارة توافق الحكم والقيود في المصدر</span>{% endif %}
+        {% if r.kind == 'question' %}<p class="t14 muted rv-q-note" dir="rtl">هذا سؤال، فتعرض مِرآة نصوص المصدر وترجمتها المعتمدة فقط، ولا تصوغ حكماً.</p>{% endif %}
+      </div>
+      <footer class="panel-f"><span class="pill">زمن التحليل {{ '%.1f' | format(r.elapsed_ms / 1000) }} ث</span>
+        {% if r.id %}<a class="pill" href="/reverse/{{ r.id }}">رابط دائم</a>{% else %}<span class="pill">لم يُحفظ نصك</span>{% endif %}</footer>
+    </article>
+  </div>
   {% elif r.referral_ar and r.verdict != 'no_reference' %}
   <p class="rv-alert">{{ r.referral_ar }}</p>
   {% else %}
@@ -134,7 +150,7 @@
   {% endif %}
 </section>
 
-<p class="rv-bridge">هل أنت كاتب هذا النص أو مترجمه؟ <a href="/new">راجِعه قبل النشر</a>: تقارن نسختك بالأصل وتعرف أين تغيّر المعنى.</p>
+{% if not result.issue %}<p class="rv-bridge">هل أنت كاتب هذا النص أو مترجمه؟ <a href="/new">راجِعه قبل النشر</a>: تقارن نسختك بالأصل وتعرف أين تغيّر المعنى.</p>{% endif %}
 
 <section class="rv-card rv-again" aria-labelledby="rv-again-h">
   <h2 id="rv-again-h" class="rv-h">تحقّق من عبارة أخرى</h2>

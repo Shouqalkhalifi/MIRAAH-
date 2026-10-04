@@ -8,7 +8,33 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/app.css?v=31">
+  <link rel="stylesheet" href="/static/app.css?v=34">
+  <script>
+    {# خيوط العرض المتقابل: من [data-w=N] في لوحة إلى [data-to=N] في اللوحة المجاورة؛ اللون من data-tone #}
+    function demoWires() {
+      return {
+        draw() {
+          const svg = this.$refs.svg, grid = this.$refs.grid;
+          svg.innerHTML = '';
+          if (window.innerWidth < 1024) return;
+          const g = grid.getBoundingClientRect();
+          svg.setAttribute('viewBox', `0 0 ${g.width} ${g.height}`);
+          grid.querySelectorAll('[data-to]').forEach(to => {
+            const from = grid.querySelector(`[data-w="${to.dataset.to}"]:not([data-to])`);
+            if (!from) return;
+            const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+            const pa = from.closest('.panel').getBoundingClientRect(), pb = to.closest('.panel').getBoundingClientRect();
+            const x1 = pa.left - g.left, y1 = a.top - g.top + Math.min(a.height / 2, 20);
+            const x2 = pb.right - g.left, y2 = b.top - g.top + Math.min(b.height / 2, 16);
+            const mx = (x1 + x2) / 2, c = to.dataset.tone || (to.dataset.to === '1' ? '#E5484D' : '#D9A21B');
+            svg.insertAdjacentHTML('beforeend',
+              `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="1.6" stroke-dasharray="4 4"/>` +
+              `<circle cx="${x1}" cy="${y1}" r="4" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="4" fill="${c}"/>`);
+          });
+        }
+      };
+    }
+  </script>
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="apple-touch-icon" href="/static/favicon-180.png">

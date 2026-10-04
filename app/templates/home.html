@@ -202,29 +202,4 @@
   </div>
 </section>
 
-<script>
-  function demoWires() {
-    return {
-      draw() {
-        const svg = this.$refs.svg, grid = this.$refs.grid;
-        svg.innerHTML = '';
-        if (window.innerWidth < 1024) return;
-        const g = grid.getBoundingClientRect();
-        svg.setAttribute('viewBox', `0 0 ${g.width} ${g.height}`);
-        grid.querySelectorAll('[data-to]').forEach(to => {
-          const from = grid.querySelector(`[data-w="${to.dataset.to}"]:not([data-to])`);
-          if (!from) return;
-          const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
-          const pa = from.closest('.panel').getBoundingClientRect(), pb = to.closest('.panel').getBoundingClientRect();
-          const x1 = pa.left - g.left, y1 = a.top - g.top + Math.min(a.height / 2, 20);
-          const x2 = pb.right - g.left, y2 = b.top - g.top + Math.min(b.height / 2, 16);
-          const mx = (x1 + x2) / 2, bad = to.dataset.to === '1' ? '#E5484D' : '#D9A21B';
-          svg.insertAdjacentHTML('beforeend',
-            `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${bad}" stroke-width="1.6" stroke-dasharray="4 4"/>` +
-            `<circle cx="${x1}" cy="${y1}" r="4" fill="${bad}"/><circle cx="${x2}" cy="${y2}" r="4" fill="${bad}"/>`);
-        });
-      }
-    };
-  }
-</script>
 {% endblock %}
