@@ -145,7 +145,7 @@
     <svg class="demo-wires" x-ref="wires" aria-hidden="true"></svg>
     {# الأصل (المرآة) #}
     <article class="panel source-pane" x-show="sel !== 'source'" {% if not report.versions %}x-cloak{% endif %} aria-label="الأصل">
-      <header class="panel-h"><span>المصدر العربي</span><small>الأصل</small></header>
+      <header class="panel-h"><span>المصدر الرسمي</span><small>الأصل</small></header>
       <div class="panel-b ar-source" dir="rtl">
         {% for seg in source_sentences %}<span class="src-sent" data-i="{{ seg.index }}">{{ seg.text | hl(report.alerts, 'source') }}</span> {% endfor %}
       </div>
@@ -154,7 +154,7 @@
 
     {# المتن #}
     <article class="panel matn" aria-label="المتن">
-      <header class="panel-h"><span x-text="sel === 'source' ? 'المصدر العربي' : 'النسخة المترجمة'">{{ 'المصدر العربي' if first_label == 'source' else 'النسخة المترجمة' }}</span><small x-text="{{ vnames | tojson | forceescape }}[sel] || ''">{{ vnames.get(first_label, '') }}</small></header>
+      <header class="panel-h"><span x-text="sel === 'source' ? 'المصدر الرسمي' : 'المصدر المنشور'">{{ 'المصدر الرسمي' if first_label == 'source' else 'المصدر المنشور' }}</span><small x-text="{{ vnames | tojson | forceescape }}[sel] || ''">{{ vnames.get(first_label, '') }}</small></header>
       <div class="panel-b">
       <div class="matn-pane" x-show="sel === 'source'" {% if first_label != 'source' %}x-cloak{% endif %}>
         <div class="ar-source matn-text" dir="rtl">{{ report.source.text | hl(report.alerts, 'source') }}</div>
