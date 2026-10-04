@@ -226,7 +226,7 @@ def name_text(report, text: str, alert=None) -> str:
         if lb != "source":
             text = text.replace(f"قارئ {lb} ", f"قارئ {nm} ").replace(f"، {lb}: ", f"، {nm}: ")
     text = re.sub(r"(بينما قارئ [^:«»]+?) يفهم أن:", r"\1:", text)
-    text = text.replace("ليس لها مقابل في النسخة", "ليس لها مقابل في المصدر المنشور")
+    text = re.sub(r"(ليس لها|لم يعد له) مقابل في النسخة", r"\1 مقابل في المصدر المنشور", text)
     return shown_option(text)
 
 
