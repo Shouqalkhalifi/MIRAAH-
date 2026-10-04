@@ -283,7 +283,7 @@ def api_examples() -> list[dict]:
 def home(request: Request):
     verse = next((c for c in load_corpus() if c.id == "q-2-185-yusr"), None)
     sample = next((i for i in load_library() if i.id == "BZ09"), None)
-    return page(request, "home.html", examples=load_examples(), verse=verse, sample=sample)
+    return page(request, "home.html", verse=verse, sample=sample)
 
 
 @app.get("/about")

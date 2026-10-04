@@ -172,7 +172,7 @@ def test_examples_valid_and_runnable():
     assert r.status_code == 303 and r.headers["location"].startswith("/analyze/")
     assert client.post("/examples/nope").status_code == 404
     home = client.get("/").text
-    assert "جرّب:" in home and exs[0].title in home
+    assert "جرّب:" not in home
     new = client.get("/new").text
     assert "قابِل النص" in new and exs[0].title in new
 
