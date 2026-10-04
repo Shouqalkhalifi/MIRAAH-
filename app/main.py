@@ -43,7 +43,7 @@ templates.env.globals["meta"] = meta
 templates.env.globals["ui"] = ui
 templates.env.globals["sentences"] = split_sentences
 templates.env.globals["approved_text"] = export.approved_text
-templates.env.globals["medium_ar"] = ui.MEDIUM_AR
+templates.env.globals["medium_ar"] = ui.MEDIUM_CHOICES
 templates.env.globals["max_versions"] = MAX_VERSIONS
 templates.env.globals["footer_ar"] = "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى"
 

@@ -13,9 +13,11 @@ MODULES = {
 }
 
 # نوع إعادة الإنتاج لكل حلقة (Version.medium)
-MEDIUM_AR = {"translation": "ترجمة", "summary": "ملخص", "edited": "نسخة محرّرة", "social_post": "منشور تواصل",
+MEDIUM_AR = {"translation": "ترجمة", "summary": "منشور تواصل", "edited": "نسخة محرّرة", "social_post": "منشور تواصل",
              "video_script": "نص فيديو", "infographic": "نص إنفوغرافيك", "ai_answer": "إجابة ذكاء اصطناعي",
              "other": "أخرى"}
+# «summary» يبقى مقبولاً في الواجهة البرمجية، ويُعرض «منشور تواصل» ولا يُعرض خياراً في نموذج الإدخال
+MEDIUM_CHOICES = {k: v for k, v in MEDIUM_AR.items() if k != "summary"}
 
 # النوع ← (الوحدة، العنوان العربي)
 ALERT_META: dict[str, tuple[str, str]] = {
@@ -176,10 +178,12 @@ def group_alerts(alerts) -> list[dict]:
 
 LANG_ADJ = {"ar": "عربية", "en": "إنجليزية", "fr": "فرنسية", "id": "إندونيسية", "ur": "أردية"}
 ORDINAL = ["", "الثانية", "الثالثة", "الرابعة", "الخامسة", "السادسة"]
+ORDINAL_M = ["", "الثاني", "الثالث", "الرابع", "الخامس", "السادس"]
+_MASCULINE = ("منشور", "نص")
 
 
 def version_names(report) -> dict[str, str]:
-    """اسم عربي لكل حلقة من نوعها ولغتها («ترجمة إنجليزية»، «ملخص»)، بدل التسمية التقنية التي كتبها المستخدم."""
+    """اسم عربي لكل حلقة من نوعها ولغتها («ترجمة إنجليزية»، «منشور تواصل»)، بدل التسمية التقنية التي كتبها المستخدم."""
     names = {"source": "الأصل"}
     base = {}
     for i, v in enumerate(report.versions, 1):
@@ -194,7 +198,8 @@ def version_names(report) -> dict[str, str]:
     for v in report.versions:
         b = base[v.label]
         k = seen[b] = seen.get(b, 0) + 1
-        names[v.label] = b if k == 1 else f"{b} {ORDINAL[k - 1] if k <= len(ORDINAL) else k}"
+        ords = ORDINAL_M if b.startswith(_MASCULINE) else ORDINAL
+        names[v.label] = b if k == 1 else f"{b} {ords[k - 1] if k <= len(ords) else k}"
     return names
 
 
