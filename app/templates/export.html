@@ -59,7 +59,7 @@
   <section>
     <h2>حلقات السلسلة</h2>
     <ol class="chain">
-      {% for n in d.chain %}<li class="{{ 'break' if n.state == 'break' else '' }}">{{ loop.index }}. {{ n.name }} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.derived_from %} · عن {{ n.derived_from_name }}{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</li>{% endfor %}
+      {% for n in d.chain %}<li class="{{ 'break' if n.state == 'break' else '' }}">{{ loop.index }}. {{ n.name }} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.derived_from %} · عن {{ n.derived_from_name }}{% elif n.derived_from_name %} · من {{ n.derived_from_name }}{% endif %}{% if n.state == 'break' %} · دخل هنا الخلل{% endif %}</li>{% endfor %}
     </ol>
   </section>
 

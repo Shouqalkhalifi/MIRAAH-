@@ -63,7 +63,9 @@ def build(r: Report, disclaimer: str) -> dict:
     names = {**ui.version_names(r), "source": "المصدر الرسمي"}
     if r.versions:
         names[r.versions[-1].label] = "المصدر المنشور"
-    chain = [{"label": "source", "name": names["source"], "lang": r.source.lang, "derived_from": None, "derived_from_name": "",
+    ref = r.source.source_ref.strip()
+    book = "" if ref.startswith("يُضاف") else ref
+    chain = [{"label": "source", "name": names["source"], "lang": r.source.lang, "derived_from": None, "derived_from_name": book,
               "medium": None, "medium_ar": "",
               "state": nodes["source"]["state"], "original_text": r.source.text, "approved_text": r.source.text,
               "applied_edits": []}]

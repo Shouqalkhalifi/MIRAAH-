@@ -179,7 +179,7 @@ def _verdict(p, d: dict) -> None:
 
 
 def _chain(p, d: dict) -> None:
-    cols = [("#", 9), ("الحلقة", 48), ("اللغة", 30), ("مأخوذة عن", 48), ("الحالة", None)]
+    cols = [("#", 9), ("الحلقة", 44), ("اللغة", 26), ("مأخوذة عن", 70), ("الحالة", None)]
     widths = [w or p.epw - sum(c[1] for c in cols if c[1]) for _, w in cols]
     row = 8
 
@@ -190,6 +190,9 @@ def _chain(p, d: dict) -> None:
         x = p.l_margin + p.epw
         for (text, color, bold), w in zip(values, widths):
             x -= w
+            p.set_font("Amiri", "B" if bold else "", size)
+            while len(text) > 4 and p.get_string_width(text) > w - 3:
+                text = text[:-2].rstrip() + "…"
             _cell(p, x + 1.5, y, w - 3, row, text, size, color, bold)
 
     if p.y + row * (len(d["chain"]) + 1) > p.page_break_trigger:
