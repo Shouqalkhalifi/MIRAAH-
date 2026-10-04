@@ -108,6 +108,35 @@ def mark_word(alert_type: str) -> str:
     return MARK_WORD.get(alert_type, "يُنظر")
 
 
+# وصف قصير للخلل في سطر الحالة: «لا تنشر · سقط شرط و سقطت جملة»
+STATUS_WORD = {
+    "condition_dropped": "سقط شرط", "exception_dropped": "سقط استثناء", "sentence_dropped": "سقطت جملة",
+    "hasr_lost": "سقط الحصر", "hadith_grade_dropped": "سقطت درجة الحديث", "lock_violated": "انكسر قفل",
+    "new_prophetic_attribution": "نسبة إلى النبي ﷺ", "consensus_inflated": "دعوى إجماع",
+    "attribution_generalized": "نسبة إلى الإسلام", "disagreement_collapsed": "سقط ذكر الخلاف",
+    "certainty_raised": "ارتفع اليقين", "ruling_shift": "تغيّر الحكم", "scope_widened": "اتسع النطاق",
+    "scope_narrowed": "ضاق النطاق", "negation_mismatch": "تغيّر النفي", "number_mismatch": "تغيّر الرقم",
+    "term_narrowing": "خالف مصطلح ضابطه", "attribution_upgraded": "صار المرويّ جازماً",
+    "quote_wording_differs": "تغيّر لفظ النص", "source_conflict": "خالف المصدر",
+    "unverified_attribution": "نسبة بلا مصدر", "witness_disagreement": "اختلف الشاهدان",
+    "reader_divergence": "اختلف الفهم", "length_drop": "اختصار كبير",
+}
+
+
+def status_word(alert_type: str) -> str:
+    return STATUS_WORD.get(alert_type, "موضع يُنظر فيه")
+
+
+def status_list(words: list[str], limit: int = 3) -> str:
+    """«سقط شرط و سقطت جملة»؛ المكرر يُعدّ «سقط شرط (2)»، وما زاد على الحد «و 2 غيرها»."""
+    counts: dict[str, int] = {}
+    for w in words:
+        counts[w] = counts.get(w, 0) + 1
+    items = [w if n == 1 else f"{w} ({n})" for w, n in counts.items()]
+    rest = len(items) - limit
+    return " و ".join(items[:limit] + ([f"{rest} غيرها"] if rest > 0 else []))
+
+
 def tone(alert) -> str:
     """لون العلامة: الحُمرة للخطير، والزعفران للمتوسط وما يُنظر فيه."""
     return "rubric" if alert.severity.value == "red" else "saffron"
@@ -218,20 +247,17 @@ def thread(report) -> list[dict]:
 
 
 def status_line(report) -> dict:
-    """حالة التقرير نصاً صريحاً: «لا تنشر · 2 سقط» أو «يُنظر · 3 مواضع» أو «جاهز للنشر بعد نظرتك»."""
+    """حالة التقرير نصاً صريحاً: «لا تنشر · سقط شرط و سقطت جملة» أو «يُنظر · اتسع النطاق» أو «جاهز للنشر بعد نظرتك»."""
     pending = [g for g in group_alerts(report.alerts)
                if any(x.id not in report.decisions for x in [g["root"], *g["symptoms"]])]
-    red = [g for g in pending if any(x.severity.value == "red" for x in [g["root"], *g["symptoms"]])]
+    sevs = lambda g: {x.severity.value for x in [g["root"], *g["symptoms"]]}
+    red = [g for g in pending if "red" in sevs(g)]
+    yellow = [g for g in pending if "red" not in sevs(g) and "yellow" in sevs(g)]
+    words = [status_word(g["root"].type.value) for g in red + yellow]
     if red:
-        counts: dict[str, int] = {}
-        for g in red:
-            w = mark_word(g["root"].type.value)
-            counts[w] = counts.get(w, 0) + 1
-        return {"tone": "rubric", "text": "لا تنشر · " + " · ".join(f"{n} {w}" for w, n in counts.items())}
-    yellow = [g for g in pending if any(x.severity.value == "yellow" for x in [g["root"], *g["symptoms"]])]
+        return {"tone": "rubric", "text": "لا تنشر · " + status_list(words)}
     if yellow:
-        n = len(yellow)
-        return {"tone": "saffron", "text": f"يُنظر · {n} {'موضع' if n == 1 else 'مواضع'}"}
+        return {"tone": "saffron", "text": "يُنظر · " + status_list(words)}
     return {"tone": "verified", "text": "جاهز للنشر بعد نظرتك"}
 
 

@@ -43,8 +43,13 @@ def test_thread_breaks_at_defect_and_marks_recheck_after_edit():
 
 def test_status_line():
     red, yellow = A(T.condition_dropped), A(T.ruling_shift, "yellow", at="en", idx=(1,))
-    assert ui.status_line(rep([red, yellow])) == {"tone": "rubric", "text": "لا تنشر · 1 سقط"}
+    assert ui.status_line(rep([red, yellow])) == {"tone": "rubric", "text": "لا تنشر · سقط شرط و تغيّر الحكم"}
     decided = {red.id: Decision(alert_id=red.id, action="accept", reason="خلل حقيقي")}
-    assert ui.status_line(rep([red, yellow], decided)) == {"tone": "saffron", "text": "يُنظر · 1 موضع"}
+    assert ui.status_line(rep([red, yellow], decided)) == {"tone": "saffron", "text": "يُنظر · تغيّر الحكم"}
     decided[yellow.id] = Decision(alert_id=yellow.id, action="reject", reason="ليس خللاً")
     assert ui.status_line(rep([red, yellow], decided))["text"] == "جاهز للنشر بعد نظرتك"
+
+
+def test_status_list_counts_and_caps():
+    assert ui.status_list(["سقط شرط", "سقط شرط", "سقطت جملة"]) == "سقط شرط (2) و سقطت جملة"
+    assert ui.status_list(["أ", "ب", "ج", "د", "هـ"]) == "أ و ب و ج و 2 غيرها"

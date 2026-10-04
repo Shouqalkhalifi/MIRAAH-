@@ -13,7 +13,7 @@
   {% set _ = gmeta.append({'ids': members | map(attribute='id') | list,
                           'red': members | selectattr('severity.value', 'equalto', 'red') | list | length > 0,
                           'yellow': members | selectattr('severity.value', 'equalto', 'yellow') | list | length > 0,
-                          'word': ui.mark_word(g.root.type.value),
+                          'word': ui.status_word(g.root.type.value),
                           'links': [g.root.introduced_at] + g.root.propagated_to}) %}{% endfor %}
 {% macro bubble(a) %}{% set red = a.severity.value == 'red' %}
 <a href="#alert-{{ a.id }}" class="bubble {{ 'b-red' if red else 'b-yel' }}" dir="rtl">{{ 'تحذير' if red else 'تنبيه' }}: {{ ui.headline(a) }}</a>
@@ -29,13 +29,12 @@
       statusText() { return this.statusCalc().text; },
       statusCalc() {
         const pending = this.groups.filter(g => !this.decided(g.ids));
-        const red = pending.filter(g => g.red);
-        if (red.length) {
-          const c = {}; red.forEach(g => c[g.word] = (c[g.word] || 0) + 1);
-          return { tone: 'rubric', text: 'لا تنشر · ' + Object.entries(c).map(([w, n]) => `${n} ${w}`).join(' · ') };
-        }
-        const y = pending.filter(g => g.yellow).length;
-        if (y) return { tone: 'saffron', text: `يُنظر · ${y} ${y === 1 ? 'موضع' : 'مواضع'}` };
+        const red = pending.filter(g => g.red), yellow = pending.filter(g => !g.red && g.yellow);
+        const c = {}; [...red, ...yellow].forEach(g => c[g.word] = (c[g.word] || 0) + 1);
+        const items = Object.entries(c).map(([w, n]) => n === 1 ? w : `${w} (${n})`);
+        const list = items.slice(0, 3).concat(items.length > 3 ? [`${items.length - 3} غيرها`] : []).join(' و ');
+        if (red.length) return { tone: 'rubric', text: 'لا تنشر · ' + list };
+        if (yellow.length) return { tone: 'saffron', text: 'يُنظر · ' + list };
         return { tone: 'verified', text: 'جاهز للنشر بعد نظرتك' };
       },
       select(label) { this.sel = label; this.$nextTick(() => this.layout()); },

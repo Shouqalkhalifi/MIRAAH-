@@ -131,7 +131,7 @@ def test_all_screens_render_with_disclaimer():
 def test_report_page_colors_broken_link_and_highlights():
     rid = client.post("/api/analyze", json=CHAIN).json()["id"]
     html = client.get(f"/report/{rid}").text
-    assert "لا تنشر · 1 سقط" in html  # الحالة نص صريح بلغة المقابلة
+    assert "لا تنشر · سقط شرط" in html  # الحالة نص صريح بلغة المقابلة
     # خيط السند: ينكسر عند en-summary، وما بعده بعد الخلل
     assert re.search(r'class="st-break[^"]*"[^>]*>\s*<span class="knot"[^>]*></span>\s*<button[^>]*>\s*<span class="node-name">النسخة 2</span>', html)
     assert 'class="node-name" dir="ltr"' not in html  # أسماء الحلقات بالعربية لا بالتسمية التقنية
