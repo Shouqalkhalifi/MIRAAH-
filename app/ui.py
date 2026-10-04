@@ -169,12 +169,22 @@ def version_names(report) -> dict[str, str]:
     return names
 
 
+NOT_STATED_SHOWN = "لم يُذكر في النص"
+
+
+def shown_option(text: str) -> str:
+    """خيار «لا يذكر» يبقى بصيغته في تعليمات النموذج (مفاتيح التخزين المؤقت)، ويُعرض بصيغة أوضح."""
+    from app.pipeline.reader_exam import NOT_STATED
+
+    return text.replace(NOT_STATED, NOT_STATED_SHOWN)
+
+
 def name_text(report, text: str) -> str:
     """يستبدل التسميات التقنية داخل نصوص محفوظة («قارئ summary يفهم») بأسماء الحلقات العربية."""
     for lb, nm in sorted(version_names(report).items(), key=lambda x: -len(x[0])):
         if lb != "source":
             text = text.replace(f"قارئ {lb} ", f"قارئ {nm} ").replace(f"، {lb}: ", f"، {nm}: ")
-    return text
+    return shown_option(text)
 
 
 def thread(report) -> list[dict]:
@@ -292,12 +302,14 @@ def exam_view(report) -> dict:
         for v in versions:
             a = v["answers"][i] if i < len(v["answers"]) else None
             row = {"label": v["label"], "medium": v["medium"], "state": _exam_state(q, s, a),
-                   "answer": q.options[a] if a is not None else "", "after": None}
+                   "answer": shown_option(q.options[a]) if a is not None else "", "after": None}
             if v["after"] is not None:
                 b = v["after"][i] if i < len(v["after"]) else None
-                row["after"] = {"state": _exam_state(q, s, b), "answer": q.options[b] if b is not None else ""}
+                row["after"] = {"state": _exam_state(q, s, b),
+                                "answer": shown_option(q.options[b]) if b is not None else ""}
             rows.append(row)
-        questions.append({"text": q.question_ar, "source": q.options[s] if s is not None else "", "rows": rows})
+        questions.append({"text": q.question_ar, "source": shown_option(q.options[s]) if s is not None else "",
+                          "rows": rows})
     total = len(questions)
     for k, v in enumerate(versions):
         v["same"] = sum(1 for q in questions if q["rows"][k]["state"] == "same")
@@ -354,7 +366,7 @@ def evidence_rows(alert, alert_report=None) -> list[dict]:
             rows.append({"label": "من مدونة مِرآة", "text": text})
         elif e.kind == "reader_exam":
             rows.append({"label": "امتحان القارئ", "text": name_text(alert_report, detail.replace(" | ", "، "))
-                         if alert_report else detail.replace(" | ", "، ")})
+                         if alert_report else shown_option(detail.replace(" | ", "، "))})
         elif detail:
             rows.append({"label": "ملاحظة", "text": detail})
     return rows
