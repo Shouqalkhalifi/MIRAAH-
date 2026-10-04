@@ -1,6 +1,8 @@
 """بيانات العرض: الوحدات الثلاث (الميزان / الأثر / الفهم) وعنوان عربي لكل نوع تنبيه."""
 from __future__ import annotations
 
+import re
+
 from app.models import AlertType as T
 
 MODULES = {
@@ -218,6 +220,7 @@ def name_text(report, text: str) -> str:
     for lb, nm in sorted(version_names(report).items(), key=lambda x: -len(x[0])):
         if lb != "source":
             text = text.replace(f"قارئ {lb} ", f"قارئ {nm} ").replace(f"، {lb}: ", f"، {nm}: ")
+    text = re.sub(r"(بينما قارئ [^:«»]+?) يفهم أن:", r"\1:", text)
     return shown_option(text)
 
 
