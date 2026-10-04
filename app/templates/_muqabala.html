@@ -54,11 +54,22 @@
         this.$nextTick(() => this.layout());
         return this.revs[id];
       },
-      download(ext) {
-        const a = document.createElement('a');
-        a.href = `/api/report/${this.reportId}/export.${ext}`;
-        a.download = `miraah-report-${this.reportId}.${ext}`;
-        document.body.appendChild(a); a.click(); a.remove();
+      async download(ext) {
+        const name = `miraah-report-${this.reportId}.${ext}`;
+        this.shareMsg = '';
+        miraahBusy('يُجهَّز ملف ' + ext.toUpperCase() + '…');
+        const minShow = new Promise(r => setTimeout(r, 700));
+        try {
+          const r = await fetch(`/api/report/${this.reportId}/export.${ext}`);
+          if (!r.ok) throw 0;
+          const url = URL.createObjectURL(await r.blob());
+          const a = document.createElement('a');
+          a.href = url; a.download = name;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 10000);
+        } catch { this.shareMsg = 'تعذّر تجهيز الملف الآن. أعد المحاولة.'; }
+        await minShow;
+        miraahBusy('');
       },
       // الجوال: قائمة المشاركة (واتساب وغيره). الحاسوب: نسخ الرابط
       async share() {

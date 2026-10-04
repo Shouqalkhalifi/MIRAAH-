@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/app.css?v=47">
+  <link rel="stylesheet" href="/static/app.css?v=48">
   <script>
     {# خيوط العرض المتقابل: من [data-w=N] في لوحة إلى [data-to=N] في اللوحة المجاورة؛ اللون من data-tone #}
     function demoWires() {
@@ -46,9 +46,15 @@
       <span class="loader-ar">مِرآة</span>
       <span class="loader-en" dir="ltr">MIRAAH</span>
       <span class="loader-bar" aria-hidden="true"><i></i></span>
+      <span class="loader-msg" id="loader-msg"></span>
     </div>
   </div>
   <script>
+    function miraahBusy(msg) {
+      const el = document.getElementById('loader');
+      document.getElementById('loader-msg').textContent = msg || '';
+      el.classList.toggle('is-busy', !!msg);
+    }
     (function () {
       const el = document.getElementById('loader'), t0 = Date.now();
       const hide = () => setTimeout(() => el.classList.add('is-done'), Math.max(0, 500 - (Date.now() - t0)));
