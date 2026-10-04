@@ -34,6 +34,8 @@
 | [Readex Pro](https://fonts.google.com/specimen/Readex+Pro) (Google Fonts) | خط الواجهة | 10-01 | SIL Open Font License 1.1 |
 | [Amiri](https://fonts.google.com/specimen/Amiri) (Google Fonts) | النص العربي الأصلي (نسخي)، وخط تقرير PDF: ملفات TTF في `app/static/fonts/` مع نص الترخيص `OFL-Amiri.txt` (من github.com/google/fonts/tree/main/ofl/amiri) | 10-02 | SIL Open Font License 1.1 |
 | [Literata](https://fonts.google.com/specimen/Literata) (Google Fonts) | النصوص اللاتينية | 10-02 | SIL Open Font License 1.1 |
+| [MediaPipe Tasks Vision](https://github.com/google-ai-edge/mediapipe) `@mediapipe/tasks-vision@0.10.14` (CDN، داخل المتصفح) | التعرّف على وضعية الجسم في «تعلّم الصلاة» (`/salah`)، والصورة لا تغادر المتصفح | 10-04 | Apache-2.0 |
+| نموذج [Pose Landmarker (lite)](https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker) من Google (`pose_landmarker_lite.task`) | النقاط الـ33 للجسم في «تعلّم الصلاة» | 10-04 | Apache-2.0 |
 
 ## الخدمات والبنية
 
@@ -80,6 +82,15 @@
   `source_note` إن احتجتِ إلى الرجوع للأصل.
 - ملاحظة: موقع الشيخ ابن باز ليس ضمن قائمة المصادر في الحزمة العلمية؛ اختارته المطوّرة مصدراً موثوقاً، ويُذكر ذلك صراحة.
 - المسألتان الوهميتان `I01` و`I02` نُقلتا إلى `tests/fixtures/placeholder_issues.jsonl` للاختبارات فقط.
+
+## «تعلّم الصلاة» (`app/static/salah.js`، 10-04)
+- نص سورتي الفاتحة والإخلاص بالرسم الإملائي المشكول.
+- الأذكار ومراجعها كما تظهر تحت كل خطوة: رفع اليدين عند التكبير (البخاري 735)، و«لا صلاة لمن لم يقرأ بفاتحة الكتاب»
+  (البخاري 756)، و«سبحان ربي العظيم» و«سبحان ربي الأعلى» (مسلم 772)، و«سمع الله لمن حمده، ربنا لك الحمد» (البخاري 789)،
+  والسجود على سبعة أعظم (البخاري 812)، و«رب اغفر لي» (أبو داود 874)، والتشهد (البخاري 831)، والصلاة الإبراهيمية
+  (البخاري 3370)، والتسليم (أبو داود 996).
+- **تحتاج مراجعة شرعية قبل النشر**: أرقام الأحاديث، والنص، وعبارة «ثلاث مرات» في التسبيح.
+- الصفحة تدرّب على الحركات ولا تحكم بصحة الصلاة، ولا يُنطق القرآن أو الذكر بالصوت الآلي.
 
 ## الأصول البصرية
 - أيقونة الموقع (`app/static/favicon.*`): من عمل المشروع، تُولَّد بـ `scripts/make_favicon.py` بألوان الهوية.

@@ -286,6 +286,12 @@ def home(request: Request):
     return page(request, "home.html", verse=verse, sample=sample)
 
 
+@app.get("/salah", response_class=HTMLResponse)
+def salah_page(request: Request):
+    """تعلّم الصلاة: التعرّف على الوضعية في المتصفح، ولا تصل الصورة إلى الخادم."""
+    return page(request, "salah.html")
+
+
 @app.get("/about")
 def about():
     return RedirectResponse("/#about", status_code=308)

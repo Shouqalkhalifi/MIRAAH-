@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}تعلّم الصلاة مع الذكاء الاصطناعي{% endblock %}
+{% block content %}
+<script src="/static/salah.js?v=1"></script>
+<section class="salah" x-data="salahTrainer()" @beforeunload.window="stop()">
+  <header class="salah-head">
+    <h1>تعلّم الصلاة مع الذكاء الاصطناعي</h1>
+    <p>تدريب على حركات ركعة واحدة: تتعرّف الكاميرا على وضعيتك وترشدك خطوة خطوة، مع الأذكار ومراجعها.</p>
+  </header>
+  <div class="salah-notes" role="note">
+    <span>🔒 تُحلَّل الصورة داخل متصفحك، ولا تُرفع ولا تُحفظ</span>
+    <span>تدريب على الحركات فقط، ولا يحكم بصحة صلاتك</span>
+    <span>ضع الجهاز جانبك على بُعد مترين تقريباً حتى يظهر جسمك كاملاً</span>
+  </div>
+
+  <div class="salah-grid">
+    <div class="salah-stage">
+      <video x-ref="video" playsinline muted aria-hidden="true"></video>
+      <canvas x-ref="canvas" aria-hidden="true"></canvas>
+      <div class="salah-idle" x-show="state !== 'run'">
+        <p x-show="state === 'idle'">افتح الكاميرا لتبدأ. يمكنك أيضاً تصفّح الخطوات والأذكار دون كاميرا.</p>
+        <p x-show="state === 'load'" x-cloak>جارٍ تشغيل الكاميرا وتحميل نموذج التعرّف على الوضعية…</p>
+        <button type="button" class="btn btn-primary btn-lg" @click="start()" :disabled="state === 'load'">افتح الكاميرا</button>
+        <p class="salah-err" x-show="err" x-text="err" role="alert" x-cloak></p>
+      </div>
+      <span class="salah-pose" :class="{ 'is-hit': s.pose && pose === s.pose }" x-show="state === 'run'" x-text="'وضعيتك: ' + poseAr" aria-live="polite" x-cloak></span>
+      <span class="salah-praise" x-show="state === 'run' && (hit || done)" x-text="done ? 'أحسنت، أتممت التدريب' : s.praise" role="status" x-cloak></span>
+    </div>
+
+    <div class="salah-side">
+      <ol class="salah-steps" aria-label="خطوات الركعة">
+        <template x-for="(st, n) in steps" :key="n">
+          <li :class="{ 'is-now': n === i && !done, 'is-done': n < i || done }" :aria-current="n === i ? 'step' : null" x-text="st.name"></li>
+        </template>
+      </ol>
+      <p class="salah-kicker" x-text="'الخطوة ' + (i + 1) + ' من ' + steps.length"></p>
+      <h2 x-text="s.title"></h2>
+      <p class="salah-do" x-text="s.do"></p>
+      <p class="salah-dhikr ar-source"><span x-text="s.dhikr"></span><small x-show="s.times" x-text="s.times"></small></p>
+      <p class="salah-src" x-text="'المرجع: ' + s.src"></p>
+      <p class="salah-wait" x-show="state === 'run' && s.pose && !hit && !done"><i aria-hidden="true"></i><span x-text="'ننتظر وضعية: ' + {takbir: 'التكبير', qiyam: 'القيام', ruku: 'الركوع', sujud: 'السجود', julus: 'الجلوس'}[s.pose]"></span></p>
+      <div class="salah-acts">
+        <button type="button" class="btn btn-sm btn-quiet" @click="go(i - 1)" :disabled="i === 0">السابق</button>
+        <button type="button" class="btn btn-sm btn-primary" @click="next()" x-show="!done" x-text="i === steps.length - 1 ? 'أنهيت' : (state === 'run' && s.pose && !hit ? 'تخطَّ' : 'التالي')"></button>
+        <button type="button" class="btn btn-sm btn-quiet" @click="go(0)" x-show="done" x-cloak>أعد التدريب</button>
+        <button type="button" class="btn btn-sm btn-quiet" @click="stop()" x-show="state === 'run'" x-cloak>أوقف الكاميرا</button>
+        <label class="salah-voice" x-show="voiceOk" x-cloak><input type="checkbox" x-model="voice"> الإرشاد الصوتي</label>
+      </div>
+    </div>
+  </div>
+  <p class="demo-note t14 muted">للتعلّم الصحيح ارجع إلى مختص. الأذكار مأخوذة من مراجعها المذكورة تحت كل خطوة.</p>
+</section>
+{% endblock %}

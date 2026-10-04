@@ -608,6 +608,55 @@ mark { color: inherit; padding: 0 .15em; border-radius: 4px; }
 .panel-acts { display: grid; gap: .5rem; padding: .85rem; margin-top: auto; }
 .panel-acts .btn, .panel-acts form, .panel-acts form .btn { width: 100%; }
 .demo-note { text-align: center; margin: .9rem 0 0; }
+
+/* تعلّم مع الذكاء الاصطناعي: بطاقتا الرئيسية */
+.teach { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 1040px; margin: 2.25rem auto 0; }
+.teach-card { display: flex; gap: 1.1rem; align-items: flex-start; background: var(--white); border: 1px solid #ECEEF6; border-radius: 22px; padding: 1.4rem 1.4rem 1.5rem; color: var(--ink); text-decoration: none; box-shadow: 0 1px 2px rgba(18, 24, 63, .03); transition: transform .2s, box-shadow .2s, border-color .2s; }
+a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-shadow: 0 16px 36px rgba(18, 24, 63, .08); }
+.teach-card .ftile { flex: none; }
+.teach-card h2 { font-size: 1.1rem; font-weight: 600; margin: .2rem 0 .45rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.teach-card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.8; }
+.teach-go { display: inline-flex; align-items: center; gap: .35rem; margin-top: .8rem; color: var(--accent); font-weight: 600; font-size: .92rem; }
+.teach-go svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.teach-card.is-soon { background: #FAFBFF; }
+.teach-card.is-soon .ftile { background: #8A8FA8; box-shadow: none; }
+.teach-soon { font-size: .72rem; font-weight: 700; padding: .15rem .6rem; border-radius: 999px; background: #F3F1FF; color: var(--accent); }
+@media (max-width: 760px) { .teach { grid-template-columns: 1fr; } }
+
+/* صفحة تعلّم الصلاة */
+.salah { max-width: 1120px; margin: 0 auto; }
+.salah-head h1 { font-size: clamp(1.5rem, 3.2vw, 2.1rem); font-weight: 600; margin: .4rem 0 .4rem; }
+.salah-head p { margin: 0; color: var(--muted); }
+.salah-notes { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 1.25rem; }
+.salah-notes span { font-size: .8rem; padding: .3rem .75rem; border-radius: 999px; background: var(--white); border: 1px solid var(--line); color: var(--muted); }
+.salah-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.salah-stage { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; background: var(--ink); color: var(--white); }
+.salah-stage video, .salah-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.salah-idle { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: .8rem; padding: 1.5rem; text-align: center; }
+.salah-idle p { margin: 0; color: #C9CCE0; font-size: .92rem; max-width: 34ch; line-height: 1.8; }
+.salah-idle .btn-primary { background: var(--accent); border-color: var(--accent); }
+.salah-pose { position: absolute; top: .8rem; inset-inline-start: .8rem; font-size: .8rem; font-weight: 600; padding: .3rem .75rem; border-radius: 999px; background: rgba(18, 24, 63, .7); }
+.salah-pose.is-hit { background: #0E8F77; }
+.salah-praise { position: absolute; inset-inline: 0; bottom: 1.2rem; margin: auto; width: max-content; max-width: 90%; padding: .6rem 1.2rem; border-radius: 999px; background: var(--identity); color: var(--ink); font-weight: 700; font-size: 1.1rem; box-shadow: 0 10px 26px rgba(0, 0, 0, .25); }
+.salah-side { background: var(--white); border: 1px solid #ECEEF6; border-radius: 22px; padding: 1.2rem; }
+.salah-steps { list-style: none; display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 1rem; padding: 0; }
+.salah-steps li { font-size: .74rem; padding: .2rem .55rem; border-radius: 999px; background: var(--paper); color: var(--muted); }
+.salah-steps li.is-now { background: var(--ink); color: var(--white); }
+.salah-steps li.is-done { background: #EBFDF7; color: var(--verified-text); }
+.salah-kicker { font-size: .78rem; font-weight: 600; color: var(--accent); margin: 0; }
+.salah-side h2 { font-size: 1.3rem; font-weight: 600; margin: .2rem 0 .5rem; }
+.salah-do { margin: 0 0 .9rem; line-height: 1.8; }
+.salah-dhikr { margin: 0 0 .6rem; padding: .85rem 1rem; border-radius: 14px; background: #F3F1FF; border-inline-start: 3px solid var(--accent); font-family: var(--f-ar); font-size: 1.25rem; line-height: 2.1; }
+.salah-dhikr small { display: block; font-family: var(--f-ui); font-size: .78rem; color: var(--muted); line-height: 1.6; }
+.salah-src { font-size: .78rem; color: var(--muted); margin: 0 0 1rem; }
+.salah-wait { font-size: .85rem; color: var(--muted); margin: 0 0 1rem; display: flex; align-items: center; gap: .45rem; }
+.salah-wait i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: salahPulse 1.2s infinite; }
+@keyframes salahPulse { 50% { opacity: .25; } }
+.salah-acts { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.salah-voice { display: inline-flex; align-items: center; gap: .4rem; font-size: .82rem; color: var(--muted); margin-inline-start: auto; }
+.salah-err { color: var(--rubric); font-size: .88rem; margin: .5rem 0 0; }
+@media (max-width: 860px) { .salah-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .salah-wait i { animation: none; } }
 .b-grn { background: var(--ink); border-inline-end: 3px solid #17B892; }
 
 /* «تحقّق مما قرأت»: النتيجة بالعرض المتقابل نفسه في الرئيسية */

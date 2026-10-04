@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/app.css?v=49">
+  <link rel="stylesheet" href="/static/app.css?v=50">
   <script>
     {# خيوط العرض المتقابل: من [data-w=N] في لوحة إلى [data-to=N] في اللوحة المجاورة؛ اللون من data-tone #}
     function demoWires() {
@@ -40,7 +40,7 @@
   <link rel="apple-touch-icon" href="/static/favicon-180.png">
 </head>
 {% set p = request.url.path %}
-<body{% if p == '/' %} class="is-home"{% elif p.startswith(('/reverse', '/new', '/analyze', '/report', '/review')) %} class="is-khatam"{% endif %}>
+<body{% if p == '/' %} class="is-home"{% elif p.startswith(('/reverse', '/new', '/analyze', '/report', '/review', '/salah')) %} class="is-khatam"{% endif %}>
   <div class="loader" id="loader" role="status" aria-label="جارٍ التحميل">
     <div class="loader-in">
       <span class="loader-ar">مِرآة</span>

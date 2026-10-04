@@ -121,11 +121,18 @@ def test_unknown_report_404():
 
 def test_all_screens_render_with_disclaimer():
     rid = client.post("/api/analyze", json=CHAIN).json()["id"]
-    for path in ["/", "/new", f"/analyze/{rid}", f"/report/{rid}", f"/review/{rid}"]:
+    for path in ["/", "/new", f"/analyze/{rid}", f"/report/{rid}", f"/review/{rid}", "/salah"]:
         r = client.get(path)
         assert r.status_code == 200, path
         assert DISCLAIMER in r.text, path
         assert 'dir="rtl"' in r.text
+
+
+def test_salah_page_is_local_only_and_home_links_it():
+    html = client.get("/salah").text
+    assert "لا تُرفع ولا تُحفظ" in html and "لا يحكم بصحة صلاتك" in html and "salah.js" in html
+    home = client.get("/").text
+    assert 'href="/salah"' in home and "تعلّم الوضوء" in home and "قريباً" in home
 
 
 def test_report_page_colors_broken_link_and_highlights():
