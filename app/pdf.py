@@ -222,7 +222,8 @@ def render(d: dict) -> bytes:
 
     texts = []
     for n in d["chain"]:
-        meta = [n["name"], LANG_AR.get(n["lang"], n["lang"])]
+        meta = [n["name"]] + ([n["medium_ar"]] if n["medium_ar"] and n["medium_ar"] not in n["name"] else []) \
+            + [LANG_AR.get(n["lang"], n["lang"])]
         if n["applied_edits"]:
             meta.append(f"طُبّقت {len(n['applied_edits'])} صياغة اعتمدها المراجع")
         texts.append(([(SOFT, [("\u200f" + " · ".join(meta), 10, NAVY, True, True)]),

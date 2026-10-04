@@ -60,15 +60,17 @@ def _verdict(r: Report) -> dict:
 
 def build(r: Report, disclaimer: str) -> dict:
     nodes = {n["label"]: n for n in ui.thread(r)}
-    names = ui.version_names(r)
-    chain = [{"label": "source", "name": "الأصل", "lang": r.source.lang, "derived_from": None, "derived_from_name": "",
+    names = {**ui.version_names(r), "source": "المصدر الرسمي"}
+    if r.versions:
+        names[r.versions[-1].label] = "المصدر المنشور"
+    chain = [{"label": "source", "name": names["source"], "lang": r.source.lang, "derived_from": None, "derived_from_name": "",
               "medium": None, "medium_ar": "",
               "state": nodes["source"]["state"], "original_text": r.source.text, "approved_text": r.source.text,
               "applied_edits": []}]
     for v in r.versions:
         text, applied = approved_text(r, v.label, v.text)
         chain.append({"label": v.label, "name": names[v.label], "lang": v.lang, "derived_from": v.derived_from,
-                      "derived_from_name": names.get(v.derived_from or "source", "الأصل"),
+                      "derived_from_name": names.get(v.derived_from or "source", names["source"]),
                       "medium": v.medium, "medium_ar": ui.MEDIUM_AR.get(v.medium or "", ""),
                       "state": nodes[v.label]["state"], "original_text": v.text, "approved_text": text,
                       "applied_edits": applied})
