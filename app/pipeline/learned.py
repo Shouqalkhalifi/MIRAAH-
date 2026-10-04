@@ -4,24 +4,48 @@
 """
 from __future__ import annotations
 
+import re
 from difflib import SequenceMatcher
 
-from app.text.normalize import strip_diacritics, tokens
+from app.text.normalize import strip_diacritics, tokens as _ar_tokens
 
-_STOP = {
+_EN_STOP = {
+    "a", "an", "the", "of", "in", "on", "at", "to", "for", "from", "by", "with", "and", "or", "he", "she", "it", "they",
+    "him", "her", "them", "his", "its", "their", "is", "are", "was", "were", "be", "been", "that", "this", "these",
+    "those", "which", "who", "what", "as", "so", "if", "then", "when", "do", "does", "did", "has", "have", "had",
+    "you", "your", "i", "my", "we", "our", "there", "also", "can", "will", "would", "should", "s", "t",
+}
+_STOP = _EN_STOP | {
     "في", "من", "على", "عن", "الي", "ان", "او", "ام", "ما", "هو", "هي", "هم", "ذلك", "هذا", "هذه", "التي", "الذي",
     "ثم", "قد", "مع", "عليه", "عليها", "عليهم", "له", "لها", "لهم", "به", "بها", "اذا", "انه", "انها", "كان", "كانت",
     "يكون", "اي", "حتي", "عند", "بعد", "قبل", "كما", "لان", "اما", "وهو", "وهي", "منه", "منها", "فيه", "فيها",
     "الا",
 }
-_NEGATIONS = {"لا", "ليس", "ليست", "لم", "لن", "غير", "ولا", "فلا", "ولم", "ولن", "وليس"}
-_EXCEPT = {"الا", "سوي"}  # «لا… إلا» استثناء يثبت الحكم للمستثنى، فليس نفياً يقلب المعنى
+_NEGATIONS = {"لا", "ليس", "ليست", "لم", "لن", "غير", "ولا", "فلا", "ولم", "ولن", "وليس",
+              "not", "no", "never", "nor", "neither", "cannot"}
+_EXCEPT = {"الا", "سوي", "except", "unless"}  # «لا… إلا» استثناء يثبت الحكم للمستثنى، فليس نفياً يقلب المعنى
 _EXCEPT_REACH = 8
 _PREFIXES = ("وال", "فال", "بال", "كال", "لل", "ال", "و", "ف", "ب", "ل")
 _SUFFIXES = ("هما", "هم", "ها", "ه", "ات")
+_EN_SUFFIXES = ("ing", "ed", "es", "s")
+_LATIN = re.compile(r"[A-Za-z]")
+_ARABIC = re.compile(r"[\u0600-\u06FF]")
+
+
+def is_latin(text: str) -> bool:
+    return len(_LATIN.findall(text)) > len(_ARABIC.findall(text))
+
+
+def tokens(text: str) -> list[str]:
+    return _ar_tokens(re.sub(r"n't\b", " not", text.lower()))
 
 
 def _stem(t: str) -> str:
+    if t.isascii():
+        for s in _EN_SUFFIXES:
+            if t.endswith(s) and len(t) - len(s) >= 3:
+                return t[: -len(s)]
+        return t
     for p in _PREFIXES:
         if t.startswith(p) and len(t) - len(p) >= 3:
             t = t[len(p):]

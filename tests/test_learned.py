@@ -29,5 +29,15 @@ def test_exception_after_negation_is_not_a_flip():
     assert own["verdict"] == "great" and "قضاء" not in own["missing"]
 
 
+EN = "A traveler may break the fast in Ramadan. He must make up the days he missed."
+
+
+def test_english_answer_against_english_reference():
+    assert check(EN, "A traveler may break the fast in Ramadan. He must make up the days he missed.")["verdict"] == "great"
+    r = check(EN, "Travelers can break their fast in Ramadan")
+    assert r["verdict"] == "close" and "make" in r["missing"]
+    assert check(EN, "A traveler can't break the fast in Ramadan, he must make up the days")["verdict"] == "retry"
+
+
 def test_unrelated_answer_asks_to_retry():
     assert check(SRC, "الصلاة واجبة")["verdict"] == "retry"

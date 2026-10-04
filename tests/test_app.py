@@ -190,6 +190,17 @@ def decide(rid, aid, **kw):
     return client.post("/api/decision", json=body)
 
 
+def test_learned_english_answer_uses_the_sound_translation_only():
+    rid = client.post("/api/analyze", json=CHAIN).json()["id"]
+    r = client.post(f"/api/report/{rid}/learned", json={"text": CHAIN["versions"][0]["text"]}).json()
+    assert r["verdict"] == "great" and "لم تجد فيها خللاً" in r["basis"]
+    assert client.post(f"/api/report/{rid}/learned", json={"text": SOURCE}).json()["basis"] == ""
+    bad = {**CHAIN, "versions": [{**CHAIN["versions"][1], "derived_from": "source"}]}
+    rid = client.post("/api/analyze", json=bad).json()["id"]
+    r = client.post(f"/api/report/{rid}/learned", json={"text": "A traveler may break the fast"}).json()
+    assert r["verdict"] == "lang" and "بالعربية" in r["note"]
+
+
 def test_reader_exam_can_be_rerun_on_the_corrected_text():
     rep, _ = _analyzed()
     rid = rep["id"]

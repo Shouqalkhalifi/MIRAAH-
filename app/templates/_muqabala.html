@@ -305,21 +305,22 @@
 
       <div class="learn-res" x-show="res" x-cloak :class="res && 'lr-' + res.verdict" role="status">
         <div class="lr-top">
-          <span class="lr-badge" aria-hidden="true" x-text="res && ({ great: '✓', close: '≈', retry: '↺' })[res.verdict]"></span>
+          <span class="lr-badge" aria-hidden="true" x-text="res && ({ great: '✓', close: '≈', retry: '↺', lang: 'ع' })[res.verdict]"></span>
           <div class="lr-head">
-            <b class="lr-title" x-text="res && ({ great: 'أحسنت! فهمك يطابق الأصل', close: 'قريب جداً! ينقص عبارتك شيء من الأصل', retry: 'راجع الأصل مرة أخرى' })[res.verdict]"></b>
-            <span class="lr-stars" :aria-label="res && ({ great: 3, close: 2, retry: 1 })[res.verdict] + ' من 3 نجوم'">
+            <b class="lr-title" x-text="res && ({ great: 'أحسنت! فهمك يطابق الأصل', close: 'قريب جداً! ينقص عبارتك شيء من الأصل', retry: 'راجع الأصل مرة أخرى', lang: 'اكتب بالعربية' })[res.verdict]"></b>
+            <span class="lr-stars" x-show="res && res.verdict !== 'lang'" :aria-label="res && ({ great: 3, close: 2, retry: 1 })[res.verdict] + ' من 3 نجوم'">
               <template x-for="i in 3"><span :class="res && i <= ({ great: 3, close: 2, retry: 1 })[res.verdict] && 'on'">★</span></template>
             </span>
           </div>
           <span class="lr-pct" x-show="res && !res.note" x-text="res && Math.round(res.score * 100) + '٪'"></span>
         </div>
         <div class="lr-meter" aria-hidden="true" x-show="res && !res.note"><span :style="res && 'width:' + Math.round(res.score * 100) + '%'"></span></div>
-        <p class="lr-note" x-show="res && res.note" x-text="res && res.note"></p>
+        <p class="lr-note" x-show="res && res.note" :class="res && res.verdict === 'lang' && 'lr-note-soft'" x-text="res && res.note"></p>
         <div class="lr-miss" x-show="res && res.missing.length">
-          <span x-text="res && res.verdict === 'great' ? 'وتذكّر أيضاً من الأصل:' : 'كلمات من الأصل لم تذكرها:'"></span>
-          <template x-for="w in (res ? res.missing : [])"><mark class="lr-chip" x-text="w"></mark></template>
+          <span x-text="res && ((res.verdict === 'great' ? 'وتذكّر أيضاً ' : 'كلمات لم تذكرها ') + (res.basis ? 'من الترجمة:' : 'من الأصل:'))"></span>
+          <template x-for="w in (res ? res.missing : [])"><mark class="lr-chip" dir="auto" x-text="w"></mark></template>
         </div>
+        <p class="lr-basis" x-show="res && res.basis" x-text="res && res.basis"></p>
       </div>
       <p class="learn-foot learn-foot-d"><span aria-hidden="true">🔒</span> مقابلة بالألفاظ لا تقييم للفهم، ولا يُحفظ ما تكتبه.</p>
     </div>

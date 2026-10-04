@@ -251,8 +251,20 @@ class LearnedIn(BaseModel):
 
 @app.post("/api/report/{report_id}/learned")
 def api_learned(report_id: str, body: LearnedIn) -> dict:
-    """«ماذا تعلّمت اليوم؟»: يقابل عبارة القارئ بكلمات الأصل بالقواعد، بلا نموذج ولا حفظ للنص."""
-    return learned.check(_get(report_id).source.text, body.text)
+    """«ماذا تعلّمت اليوم؟»: يقابل عبارة القارئ بكلمات الأصل بالقواعد، بلا نموذج ولا حفظ للنص.
+
+    إن كتب القارئ بالإنجليزية قوبلت عبارته بترجمة إنجليزية لم تجد فيها مِرآة تنبيهاً أحمر أو أصفر.
+    """
+    report = _get(report_id)
+    if not learned.is_latin(body.text):
+        return {**learned.check(report.source.text, body.text), "basis": ""}
+    flawed = {a.version_label for a in report.alerts if a.severity.value in ("red", "yellow")}
+    ref = next((v for v in report.versions if v.lang == "en" and v.label not in flawed), None)
+    if ref is None:
+        return {"verdict": "lang", "score": 0.0, "missing": [], "basis": "",
+                "note": "لا توجد في هذا التقرير ترجمة إنجليزية سليمة نقابل بها عبارتك. اكتب ما تعلّمته بالعربية."}
+    basis = ui.version_names(report).get(ref.label, ref.label)
+    return {**learned.check(ref.text, body.text), "basis": f"قابلنا عبارتك بـ«{basis}» لأن مِرآة لم تجد فيها خللاً عن الأصل."}
 
 
 @app.get("/api/report/{report_id}/audit")

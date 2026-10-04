@@ -312,6 +312,9 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .learn-res { padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid; animation: learn-in .3s ease-out; }
 .lr-great { background: linear-gradient(135deg, #EBFDF7, #F6FFFC); border-color: #B5EEDB; --lr: #17B892; }
 .lr-close { background: linear-gradient(135deg, #FFF8E6, #FFFCF4); border-color: #F1DFAE; --lr: #D9A21B; }
+.lr-lang { background: linear-gradient(135deg, #F0EEFF, #FAF9FF); border-color: #D5CFFA; --lr: var(--accent); }
+.lr-note-soft { color: var(--ink); font-weight: 500; }
+.lr-basis { margin: .6rem 0 0; font-size: .75rem; color: var(--muted); }
 .lr-retry { background: linear-gradient(135deg, #FFF1F1, #FFF9F9); border-color: #F6C9CB; --lr: #E5484D; }
 .lr-top { display: flex; align-items: center; gap: .85rem; }
 .lr-badge { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--lr); color: var(--white); font-size: 1.4rem; font-weight: 800; box-shadow: 0 0 0 6px color-mix(in srgb, var(--lr) 18%, transparent); }
