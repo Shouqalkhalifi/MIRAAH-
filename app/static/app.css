@@ -292,7 +292,7 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .try { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; margin-bottom: 1.25rem; font-size: var(--t14); }
 .try form { display: inline; }
 /* ماذا تعلّمت اليوم؟ */
-.learn { display: grid; grid-template-columns: minmax(220px, 300px) 1fr; margin: 2.5rem 0 1rem; border-radius: 22px; overflow: hidden; background: var(--white); border: 1px solid var(--line); box-shadow: 0 18px 40px rgba(18, 24, 63, .08); }
+.learn { display: grid; grid-template-columns: 220px 1fr; width: 100%; max-width: 760px; margin: 2.5rem auto 1rem; border-radius: 22px; overflow: hidden; background: var(--white); border: 1px solid var(--line); box-shadow: 0 18px 40px rgba(18, 24, 63, .08); }
 .learn-side { position: relative; display: flex; flex-direction: column; gap: .5rem; padding: 1.6rem 1.5rem; color: var(--white); background: radial-gradient(120% 90% at 100% 0%, rgba(97, 80, 234, .55), transparent 60%), var(--ink); }
 .learn-side::after { content: ""; position: absolute; inset-inline: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--identity), var(--accent)); }
 .learn-kicker { align-self: flex-start; padding: .2rem .65rem; border-radius: 999px; background: rgba(46, 242, 194, .14); color: var(--identity); font-size: .75rem; font-weight: 700; }
