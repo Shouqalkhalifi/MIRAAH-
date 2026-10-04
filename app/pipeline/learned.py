@@ -12,8 +12,11 @@ _STOP = {
     "في", "من", "على", "عن", "الي", "ان", "او", "ام", "ما", "هو", "هي", "هم", "ذلك", "هذا", "هذه", "التي", "الذي",
     "ثم", "قد", "مع", "عليه", "عليها", "عليهم", "له", "لها", "لهم", "به", "بها", "اذا", "انه", "انها", "كان", "كانت",
     "يكون", "اي", "حتي", "عند", "بعد", "قبل", "كما", "لان", "اما", "وهو", "وهي", "منه", "منها", "فيه", "فيها",
+    "الا",
 }
 _NEGATIONS = {"لا", "ليس", "ليست", "لم", "لن", "غير", "ولا", "فلا", "ولم", "ولن", "وليس"}
+_EXCEPT = {"الا", "سوي"}  # «لا… إلا» استثناء يثبت الحكم للمستثنى، فليس نفياً يقلب المعنى
+_EXCEPT_REACH = 8
 _PREFIXES = ("وال", "فال", "بال", "كال", "لل", "ال", "و", "ف", "ب", "ل")
 _SUFFIXES = ("هما", "هم", "ها", "ه", "ات")
 
@@ -29,12 +32,24 @@ def _stem(t: str) -> str:
     return t
 
 
+def _skeleton(t: str) -> str:
+    """حروف الكلمة الأصلية تقريباً: بلا حرف المضارعة ولا حروف المدّ، فتلتقي «إفطار» و«يفطر» و«أفطره»."""
+    if len(t) >= 4 and t[0] in "يتنا":
+        t = t[1:]
+    return "".join(c for c in t if c not in "اويى")
+
+
 def _close(a: str, b: str) -> bool:
-    return a == b or (min(len(a), len(b)) >= 3 and SequenceMatcher(None, a, b).ratio() >= 0.75)
+    if a == b or (min(len(a), len(b)) >= 3 and SequenceMatcher(None, a, b).ratio() >= 0.75):
+        return True
+    sa, sb = _skeleton(a), _skeleton(b)
+    return min(len(sa), len(sb)) >= 3 and sa == sb
 
 
 def _negations(text: str) -> int:
-    return sum(1 for t in tokens(text) if t in _NEGATIONS)
+    toks = tokens(text)
+    return sum(1 for i, t in enumerate(toks)
+               if t in _NEGATIONS and not _EXCEPT.intersection(toks[i + 1:i + 1 + _EXCEPT_REACH]))
 
 
 def check(source: str, answer: str) -> dict:

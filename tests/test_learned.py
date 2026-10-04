@@ -19,5 +19,13 @@ def test_added_negation_flips_the_verdict():
     assert r["verdict"] == "retry" and "نفي" in r["note"]
 
 
+def test_exception_after_negation_is_not_a_flip():
+    r = check(SRC, "لا يجوز افطار في رمضان الا اذا سافرت")
+    assert r["verdict"] == "close" and not r["note"]
+    assert "يفطر" not in r["missing"] and "قضاء" in r["missing"]
+    full = check(SRC, "لا يجوز الإفطار في رمضان إلا للمسافر، ويجب عليه قضاء الأيام التي أفطرها")
+    assert full["verdict"] == "great" and not full["note"]
+
+
 def test_unrelated_answer_asks_to_retry():
     assert check(SRC, "الصلاة واجبة")["verdict"] == "retry"
