@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}تعلّم الصلاة مع الذكاء الاصطناعي{% endblock %}
 {% block content %}
-<script src="/static/salah.js?v=3"></script>
+<script src="/static/salah.js?v=4"></script>
 <section class="salah" x-data="salahTrainer()" @beforeunload.window="stop()">
   <header class="salah-head">
     <h1>تعلّم الصلاة مع الذكاء الاصطناعي</h1>
@@ -24,7 +24,8 @@
         <p class="salah-err" x-show="err" x-text="err" role="alert" x-cloak></p>
       </div>
       <span class="salah-pose" :class="{ 'is-hit': s.pose && pose === s.pose }" x-show="state === 'run'" x-text="'وضعيتك: ' + poseAr" aria-live="polite" x-cloak></span>
-      <span class="salah-praise" x-show="state === 'run' && (hit || done)" x-text="done ? 'أحسنت، أتممت التدريب' : s.praise" role="status" x-cloak></span>
+      <span class="salah-far" x-show="state === 'run' && pose === 'absent' && !done" role="status" x-cloak>ابتعد عن الكاميرا أو ضع الجهاز جانبك، حتى يظهر جسمك من الرأس إلى الركبتين</span>
+      <span class="salah-praise" x-show="state === 'run' && (hit || done) && pose !== 'absent'" x-text="done ? 'أحسنت، أتممت التدريب' : s.praise" role="status" x-cloak></span>
     </div>
 
     <div class="salah-side">

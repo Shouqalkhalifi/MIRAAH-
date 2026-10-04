@@ -638,6 +638,7 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .salah-pose { position: absolute; top: .8rem; inset-inline-start: .8rem; font-size: .8rem; font-weight: 600; padding: .3rem .75rem; border-radius: 999px; background: rgba(18, 24, 63, .7); }
 .salah-pose.is-hit { background: #0E8F77; }
 .salah-praise { position: absolute; inset-inline: 0; bottom: 1.2rem; margin: auto; width: max-content; max-width: 90%; padding: .6rem 1.2rem; border-radius: 999px; background: var(--identity); color: var(--ink); font-weight: 700; font-size: 1.1rem; box-shadow: 0 10px 26px rgba(0, 0, 0, .25); }
+.salah-far { position: absolute; inset-inline: 0; bottom: 1.2rem; margin: auto; width: max-content; max-width: 90%; padding: .6rem 1.1rem; border-radius: 14px; background: #FFF4D6; color: var(--ink); font-weight: 600; font-size: .95rem; text-align: center; line-height: 1.7; box-shadow: 0 10px 26px rgba(0, 0, 0, .25); }
 .salah-side { background: var(--white); border: 1px solid #ECEEF6; border-radius: 22px; padding: 1.2rem; }
 .salah-steps { list-style: none; display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 1rem; padding: 0; }
 .salah-steps li { font-size: .74rem; padding: .2rem .55rem; border-radius: 999px; background: var(--paper); color: var(--muted); }
