@@ -268,20 +268,6 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .card-quote.ar-q { font-family: var(--f-ar); font-size: 1.1rem; }
 .card-note { margin: 0; font-size: var(--t14); color: var(--muted); }
 
-.legend { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; font-size: .8rem; color: var(--muted); }
-.legend li { display: inline-flex; align-items: center; gap: .4rem; }
-
-.score-row { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); margin-bottom: 1.25rem; }
-.score { border-radius: 14px; padding: .7rem .8rem; display: grid; gap: .1rem; border: 1px solid transparent; }
-.score b { font-size: 1.5rem; line-height: 1.2; }
-.score b span { font-size: .9rem; font-weight: 600; }
-.score small { font-size: .72rem; color: var(--muted); }
-.score-name { font-weight: 700; font-size: .85rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem; }
-.score-name small { font-weight: 600; }
-.score-verified { background: #E3F6F1; border-color: #BFE8DD; } .score-verified b { color: var(--verified-text); }
-.score-saffron { background: #FDF3DF; border-color: #F1DDB4; } .score-saffron b { color: var(--saffron-text); }
-.score-rubric { background: #FCE8EA; border-color: #F3C4C9; } .score-rubric b { color: var(--rubric); }
-
 .xq-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
 .xq { border: 1px solid var(--line); border-radius: 14px; padding: .85rem .95rem; }
 .xq-q { margin: 0 0 .5rem; font-weight: 700; font-size: .95rem; display: flex; gap: .5rem; align-items: baseline; }

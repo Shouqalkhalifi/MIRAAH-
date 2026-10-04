@@ -344,25 +344,6 @@
     <section class="annex-wide" x-data="{ more: false }">
       {{ annex_top('الفهم · امتحان القارئ', 'هل يفهم قارئ النسخة ما يفهمه قارئ الأصل؟') }}
       <div class="annex-body" x-show="more" x-cloak>
-      <p class="annex-what">نطرح الأسئلة نفسها على قارئ آلي يرى الأصل وحده، وعلى قارئ آخر لكل نسخة يرى تلك النسخة وحدها، ثم نقارن الإجابات.</p>
-      <ul class="legend">
-        <li><span class="state state-verified">✓ فهم مثل الأصل</span></li>
-        <li><span class="state state-saffron">○ سكتت النسخة</span> لا تذكر ما يذكره الأصل، فلا يعرفه قارئها</li>
-        <li><span class="state state-rubric">✕ فهم مختلف</span> النسخة توحي بمعنى غير معنى الأصل</li>
-      </ul>
-
-      <div class="score-row">
-        {% for v in xv.versions %}
-        {% set n = v.same_after if v.same_after is not none else v.same %}
-        {% set tone = 'verified' if n == v.total else ('rubric' if n * 2 < v.total else 'saffron') %}
-        <div class="score score-{{ tone }}">
-          <span class="score-name">{{ vnames.get(v.label, v.label) }}</span>
-          <b>{{ n }} <span>من {{ v.total }}</span></b>
-          <small>{% if v.same_after is not none %}أسئلة فُهمت كالأصل بعد التصحيح (كان {{ v.same }}){% else %}أسئلة فُهمت كالأصل{% endif %}</small>
-        </div>
-        {% endfor %}
-      </div>
-
       <ol class="xq-list">
         {% for q in xv.questions %}
         <li class="xq">
