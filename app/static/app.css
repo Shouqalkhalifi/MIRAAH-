@@ -327,7 +327,20 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .lr-chip { padding: .12rem .6rem; border-radius: 999px; background: var(--white); border: 1px dashed var(--lr); color: var(--ink); font-weight: 600; }
 .learn-foot { margin: 0; font-size: .75rem; color: var(--muted); }
 @keyframes learn-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@media (max-width: 760px) { .learn { grid-template-columns: 1fr; } .learn-scale { margin-top: .5rem; } }
+.learn-foot-m { display: none; }
+@media (max-width: 760px) {
+  .learn { grid-template-columns: 1fr; }
+  .learn-scale { margin-top: .5rem; }
+  .learn-box { flex-wrap: wrap; }
+  .learn-box textarea { flex-basis: 100%; min-height: 4.5rem; }
+  .learn-bar { flex: 1 1 100%; padding: .45rem .5rem .45rem .45rem; border-top: 1px solid var(--line); }
+  .learn-main { padding: .9rem; }
+  .learn-bar { gap: .5rem; }
+  .learn-bar .btn { padding: .5rem .85rem; font-size: .82rem; white-space: nowrap; }
+  .learn-count { font-size: .68rem; white-space: nowrap; }
+  .learn-foot-m { display: block; flex: 1; min-width: 0; font-size: .68rem; line-height: 1.6; }
+  .learn-foot-d { display: none; }
+}
 @media (prefers-reduced-motion: reduce) { .learn-res { animation: none; } .lr-meter span { transition: none; } }
 
 .new-page { max-width: 1180px; margin: 0 auto; }
