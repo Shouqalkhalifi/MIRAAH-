@@ -78,7 +78,7 @@ def build(r: Report, disclaimer: str) -> dict:
         alerts.append({
             "id": a.id, "type": a.type.value, "severity": a.severity.value,
             "severity_ar": SEVERITY_AR[a.severity.value], "headline_ar": ui.headline(a),
-            "explanation_ar": ui.name_text(r, a.explanation_ar), "version_label": a.version_label,
+            "explanation_ar": ui.name_text(r, a.explanation_ar, a), "version_label": a.version_label,
             "introduced_at": a.introduced_at, "version_name": names.get(a.version_label, a.version_label),
             "introduced_name": names.get(a.introduced_at, a.introduced_at),
             "source_span": a.source_span.text, "version_span": a.version_span.text,

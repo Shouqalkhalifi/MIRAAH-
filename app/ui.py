@@ -215,8 +215,13 @@ def shown_option(text: str) -> str:
     return text.replace(NOT_STATED, NOT_STATED_SHOWN)
 
 
-def name_text(report, text: str) -> str:
-    """يستبدل التسميات التقنية داخل نصوص محفوظة («قارئ summary يفهم») بأسماء الحلقات العربية."""
+def name_text(report, text: str, alert=None) -> str:
+    """يستبدل التسميات التقنية داخل نصوص محفوظة («قارئ summary يفهم») بأسماء الحلقات العربية،
+    و«أمّها» في تنبيه حلقةٍ باسم حلقتها الأم («المصدر الرسمي» إن كانت الأصل)."""
+    if alert is not None and "أمّها" in text:
+        parent = next((v.derived_from for v in report.versions if v.label == alert.version_label), "source")
+        text = text.replace("أمّها", "المصدر الرسمي" if parent in (None, "source")
+                            else version_names(report).get(parent, "أمّها"))
     for lb, nm in sorted(version_names(report).items(), key=lambda x: -len(x[0])):
         if lb != "source":
             text = text.replace(f"قارئ {lb} ", f"قارئ {nm} ").replace(f"، {lb}: ", f"، {nm}: ")
@@ -402,5 +407,5 @@ def evidence_rows(alert, alert_report=None) -> list[dict]:
             rows.append({"label": "امتحان القارئ", "text": name_text(alert_report, detail.replace(" | ", "، "))
                          if alert_report else shown_option(detail.replace(" | ", "، "))})
         elif detail:
-            rows.append({"label": "ملاحظة", "text": detail})
+            rows.append({"label": "ملاحظة", "text": name_text(alert_report, detail, alert) if alert_report else detail})
     return rows

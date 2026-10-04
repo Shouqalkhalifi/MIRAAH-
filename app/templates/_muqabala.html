@@ -196,7 +196,7 @@
         {% for s in g.symptoms %}<span id="alert-{{ s.id }}"></span>{% endfor %}
         <button type="button" class="a-head" @click="open = !open" :aria-expanded="open">
           <span class="ab" x-text="decided({{ ids | tojson | forceescape }}) ? 'حُسم' : '{{ ui.mark_word(a.type.value) }}'">{{ ui.mark_word(a.type.value) }}</span>
-          <span class="a-txt"><b title="{{ a.type.value }}">{{ ui.headline(a) }}</b><small>{{ ui.name_text(report, a.explanation_ar) }}</small></span>
+          <span class="a-txt"><b title="{{ a.type.value }}">{{ ui.headline(a) }}</b><small>{{ ui.name_text(report, a.explanation_ar, a) }}</small></span>
           <span class="chev" aria-hidden="true"></span>
         </button>
         <div class="a-body" x-show="open" x-cloak>
@@ -206,7 +206,7 @@
         {% if g.symptoms %}
         <details @toggle="$nextTick(() => layout())">
           <summary>أعراضه ({{ g.symptoms | length }})</summary>
-          <ul class="sym">{% for s in g.symptoms %}<li class="s-{{ s.severity.value }}" title="{{ s.type.value }}"><b>{{ ui.headline(s) }}</b><span dir="auto">{{ ui.name_text(report, s.explanation_ar) }}</span></li>{% endfor %}</ul>
+          <ul class="sym">{% for s in g.symptoms %}<li class="s-{{ s.severity.value }}" title="{{ s.type.value }}"><b>{{ ui.headline(s) }}</b><span dir="auto">{{ ui.name_text(report, s.explanation_ar, s) }}</span></li>{% endfor %}</ul>
         </details>
         {% endif %}
         <details @toggle="$nextTick(() => layout())">
