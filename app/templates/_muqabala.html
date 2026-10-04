@@ -200,8 +200,6 @@
           <span class="chev" aria-hidden="true"></span>
         </button>
         <div class="a-body" x-show="open" x-cloak>
-        <p class="a-where">دخل في {{ vnames.get(a.introduced_at, a.introduced_at) }}{% if a.propagated_to %} وانتقل إلى {% for p in a.propagated_to %}{{ vnames.get(p, p) }}{{ '، ' if not loop.last }}{% endfor %}{% endif %}</p>
-        {% if a.version_span.text %}<p class="quote" style="margin-bottom:0">في النسخة:</p><span class="qb latin" dir="auto">{{ a.version_span.text }}</span>{% endif %}
         {% if a.witnesses_agree == false %}<p class="quote tone-saffron">اختلف فيه الشاهدان، فانظر فيه بنفسك.</p>{% endif %}
         {% if g.symptoms %}
         <details @toggle="$nextTick(() => layout())">
