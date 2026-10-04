@@ -280,37 +280,49 @@
                        } catch { this.err = 'تعذّر التحقق الآن. أعد المحاولة.'; }
                        this.busy = false;
                      } }">
-    <div class="learn-head">
-      <span class="learn-ic" aria-hidden="true">✎</span>
-      <div>
-        <h2 id="learn-h">ماذا تعلّمت اليوم؟</h2>
-        <p>اكتب بكلماتك ما يقوله الأصل، فتقابله مِرآة بألفاظ الأصل وتخبرك بما نقص.</p>
-      </div>
+    <div class="learn-side">
+      <span class="learn-kicker">اختبر فهمك</span>
+      <h2 id="learn-h">ماذا تعلّمت اليوم؟</h2>
+      <p>اكتب بكلماتك ما يقوله الأصل، فتقابله مِرآة بألفاظ الأصل وتخبرك بما نقص.</p>
+      <ul class="learn-scale" aria-label="درجات التقييم">
+        <li><span class="ls-stars">★★★</span> يطابق الأصل</li>
+        <li><span class="ls-stars">★★<i>★</i></span> قريب، ينقصه شيء</li>
+        <li><span class="ls-stars">★<i>★★</i></span> راجع الأصل</li>
+      </ul>
     </div>
-    <form class="learn-form" @submit.prevent="check()">
-      <label class="sr-only" for="learn-t">ما تعلّمته من الأصل</label>
-      <textarea id="learn-t" class="field" rows="2" dir="auto" maxlength="600" x-model="text" @input="res = null"
-                placeholder="مثال: يجوز للمسافر أن يفطر في رمضان، ويجب عليه قضاء ما أفطره"></textarea>
-      <button class="btn btn-primary" :disabled="busy || text.trim().length < 3" x-text="busy ? 'نقابل…' : 'تحقّق من فهمي'">تحقّق من فهمي</button>
-    </form>
-    <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
 
-    <div class="learn-res" x-show="res" x-cloak :class="res && 'lr-' + res.verdict" role="status">
-      <span class="lr-badge" aria-hidden="true" x-text="res && ({ great: '✓', close: '≈', retry: '↺' })[res.verdict]"></span>
-      <div class="lr-body">
-        <p class="lr-title">
-          <b x-text="res && ({ great: 'أحسنت! فهمك يطابق الأصل', close: 'قريب جداً! ينقص عبارتك شيء من الأصل', retry: 'راجع الأصل مرة أخرى' })[res.verdict]"></b>
-          <span class="lr-stars" :aria-label="res && ({ great: 3, close: 2, retry: 1 })[res.verdict] + ' من 3 نجوم'"
-                x-text="res && ('★'.repeat(({ great: 3, close: 2, retry: 1 })[res.verdict]) + '☆'.repeat(3 - ({ great: 3, close: 2, retry: 1 })[res.verdict]))"></span>
-        </p>
+    <div class="learn-main">
+      <form class="learn-box" @submit.prevent="check()">
+        <label class="learn-label" for="learn-t">ما تعلّمته من الأصل</label>
+        <textarea id="learn-t" rows="3" dir="auto" maxlength="600" x-model="text" @input="res = null"
+                  placeholder="مثال: يجوز للمسافر أن يفطر في رمضان، ويجب عليه قضاء ما أفطره"></textarea>
+        <div class="learn-bar">
+          <span class="learn-count" x-text="text.length + ' / 600'">0 / 600</span>
+          <button class="btn btn-primary" :disabled="busy || text.trim().length < 3" x-text="busy ? 'نقابل…' : 'تحقّق من فهمي'">تحقّق من فهمي</button>
+        </div>
+      </form>
+      <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
+
+      <div class="learn-res" x-show="res" x-cloak :class="res && 'lr-' + res.verdict" role="status">
+        <div class="lr-top">
+          <span class="lr-badge" aria-hidden="true" x-text="res && ({ great: '✓', close: '≈', retry: '↺' })[res.verdict]"></span>
+          <div class="lr-head">
+            <b class="lr-title" x-text="res && ({ great: 'أحسنت! فهمك يطابق الأصل', close: 'قريب جداً! ينقص عبارتك شيء من الأصل', retry: 'راجع الأصل مرة أخرى' })[res.verdict]"></b>
+            <span class="lr-stars" :aria-label="res && ({ great: 3, close: 2, retry: 1 })[res.verdict] + ' من 3 نجوم'">
+              <template x-for="i in 3"><span :class="res && i <= ({ great: 3, close: 2, retry: 1 })[res.verdict] && 'on'">★</span></template>
+            </span>
+          </div>
+          <span class="lr-pct" x-show="res && !res.note" x-text="res && Math.round(res.score * 100) + '٪'"></span>
+        </div>
+        <div class="lr-meter" aria-hidden="true" x-show="res && !res.note"><span :style="res && 'width:' + Math.round(res.score * 100) + '%'"></span></div>
         <p class="lr-note" x-show="res && res.note" x-text="res && res.note"></p>
         <div class="lr-miss" x-show="res && res.missing.length">
           <span x-text="res && res.verdict === 'great' ? 'وتذكّر أيضاً من الأصل:' : 'كلمات من الأصل لم تذكرها:'"></span>
           <template x-for="w in (res ? res.missing : [])"><mark class="lr-chip" x-text="w"></mark></template>
         </div>
       </div>
+      <p class="learn-foot"><span aria-hidden="true">🔒</span> مقابلة بالألفاظ لا تقييم للفهم، ولا يُحفظ ما تكتبه.</p>
     </div>
-    <p class="learn-foot">مقابلة بالألفاظ لا تقييم للفهم، ولا يُحفظ ما تكتبه.</p>
   </section>
 
   <header class="annex-h">
