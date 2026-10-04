@@ -397,4 +397,49 @@
     </section>
     {% endif %}
   </div>
+
+  {# ---------- ماذا تعلّمت اليوم؟ ---------- #}
+  <section class="learn" aria-labelledby="learn-h"
+           x-data="{ text: '', busy: false, res: null, err: '',
+                     async check() {
+                       this.busy = true; this.err = '';
+                       try {
+                         const r = await fetch('/api/report/{{ report.id }}/learned', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: this.text }) });
+                         if (!r.ok) throw 0;
+                         this.res = await r.json();
+                       } catch { this.err = 'تعذّر التحقق الآن. أعد المحاولة.'; }
+                       this.busy = false;
+                     } }">
+    <div class="learn-head">
+      <span class="learn-ic" aria-hidden="true">✎</span>
+      <div>
+        <h2 id="learn-h">ماذا تعلّمت اليوم؟</h2>
+        <p>اكتب بكلماتك ما يقوله الأصل، فتقابله مِرآة بألفاظ الأصل وتخبرك بما نقص.</p>
+      </div>
+    </div>
+    <form class="learn-form" @submit.prevent="check()">
+      <label class="sr-only" for="learn-t">ما تعلّمته من الأصل</label>
+      <textarea id="learn-t" class="field" rows="2" dir="auto" maxlength="600" x-model="text" @input="res = null"
+                placeholder="مثال: يجوز للمسافر أن يفطر في رمضان، ويجب عليه قضاء ما أفطره"></textarea>
+      <button class="btn btn-primary" :disabled="busy || text.trim().length < 3" x-text="busy ? 'نقابل…' : 'تحقّق من فهمي'">تحقّق من فهمي</button>
+    </form>
+    <p class="t14 tone-rubric" x-show="err" x-cloak x-text="err"></p>
+
+    <div class="learn-res" x-show="res" x-cloak :class="res && 'lr-' + res.verdict" role="status">
+      <span class="lr-badge" aria-hidden="true" x-text="res && ({ great: '✓', close: '≈', retry: '↺' })[res.verdict]"></span>
+      <div class="lr-body">
+        <p class="lr-title">
+          <b x-text="res && ({ great: 'أحسنت! فهمك يطابق الأصل', close: 'قريب جداً! ينقص عبارتك شيء من الأصل', retry: 'راجع الأصل مرة أخرى' })[res.verdict]"></b>
+          <span class="lr-stars" :aria-label="res && ({ great: 3, close: 2, retry: 1 })[res.verdict] + ' من 3 نجوم'"
+                x-text="res && ('★'.repeat(({ great: 3, close: 2, retry: 1 })[res.verdict]) + '☆'.repeat(3 - ({ great: 3, close: 2, retry: 1 })[res.verdict]))"></span>
+        </p>
+        <p class="lr-note" x-show="res && res.note" x-text="res && res.note"></p>
+        <div class="lr-miss" x-show="res && res.missing.length">
+          <span x-text="res && res.verdict === 'great' ? 'وتذكّر أيضاً من الأصل:' : 'كلمات من الأصل لم تذكرها:'"></span>
+          <template x-for="w in (res ? res.missing : [])"><mark class="lr-chip" x-text="w"></mark></template>
+        </div>
+      </div>
+    </div>
+    <p class="learn-foot">مقابلة بالألفاظ لا تقييم للفهم، ولا يُحفظ ما تكتبه.</p>
+  </section>
 </div>

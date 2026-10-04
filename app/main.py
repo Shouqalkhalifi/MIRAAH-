@@ -17,6 +17,7 @@ from app.examples import get_example, load_examples
 from app.library import load_library
 from app.models import MAX_VERSIONS, Decision, Lock, Report, ReportStatus, Revision
 from app.service import STAGES
+from app.pipeline import learned
 from app.pipeline.segment import split_sentences
 from app.pipeline.locks import LOCK_TYPE_AR
 from app.pipeline.severity import TIER_LABELS_AR
@@ -242,6 +243,16 @@ def api_reexam(report_id: str):
     except KeyError:
         raise HTTPException(404, "التقرير غير موجود")
     return r.reader_exam.model_dump(mode="json") if r.reader_exam else {}
+
+
+class LearnedIn(BaseModel):
+    text: str = Field(min_length=3, max_length=600)
+
+
+@app.post("/api/report/{report_id}/learned")
+def api_learned(report_id: str, body: LearnedIn) -> dict:
+    """«ماذا تعلّمت اليوم؟»: يقابل عبارة القارئ بكلمات الأصل بالقواعد، بلا نموذج ولا حفظ للنص."""
+    return learned.check(_get(report_id).source.text, body.text)
 
 
 @app.get("/api/report/{report_id}/audit")
