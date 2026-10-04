@@ -344,8 +344,6 @@ label.lbl { display: block; font-size: var(--t14); color: var(--muted); margin-b
 .tone-none { color: var(--ink); }
 .rv-page { max-width: 1040px; margin: 0 auto; padding-top: 1rem; display: flex; flex-direction: column; gap: 1.25rem; }
 .rv-result { display: flex; flex-direction: column; gap: 1.25rem; }
-.rv-back { align-self: flex-start; text-decoration: none; font-size: var(--t14); font-weight: 600; color: var(--muted); padding: .35rem .9rem; border: 1px solid var(--line); border-radius: 999px; background: var(--white); }
-.rv-back:hover { color: var(--accent); border-color: var(--accent); }
 .rv-card { background: var(--white); border: 1px solid var(--line); border-radius: 20px; padding: 1.4rem 1.5rem; box-shadow: 0 8px 24px rgba(18, 24, 63, .05); }
 .rv-h { display: flex; align-items: center; gap: .6rem; margin: 0 0 1rem; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
 .rv-step { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #EEEBFF; color: var(--accent); font-size: .85rem; font-weight: 700; }
