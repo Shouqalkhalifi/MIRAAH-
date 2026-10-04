@@ -13,8 +13,16 @@ _EN_STOP = {
     "a", "an", "the", "of", "in", "on", "at", "to", "for", "from", "by", "with", "and", "or", "he", "she", "it", "they",
     "him", "her", "them", "his", "its", "their", "is", "are", "was", "were", "be", "been", "that", "this", "these",
     "those", "which", "who", "what", "as", "so", "if", "then", "when", "do", "does", "did", "has", "have", "had",
-    "you", "your", "i", "my", "we", "our", "there", "also", "can", "will", "would", "should", "s", "t",
+    "you", "your", "i", "my", "we", "our", "there", "also", "will", "would", "s", "t", "up", "someone", "anyone",
+    "person", "one",
 }
+# ألفاظ الحكم بمعنى واحد: «allowed» = «may»، «يباح» = «يجوز». تُقابل بالمعنى لا بالحرف.
+_SAME = [
+    {"may", "can", "allow", "allowed", "allows", "permitted", "permissible", "lawful", "exempt", "exempted",
+     "يجوز", "جايز", "يباح", "مباح", "يحق", "رخصه", "يرخص"},
+    {"must", "obligatory", "required", "obliged", "need", "needs", "يجب", "واجب", "يلزم", "لازم", "فرض", "فريضه"},
+    {"make", "compensate", "repay", "redo", "قضاء", "يقضي", "اقضي", "القضاء"},
+]
 _STOP = _EN_STOP | {
     "في", "من", "على", "عن", "الي", "ان", "او", "ام", "ما", "هو", "هي", "هم", "ذلك", "هذا", "هذه", "التي", "الذي",
     "ثم", "قد", "مع", "عليه", "عليها", "عليهم", "له", "لها", "لهم", "به", "بها", "اذا", "انه", "انها", "كان", "كانت",
@@ -63,7 +71,14 @@ def _skeleton(t: str) -> str:
     return "".join(c for c in t if c not in "اويىء")
 
 
+def _group(t: str) -> int | None:
+    return next((i for i, g in enumerate(_SAME) if t in g or _stem(t) in g), None)
+
+
 def _close(a: str, b: str) -> bool:
+    ga = _group(a)
+    if ga is not None and ga == _group(b):
+        return True
     if a == b or (min(len(a), len(b)) >= 3 and SequenceMatcher(None, a, b).ratio() >= 0.75):
         return True
     sa, sb = _skeleton(a), _skeleton(b)

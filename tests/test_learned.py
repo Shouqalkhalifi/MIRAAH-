@@ -39,5 +39,14 @@ def test_english_answer_against_english_reference():
     assert check(EN, "A traveler can't break the fast in Ramadan, he must make up the days")["verdict"] == "retry"
 
 
+def test_ruling_synonyms_count_as_the_same_word():
+    r = check(EN, "If someone is traveling, they are allowed to break their fast in Ramadan.")
+    assert "may" not in r["missing"] and "up" not in r["missing"] and "make" in r["missing"]
+    full = check(EN, "If someone is traveling, they are allowed to break their fast in Ramadan, "
+                     "but they are required to make up the missed days.")
+    assert full["verdict"] == "great"
+    assert "يجوز" not in check(SRC, "يباح للمسافر الفطر في رمضان")["missing"]
+
+
 def test_unrelated_answer_asks_to_retry():
     assert check(SRC, "الصلاة واجبة")["verdict"] == "retry"
