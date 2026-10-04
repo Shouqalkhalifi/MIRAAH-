@@ -162,7 +162,8 @@ def test_examples_valid_and_runnable():
 
     exs = load_examples()
     assert len(exs) == 4
-    assert any(len(e.request.versions) == 3 for e in exs)
+    trav = next(e for e in exs if e.name == "traveler-fasting").request.versions
+    assert len(trav) == 2 and trav[1].derived_from == trav[0].label  # الشرط يسقط في الحلقة الثانية
     life = next(e for e in exs if e.name == "content-lifecycle")
     assert [v.medium for v in life.request.versions] == ["translation", "summary", "social_post", "video_script",
                                                          "ai_answer"]

@@ -1,7 +1,7 @@
 {
   "name": "traveler-fasting",
   "title": "رخصة الفطر للمسافر",
-  "description": "سلسلة من 3 حلقات يسقط فيها الشرط في الحلقة الثانية (الملخص) ثم ينتقل إلى منشور إنجليزي مأخوذ عن الملخص.",
+  "description": "ترجمة أمينة، ثم منشور تواصل مأخوذ عنها يسقط فيه الشرط «للمسافر» فيصير الحكم عاماً.",
   "review_note": "مثال اصطناعي — تراجعه المطوّرة وتضيف المصدر الرسمي في source_ref.",
   "request": {
     "title": "رخصة الفطر للمسافر",
@@ -15,9 +15,7 @@
       {"label": "en-translation", "lang": "en", "derived_from": "source", "medium": "translation",
        "text": "A traveler may break the fast in Ramadan. He must make up the days he missed."},
       {"label": "en-summary", "lang": "en", "derived_from": "en-translation", "medium": "summary",
-       "text": "Muslims may break the fast in Ramadan."},
-      {"label": "en-post", "lang": "en", "derived_from": "en-summary", "medium": "social_post",
-       "text": "In Ramadan, Muslims may break their fast."}
+       "text": "Muslims may break the fast in Ramadan."}
     ],
     "locks": []
   }
