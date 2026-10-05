@@ -29,6 +29,7 @@ NOT_FOUND_AR = "لم نعثر على هذا النص في المصادر الم�
 
 SUPPORTED_AT = 0.8
 PARTIAL_AT = 0.5
+PARTIAL_MIN_WORDS = 3
 
 # صيغ النسبة بعد التطبيع (ة←ه، ى←ي، أ←ا، ﷺ ← «صلي الله عليه وسلم» ثم تُحذف)
 _PROPHET_CUES = [
@@ -43,6 +44,23 @@ _ALLAH_CUES = [r"قال الله تعالي", r"قال الله", r"قال تع�
 _HONORIFICS = re.compile(r"صلي الله عليه وسلم|\(\s*(?:saw|pbuh|s\.a\.w\.?)\s*\)|\bpbuh\b|عليه السلام", re.I)
 _QUOTED = re.compile(r"[«\"“﴿﴾](.+?)[»\"”﴿﴾]")
 _QURAN_REF = re.compile(r"\b(\d{1,3})\s*:\s*(\d{1,3})\b")
+# كلمات وظيفية لا تُحسب في نسبة التطابق: مع آلاف الأحاديث والآيات تكاد تكون في كل نص («في»، «على»، "in"، "is").
+# أدوات النفي لا تُحذف لأنها تقلب المعنى.
+_STOP = set("""
+في من علي الي عن ان او و ف ب ك ل هو هي هم هذا هذه ذلك تلك التي الذي الذين كان كانت قد ثم مع كل به بها له لها اذا اذ يا
+قال قالت يقول عليه منه فيه انه انها اما ان لقد حتي عند بعد قبل بين
+the a an of in on at to is are was were be been and or for with by as that this it its his her he she they them him
+you your i we my our their from will shall who which what like so do does did has have had upon me us all if then
+there than said says say into unto
+la le les l de du des d un une et est en dans sur comme que qui au aux pour par il elle ce cette
+""".split())
+
+
+def content_tokens(q: list[str]) -> list[str]:
+    """رموز المعنى في النص المنسوب؛ وإن لم يبق منها شيء عُدّ النص كله."""
+    return [t for t in q if t not in _STOP and len(t) > 1] or q
+
+
 _VERSE_ID = re.compile(r"^q-(\d+)-(\d+)-")
 _GRADE_WORDS = {"sahih": ["صحيح", "sahih", "authentic"], "hasan": ["حسن", "hasan"],
                 "daif": ["ضعيف", "daif", "da'if", "weak", "faible"], "mawdu": ["موضوع", "fabricated", "mawdu"]}
@@ -52,6 +70,7 @@ class SearchHit(BaseModel):
     item: CorpusItem
     bm25: float
     containment: float
+    matched: int = 0  # عدد كلمات المعنى المشتركة
 
 
 class Mizan:
@@ -67,13 +86,15 @@ class Mizan:
         if not q or self._bm25 is None:
             return []
         scores = self._bm25.get_scores(q)
+        q = content_tokens(q)
         hits = []
         for i, item in enumerate(self.items):
             if item.type not in types:
                 continue
-            cont = max((sum(1 for t in q if t in f) / len(q) for f in self._forms[i] if f), default=0.0)
+            matched = max((sum(1 for t in q if t in f) for f in self._forms[i] if f), default=0)
+            cont = matched / len(q)
             if scores[i] > 0 or cont > 0:
-                hits.append(SearchHit(item=item, bm25=float(scores[i]), containment=cont))
+                hits.append(SearchHit(item=item, bm25=float(scores[i]), containment=cont, matched=matched))
         hits.sort(key=lambda h: (h.containment, h.bm25), reverse=True)
         return hits[:k]
 
@@ -150,7 +171,8 @@ def verify(text: str, label: str, sentence_index: int, mizan: Mizan | None = Non
         best = hits[0] if hits else None
         v = Verification(label=label, sentence_index=sentence_index, attributed_to=to, cue=cue, quote=quote,
                          status="unverified", note_ar=NOT_FOUND_AR)
-        if best and best.containment >= PARTIAL_AT:
+        # التطابق الجزئي يحتاج 3 كلمات معنى مشتركة على الأقل، فلا تكفي كلمتان متفرقتان في حديث طويل
+        if best and best.containment >= PARTIAL_AT and (best.containment >= SUPPORTED_AT or best.matched >= PARTIAL_MIN_WORDS):
             it = best.item
             v.score, v.item_id, v.item_text, v.item_grade = round(best.containment, 2), it.id, it.text_ar, it.grade
             v.source_name, v.source_url = it.source_name, it.source_url

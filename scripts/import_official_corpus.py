@@ -35,7 +35,7 @@ UA = {"User-Agent": "MIRAAH corpus import (hackathon project; local verification
 QURAN_LICENSE = ("النص من «منصة مطوري برمجيات القرآن الكريم» في مجمع الملك فهد لطباعة المصحف الشريف (kfgqpc_hafs_v30)، "
                  "منقول دون تعديل: العثماني للعرض والإملائي (text_match) للمطابقة. الترجمة: Saheeh International من QuranEnc.com "
                  "دون تعديل، وحُذفت علامات الحواشي [n] فقط.")
-HADITH_LICENSE = ("من «موسوعة الأحاديث النبوية» HadeethEnc.com، منقول دون تعديل: المتن والحكم والتخريج من النسخة العربية، "
+HADITH_LICENSE = ("من «موسوعة الأحاديث النبوية» HadeethEnc.com، منقول دون تعديل (سوى حذف علامة @ التي تضعها الموسوعة قبل موضع الشاهد): المتن والحكم والتخريج من النسخة العربية، "
                   "والترجمة من النسخة الإنجليزية للموسوعة. المتون ملك عام، والترجمة والحكم والتخريج لأصحابها مع الإسناد.")
 # الأحكام في الموسوعة ← درجات المدونة. ما لا يُعرف يُترك خارج المدونة ولا يُخمَّن.
 GRADES = {"صحيح": "sahih", "حسن": "hasan", "ضعيف": "daif", "موضوع": "mawdu"}
@@ -133,7 +133,7 @@ def build_hadith(cache: Path, client: httpx.Client, workers: int = 4) -> tuple[i
                 continue
             ref = " · ".join(x.strip() for x in (ar.get("reference") or "").splitlines()[:2] if x.strip())
             f.write(json.dumps({
-                "id": f"h-he-{i}", "type": "hadith", "text_ar": ar["hadeeth"].strip(),
+                "id": f"h-he-{i}", "type": "hadith", "text_ar": ar["hadeeth"].replace("@", "").strip(),
                 "text_en": (en or {}).get("hadeeth", "").strip(), "grade": g,
                 "source_name": f"{ar.get('attribution', '').strip()} ({ar.get('grade', '').strip()})"
                                + (f" — {ref}" if ref else "") + f" — موسوعة الأحاديث النبوية رقم {i}",
