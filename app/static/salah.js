@@ -43,34 +43,51 @@ function salahWordHeard(w, heard) {
   return heard.some(h => h === w || h === 'و' + w || w === 'و' + h || (w.length >= 4 && salahLev(h, w) <= 1));
 }
 /* المقابلة بلغة مِرآة: النسخة (ما سُمع) بأصلها (نص الذكر في المصدر).
-   verdict: match «مطابق للمصدر» · dropped «سقط من الذكر» · order «الترتيب يختلف عن المصدر» */
-function salahInOrder(tokens, heard) {
-  let pos = 0;
-  for (const x of tokens.filter(t => t.n && t.ok)) {
-    let k = pos;
-    while (k < heard.length && !salahWordHeard(x.n, [heard[k]])) k++;
-    if (k >= heard.length) return false;
-    pos = k + 1;
+   لكل كلمة: ok (قالها، أخضر) · skip (تجاوزها إلى ما بعدها، أحمر: «لم تذكر …») · غير ذلك لم يصل إليها بعد (باهتة).
+   المحاذاة بالموضع لا بمجرد الوجود (في الإخلاص «أحد» مرتان): أطول تسلسل مشترك بين الذكر وما سُمع، وكل كلمة مسموعة
+   تُحسب لكلمة واحدة من الذكر. كلمة خارجه قيلت بعده استدراك لما سقط، وكلمة خارجه قيلت قبله تعني أن الترتيب يختلف.
+   verdict: match «مطابق للمصدر» · dropped «لم تذكر …» · order «الترتيب يختلف» · other «ذكر خطوة أخرى» */
+function salahLcs(words, heard) {
+  const m = words.length, h = heard.length, eq = (i, j) => salahWordHeard(words[i].n, [heard[j]]);
+  const D = Array.from({ length: m + 1 }, () => new Array(h + 1).fill(0));
+  for (let i = m - 1; i >= 0; i--) for (let j = h - 1; j >= 0; j--)
+    D[i][j] = eq(i, j) ? D[i + 1][j + 1] + 1 : Math.max(D[i + 1][j], D[i][j + 1]);
+  const inLcs = new Set(), used = new Set(); let i = 0, j = 0, end = -1;
+  while (i < m && j < h) {
+    if (eq(i, j) && D[i][j] === D[i + 1][j + 1] + 1) { inLcs.add(i); used.add(j); end = j; i++; j++; }
+    else if (D[i + 1][j] >= D[i][j + 1]) i++; else j++;
   }
-  return true;
+  return { inLcs, used, end };
 }
 function salahHear(step, text) {
   const heard = salahNorm(text || '');
   const tokens = (step.dhikr || '').split(/\s+/).filter(Boolean).map(t => ({ t, n: salahNorm(t).join('') }));
-  tokens.forEach(x => { x.ok = !!x.n && salahWordHeard(x.n, heard); });
-  const words = tokens.filter(x => x.n), cover = words.filter(x => x.ok).length / (words.length || 1);
+  const words = tokens.filter(x => x.n);
+  const { inLcs, used, end } = salahLcs(words, heard);
+  let ordered = true;
+  words.forEach((x, n) => {
+    if (inLcs.has(n)) { x.ok = true; return; }
+    const j = heard.findIndex((w, k) => !used.has(k) && salahWordHeard(x.n, [w]));
+    x.ok = j >= 0;
+    if (j >= 0) used.add(j);
+    if (j >= 0 && j <= end) ordered = false;   // قيلت قبل آخر ما طابق الترتيب: الترتيب يختلف عن المصدر
+  });
+  const cover = words.filter(x => x.ok).length / (words.length || 1);
+  const lastOk = words.reduce((k, x, n) => (x.ok ? n : k), -1);
+  words.forEach((x, n) => { x.skip = !x.ok && n < lastOk; });
+  const missing = words.filter(x => x.skip).map(x => x.t);
   const count = step.count ? heard.filter(h => h === step.key || h === 'و' + step.key).length : 0;
   const w = (step.wrong || []).find(x => heard.includes(x.has));
   const wrong = w ? `ما سمعناه هو ذكر ${w.where} في المصدر: «${w.text}». وذكر هذه الخطوة في المصدر: «${step.dhikr}».` : '';
-  const ordered = salahInOrder(tokens, heard);
-  const ok = !wrong && ordered && cover >= (step.quran ? 0.75 : 0.8) && (!step.count || count >= step.count);
-  const missing = words.filter(x => !x.ok).map(x => x.t);
+  // لا تكتمل الخطوة وفيها كلمة سقطت حتى يذكرها. وما لم يصل إليه بعد له هامش في القرآن لأخطاء التعرّف على الكلام في الآيات الطويلة
+  const ok = !wrong && ordered && !missing.length && cover >= (step.quran ? 0.75 : 0.8)
+    && (!step.count || count >= step.count);
   let verdict = '';
   if (heard.length && words.length) {
     if (wrong) verdict = 'other';
-    else if (!missing.length && ordered) verdict = 'match';
-    else if (!missing.length) verdict = 'order';
-    else verdict = 'dropped';
+    else if (missing.length) verdict = 'dropped';
+    else if (!ordered) verdict = 'order';
+    else if (cover === 1) verdict = 'match';
   }
   return { tokens, cover, count, ok, wrong, any: heard.length > 0, verdict, missing, ordered };
 }
@@ -135,8 +152,11 @@ function salahTrainer() {
     get hearing() { return salahHear(this.s, this.heard); },
     get poseOk() { return !this.s.pose || this.hit || this.away; },
     get verdictAr() {
-      return { match: 'مطابق للمصدر', dropped: 'سقط من الذكر: «' + this.hearing.missing.join(' ') + '»',
-               order: 'الألفاظ موجودة لكن ترتيبها يختلف عن المصدر', other: 'ذكر خطوة أخرى في المصدر' }[this.hearing.verdict] || '';
+      const h = this.hearing;
+      return { match: 'المقابلة: مطابق للمصدر',
+               dropped: 'لم تذكر ' + h.missing.map(w => '«' + w + '»').join(' و') + '، قلها حتى يكتمل الذكر',
+               order: 'المقابلة: الألفاظ موجودة لكن ترتيبها يختلف عن المصدر',
+               other: 'المقابلة: ذكر خطوة أخرى في المصدر' }[h.verdict] || '';
     },
     /* أول محاولة = أول ما سمعناه في الخطوة، وآخر محاولة = أفضل ما سمعناه قبل مغادرتها */
     record() {

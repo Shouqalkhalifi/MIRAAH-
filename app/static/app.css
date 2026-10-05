@@ -664,7 +664,8 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .salah-en small { color: var(--muted); }
 .salah-fb .salah-verdict { display: inline-block; font-weight: 700; padding: .2rem .7rem; border-radius: 999px; margin-bottom: .45rem; }
 .salah-fb .v-match { background: #EBFDF7; color: var(--verified-text); }
-.salah-fb .v-dropped, .salah-fb .v-order { background: #FFF4D6; color: var(--saffron-text); }
+.salah-fb .v-order { background: #FFF4D6; color: var(--saffron-text); }
+.salah-fb .v-dropped { background: #FDF0F1; color: var(--rubric); }
 .salah-fb .v-other { background: #FDF0F1; color: var(--rubric); }
 .salah-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .9rem; margin: 1rem 0 0; padding: .9rem 1.1rem; border-radius: 16px; background: var(--white); border: 1px solid var(--line); }
 .salah-score strong { font-size: 1.3rem; color: var(--verified-text); }
@@ -690,6 +691,7 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .salah-fig.is-ok .fg-head { fill: var(--verified); }
 .salah-dhikr .w-miss { opacity: .45; }
 .salah-dhikr .w-ok { color: var(--verified-text); opacity: 1; }
+.salah-dhikr .w-drop { color: var(--rubric); opacity: 1; text-decoration: underline wavy; text-underline-offset: .35em; text-decoration-thickness: 1px; }
 .salah-fb { font-size: .85rem; margin: 0 0 .7rem; }
 .salah-fb p { margin: 0 0 .3rem; color: var(--muted); }
 .salah-fb .salah-good { color: var(--verified-text); font-weight: 600; }

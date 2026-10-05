@@ -2,7 +2,7 @@
 {% block title %}تعلّم الصلاة مع الذكاء الاصطناعي{% endblock %}
 {% block content %}
 <script>window.SALAH_STEPS = {{ steps|tojson }};</script>
-<script src="/static/salah.js?v=6"></script>
+<script src="/static/salah.js?v=9"></script>
 <section class="salah" x-data="salahTrainer()" @beforeunload.window="stop()">
   <header class="salah-head">
     <span class="salah-kicker-top">قابِل ذكرك بمصدره</span>
@@ -52,7 +52,7 @@
       </div>
       <p class="salah-unverified" x-show="!s.dhikr" x-text="s.mizan_note" role="note"></p>
       <p class="salah-dhikr ar-source" x-show="s.dhikr" :class="{ 'is-live': listening }">
-        <template x-for="(w, k) in hearing.tokens" :key="i + '-' + k"><span :class="listening && w.n ? (w.ok ? 'w-ok' : 'w-miss') : ''" x-text="w.t + ' '"></span></template>
+        <template x-for="(w, k) in hearing.tokens" :key="i + '-' + k"><span :class="listening && w.n ? (w.ok ? 'w-ok' : (w.skip ? 'w-drop' : 'w-miss')) : ''" x-text="w.t + ' '"></span></template>
       </p>
       <p class="salah-times" x-show="s.dhikr && s.times" x-text="s.times"></p>
       <p class="salah-mizan" x-show="s.mizan === 'supported'"><i aria-hidden="true"></i>ميزان: النص موجود في مدونة مِرآة بألفاظه وترتيبها</p>
@@ -62,11 +62,11 @@
         <small>ترجمة معنى تقريبية، لا تقوم مقام النص العربي في الصلاة.</small>
       </details>
       <div class="salah-fb" x-show="listening" x-cloak aria-live="polite">
-        <p class="salah-verdict" x-show="hearing.verdict" :class="'v-' + hearing.verdict" x-text="'المقابلة: ' + verdictAr"></p>
+        <p class="salah-verdict" x-show="hearing.verdict" :class="'v-' + hearing.verdict" x-text="verdictAr" role="status"></p>
         <p class="salah-bad" x-show="hearing.wrong" x-text="hearing.wrong"></p>
         <p class="salah-good" x-show="hearing.ok">أحسنت، قلتها صحيحة</p>
         <p x-show="!hearing.ok && !hearing.wrong && s.count && hearing.count" x-text="'سمعناها ' + hearing.count + ' من ' + s.count"></p>
-        <p x-show="!hearing.ok && !hearing.wrong && hearing.any && !s.count">الكلمات الخضراء سمعناها، والباهتة لم نسمعها بعد</p>
+        <p x-show="!hearing.ok && !hearing.wrong && hearing.any">الأخضر ما قلته، والأحمر ما لم تذكره، والباهت ما لم تصل إليه بعد</p>
         <p class="salah-heard" x-show="heard" x-text="'سمعنا: «' + heard.slice(-90) + '»'"></p>
       </div>
       <ul class="salah-src" aria-label="المراجع">
