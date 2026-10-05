@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Literal, Optional
 
@@ -10,7 +11,8 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 from app.config import ROOT
 
 CORPUS_DIR = ROOT / "data" / "corpus"
-CORPUS_FILES = ("quran.jsonl", "hadith.jsonl", "terms.jsonl")
+# المدونة الرسمية (scripts/import_official_corpus.py): المصحف كاملاً من مجمع الملك فهد، وأحاديث موسوعة HadeethEnc
+CORPUS_FILES = ("quran.jsonl", "hadith.jsonl", "terms.jsonl", "quran_kfgqpc.jsonl", "hadith_hadeethenc.jsonl")
 
 
 class CorpusItem(BaseModel):
@@ -18,6 +20,8 @@ class CorpusItem(BaseModel):
     type: Literal["quran", "hadith", "term"]
     text_ar: str = Field(min_length=1)
     text_en: str = ""
+    # صيغة المطابقة: النص الإملائي للآية حين يكون text_ar بالرسم العثماني («الصلاة» لا «ٱلصَّلَوٰةَ»)
+    text_match: str = ""
     grade: Optional[Literal["sahih", "hasan", "daif", "mawdu"]] = None
     source_name: str = Field(min_length=1)
     source_url: str = ""
@@ -51,14 +55,27 @@ def load_file(path: Path) -> list[CorpusItem]:
     return items
 
 
+_CACHE: dict[tuple, list[CorpusItem]] = {}
+
+
 def load_corpus(directory: Path = CORPUS_DIR) -> list[CorpusItem]:
+    """تُقرأ الملفات مرة واحدة ما دامت لم تتغيّر (آلاف الآيات والأحاديث)، ويُعاد نسخة من القائمة."""
+    stamp = tuple((n, p.stat().st_mtime_ns, p.stat().st_size) for n in CORPUS_FILES if (p := directory / n).exists())
+    key = (str(directory), stamp)
+    if key not in _CACHE:
+        if len(_CACHE) > 8:
+            _CACHE.clear()
+        _CACHE[key] = _load(directory)
+    return list(_CACHE[key])
+
+
+def _load(directory: Path) -> list[CorpusItem]:
     items: list[CorpusItem] = []
     for name in CORPUS_FILES:
         p = directory / name
         if p.exists():
             items.extend(load_file(p))
-    ids = [i.id for i in items]
-    dupes = {i for i in ids if ids.count(i) > 1}
+    dupes = {i for i, n in Counter(x.id for x in items).items() if n > 1}
     if dupes:
         raise CorpusError(f"معرّفات مكررة في المدونة: {sorted(dupes)}")
     return items

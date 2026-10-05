@@ -88,3 +88,22 @@ def test_supported_attribution_produces_no_alert():
 def test_quran_brackets_extract_quote():
     v = verify("قال الله تعالى: ﴿لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا﴾", "source", 0, M)[0]
     assert v.quote.startswith("لَا يُكَلِّفُ") and v.status == "supported" and v.item_id == "q-2-286-wus"
+
+
+# ---------- المدونة الرسمية: المصحف كاملاً من مجمع الملك فهد ----------
+def test_official_quran_is_complete_with_imlaei_match_form():
+    verses = [i for i in load_corpus() if i.id.endswith("-kfgqpc")]
+    assert len(verses) == 6236
+    assert all(i.text_match and i.text_en and i.license_note for i in verses)
+
+
+def test_any_verse_found_by_imlaei_spelling_and_by_translation():
+    # الرسم العثماني «ٱلصَّلَوٰةَ» يُطابَق بالإملائي «الصلاة»
+    assert verify("قال الله تعالى: «وأقيموا الصلاة وآتوا الزكاة»", "x", 0, M)[0].status == "supported"
+    assert verify('Allah says: "There shall be no compulsion in religion"', "x", 0, M)[0].item_id == "q-2-256-kfgqpc"
+
+
+def test_cited_verse_number_must_hold_the_quote():
+    v = verify("قال الله تعالى: ﴿لا إكراه في الدين﴾ (3:10)", "x", 0, M)[0]
+    assert v.status == "unsupported" and v.item_id == "q-3-10-kfgqpc" and "2:256" in v.note_ar
+    assert verify("قال الله تعالى: ﴿لا إكراه في الدين﴾ (2:256)", "x", 0, M)[0].status == "supported"

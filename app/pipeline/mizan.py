@@ -43,6 +43,7 @@ _ALLAH_CUES = [r"قال الله تعالي", r"قال الله", r"قال تع�
 _HONORIFICS = re.compile(r"صلي الله عليه وسلم|\(\s*(?:saw|pbuh|s\.a\.w\.?)\s*\)|\bpbuh\b|عليه السلام", re.I)
 _QUOTED = re.compile(r"[«\"“﴿﴾](.+?)[»\"”﴿﴾]")
 _QURAN_REF = re.compile(r"\b(\d{1,3})\s*:\s*(\d{1,3})\b")
+_VERSE_ID = re.compile(r"^q-(\d+)-(\d+)-")
 _GRADE_WORDS = {"sahih": ["صحيح", "sahih", "authentic"], "hasan": ["حسن", "hasan"],
                 "daif": ["ضعيف", "daif", "da'if", "weak", "faible"], "mawdu": ["موضوع", "fabricated", "mawdu"]}
 
@@ -56,7 +57,9 @@ class SearchHit(BaseModel):
 class Mizan:
     def __init__(self, items: list[CorpusItem]):
         self.items = items
-        self._docs = [tokens(i.text_ar) + tokens(i.text_en) for i in items]
+        # صيغ كل عنصر: النص، وصيغة المطابقة الإملائية للآية بالرسم العثماني، والترجمة. تُحسب مرة واحدة لآلاف العناصر.
+        self._forms = [[set(t) for t in item_forms(i)] for i in items]
+        self._docs = [[w for f in item_forms(i) for w in f] for i in items]
         self._bm25 = BM25Okapi(self._docs) if items else None
 
     def search(self, query: str, types: tuple[str, ...] = ("quran", "hadith"), k: int = 3) -> list[SearchHit]:
@@ -68,11 +71,16 @@ class Mizan:
         for i, item in enumerate(self.items):
             if item.type not in types:
                 continue
-            cont = max(containment(q, tokens(item.text_ar)), containment(q, tokens(item.text_en)))
+            cont = max((sum(1 for t in q if t in f) / len(q) for f in self._forms[i] if f), default=0.0)
             if scores[i] > 0 or cont > 0:
                 hits.append(SearchHit(item=item, bm25=float(scores[i]), containment=cont))
         hits.sort(key=lambda h: (h.containment, h.bm25), reverse=True)
         return hits[:k]
+
+
+def item_forms(item: CorpusItem) -> list[list[str]]:
+    """الصيغ التي يُطابَق بها العنصر: النص كما في المصدر، والإملائي إن وُجد، والترجمة."""
+    return [tokens(t) for t in (item.text_ar, item.text_match, item.text_en) if t]
 
 
 def containment(query: list[str], doc: list[str]) -> float:
@@ -86,7 +94,7 @@ def containment(query: list[str], doc: list[str]) -> float:
 def in_order(quote: str, item: CorpusItem) -> bool:
     """كلمات الاقتباس الموجودة في النص المعتمد تأتي فيه بالترتيب نفسه (تُتجاهل الكلمات الزائدة)."""
     q = tokens(quote)
-    for doc in (tokens(item.text_ar), tokens(item.text_en)):
+    for doc in item_forms(item):
         common = [t for t in q if t in set(doc)]
         if not common:
             continue
@@ -155,6 +163,8 @@ def verify(text: str, label: str, sentence_index: int, mizan: Mizan | None = Non
                 v.status, v.note_ar = "partially_supported", "الألفاظ موجودة لكن ترتيبها يختلف عن النص المعتمد"
             else:
                 v.status, v.note_ar = "partially_supported", "تطابق جزئي: الصياغة تختلف عن النص المعتمد"
+            if to == "allah" and v.status != "conflicting":
+                _check_cited_verse(v, quote or text, text, it, mizan)
         elif to == "allah":
             ref = _QURAN_REF.search(text)
             ref_item = next((i for i in mizan.items if ref and i.id.startswith(f"q-{ref.group(1)}-{ref.group(2)}-")), None)
@@ -164,6 +174,29 @@ def verify(text: str, label: str, sentence_index: int, mizan: Mizan | None = Non
                 v.note_ar = "الآية المشار إليها برقمها لا تطابق النص المقتبس"
         out.append(v)
     return out
+
+
+def _verse_of(item: CorpusItem) -> tuple[str, str] | None:
+    m = _VERSE_ID.match(item.id)
+    return (m.group(1), m.group(2)) if m else None
+
+
+def _check_cited_verse(v: Verification, quote: str, text: str, found: CorpusItem, mizan: Mizan) -> None:
+    """إن ذكر النص رقم آية (مثل 2:185) فالنص المقتبس يجب أن يكون فيها هي، لا في آية أخرى من المدونة."""
+    ref = _QURAN_REF.search(text)
+    if not ref or _verse_of(found) == (ref.group(1), ref.group(2)):
+        return
+    q = tokens(quote)
+    cited = [i for i in mizan.items if _verse_of(i) == (ref.group(1), ref.group(2))]
+    for it in cited:
+        if q and max((containment(q, f) for f in item_forms(it)), default=0) >= SUPPORTED_AT and in_order(quote, it):
+            v.item_id, v.item_text, v.source_name, v.source_url = it.id, it.text_ar, it.source_name, it.source_url
+            return
+    if cited:
+        where = found.source_name.split(" — ")[0]
+        v.status, v.item_id, v.item_text = "unsupported", cited[0].id, cited[0].text_ar
+        v.source_name, v.source_url = cited[0].source_name, cited[0].source_url
+        v.note_ar = f"الآية المشار إليها برقمها لا تطابق النص المقتبس؛ والنص موجود في {where}"
 
 
 # ---------- من نتائج الميزان إلى تنبيهات ----------
