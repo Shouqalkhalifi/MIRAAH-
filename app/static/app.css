@@ -930,3 +930,4 @@ body { overflow-x: clip; }
 .src-rules { margin: 0; padding-inline-start: 1.1rem; line-height: 1.9; }
 @media (max-width: 960px) { .src-madhahib { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .src-grid, .src-madhahib { grid-template-columns: 1fr; } }
+.rv-coverage { color: var(--ink); background: var(--paper); border-radius: 12px; padding: .7rem .9rem; line-height: 1.9; }

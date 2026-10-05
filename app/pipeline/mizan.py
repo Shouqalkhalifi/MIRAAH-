@@ -222,6 +222,39 @@ def _check_cited_verse(v: Verification, quote: str, text: str, found: CorpusItem
         v.note_ar = f"الآية المشار إليها برقمها لا تطابق النص المقتبس؛ والنص موجود في {where}"
 
 
+FOUND_AR = "وجدنا هذا النص في المدونة بألفاظه وترتيبها"
+QUOTE_MIN_WORDS = 4
+_SEGMENTS = re.compile(r"[«\"“﴿]([^«»\"“”﴿﴾]{6,})[»\"”﴾]")  # ما بين علامات التنصيص
+_SENTENCES = re.compile(r"[^.!؟?\n]+")
+
+
+def find_quote(text: str, label: str, sentence_index: int, mizan: Mizan | None = None) -> list[Verification]:
+    """آية أو حديث منقول بلا «قال رسول الله ﷺ» ولا «قال تعالى» (كما يُنشر غالباً): يُبحث عن كل مقطع في المدونة،
+    ولا يُعرض إلا تطابق قوي (4 كلمات معنى على الأقل، 80٪، وبالترتيب) حتى لا تُنسب عبارة عادية إلى القرآن أو السنة."""
+    mizan = mizan or default_mizan()
+    out, seen = [], set()
+    # ما بين علامات التنصيص أولاً (المنشور يقتبس النص داخل كلام آخر)، ثم كل جملة
+    segs = [m.group(1) for m in _SEGMENTS.finditer(text) if m.group(1)] + \
+           [m.group(0) for m in _SENTENCES.finditer(text)]
+    for seg in segs:
+        seg = seg.strip(" :،,-—«»\"“”﴿﴾")
+        if len(content_tokens(tokens(seg))) < QUOTE_MIN_WORDS:
+            continue
+        hits = mizan.search(seg, types=("quran", "hadith"), k=1)
+        best = hits[0] if hits else None
+        if not best or best.item.id in seen or best.matched < QUOTE_MIN_WORDS or best.containment < SUPPORTED_AT \
+                or not in_order(seg, best.item):
+            continue
+        it = best.item
+        seen.add(it.id)
+        out.append(Verification(label=label, sentence_index=sentence_index,
+                                attributed_to="allah" if it.type == "quran" else "prophet", cue="", quote=seg,
+                                status="supported", score=round(best.containment, 2), item_id=it.id, item_text=it.text_ar,
+                                item_grade=it.grade, source_name=it.source_name, source_url=it.source_url,
+                                note_ar=FOUND_AR))
+    return out
+
+
 def verify_madhhab(text: str, label: str, sentence_index: int) -> list[Verification]:
     """قول منسوب إلى أحد المذاهب الأربعة: لا نملك أقوال المذاهب، فالنسبة «غير متحقق» مع كتب المذهب للرجوع إليها."""
     out = []

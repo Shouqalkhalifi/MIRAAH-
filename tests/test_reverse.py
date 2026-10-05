@@ -192,3 +192,25 @@ def test_passing_mention_of_a_term_shows_no_rule():
 def test_no_notes_keeps_plain_no_reference():
     r = run("The moon-cheese rule is obligatory.")
     assert r.terms == [] and r.verifications == [] and r.headline_ar == rv.NO_REFERENCE_AR
+
+
+def test_cueless_hadith_or_verse_is_found_in_the_corpus_with_its_source():
+    r = run("إنما الأعمال بالنيات وإنما لكل امرئ ما نوى")
+    [v] = r.verifications
+    assert v.status == "supported" and v.attributed_to == "prophet" and v.cue == "" and v.source_url
+    assert r.headline_ar == rv.NOTES_ONLY_AR
+    [v] = run("يريد الله بكم اليسر ولا يريد بكم العسر").verifications
+    assert v.attributed_to == "allah" and v.item_id.startswith("q-2-185")
+
+
+def test_ordinary_sentence_is_not_matched_to_a_text_and_coverage_is_explained():
+    r = run("The moon-cheese rule is obligatory.")
+    assert r.verifications == [] and "مسألة" in r.coverage_ar and "آية" in r.coverage_ar
+    from app.pipeline.mizan import find_quote
+    assert find_quote("الزكاة واجبة في الذهب إذا بلغ النصاب", "x", 0) == []
+
+
+def test_quoted_hadith_inside_a_post_is_found():
+    from app.pipeline.mizan import find_quote
+    [v] = find_quote("قرأت منشوراً يقول: «لا ضرر ولا ضرار» فهل هو حديث؟", "x", 0)
+    assert v.attributed_to == "prophet" and v.quote == "لا ضرر ولا ضرار" and v.item_grade in ("sahih", "hasan")

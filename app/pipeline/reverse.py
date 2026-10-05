@@ -79,6 +79,7 @@ class ReverseResult(BaseModel):
     verifications: list[Verification] = Field(default_factory=list)
     terms: list[TermNote] = Field(default_factory=list)
     referral_ar: Optional[str] = None
+    coverage_ar: Optional[str] = None  # ما تغطيه المكتبة والمدونة، مع «لا مرجع» حتى يعرف القارئ السبب
     elapsed_ms: int = 0
 
 
@@ -278,6 +279,20 @@ def explain(llm, text: str, issue: Issue, verdict_headline: str, issues) -> tupl
     return expl, False, diff
 
 
+_TOPICS = {"BZ": "الصيام", "HJ": "الحج والعمرة"}  # بادئة معرّف المسألة ← موضوعها
+
+
+def coverage(issues) -> str:
+    from app.corpus import load_corpus
+    topics = list(dict.fromkeys(_TOPICS[i.id[:2]] for i in issues if i.id[:2] in _TOPICS))
+    items = load_corpus()
+    verses = sum(1 for c in items if c.id.endswith("-kfgqpc"))
+    hadith = sum(1 for c in items if c.type == "hadith")
+    where = f" في {' و'.join(topics)}" if topics else ""
+    return (f"مكتبة الأحكام في مِرآة تضم الآن {len(issues)} مسألة{where}، ومدونتها {verses} آية و{hadith} حديثاً. "
+            "لم نجد فيها ما يطابق نصك، ومِرآة لا تجيب من عندها. وإن كان نصك آية أو حديثاً فالصقه بألفاظه.")
+
+
 # ---------- التشغيل ----------
 def run_reverse(llm, text: str, issues=None, presence_fn: Optional[PresenceFn] = None) -> ReverseResult:
     t0 = time.perf_counter()
@@ -293,8 +308,9 @@ def run_reverse(llm, text: str, issues=None, presence_fn: Optional[PresenceFn] =
         return done(kind=kind, verdict="referral", headline_ar=PERSONAL_AR, tone="ink", referral_ar=PERSONAL_AR)
 
     # فحوص حتمية من المدونة تعمل وإن لم تكن المسألة في المكتبة: آية أو حديث منسوب، ومصطلح من قاموس الحزمة
-    notes = dict(verifications=mizan.verify(text, "reader", 0) + mizan.verify_madhhab(text, "reader", 0),
-                 terms=term_notes(text))
+    attributed = mizan.verify(text, "reader", 0)
+    quoted = [] if attributed else mizan.find_quote(text, "reader", 0)  # آية أو حديث منقول بلا صيغة نسبة
+    notes = dict(verifications=attributed + quoted + mizan.verify_madhhab(text, "reader", 0), terms=term_notes(text))
     has_notes = bool(notes["verifications"] or notes["terms"])
     if kind == "out_of_scope":
         return done(kind=kind, verdict="out_of_scope", headline_ar=NOTES_ONLY_AR if has_notes else OUT_OF_SCOPE_AR,
@@ -304,7 +320,7 @@ def run_reverse(llm, text: str, issues=None, presence_fn: Optional[PresenceFn] =
     if issue is None:
         return done(kind=kind, verdict="no_reference", headline_ar=NOTES_ONLY_AR if has_notes else NO_REFERENCE_AR,
                     tone="ink" if has_notes else "muted", match_confidence=conf, candidates=cand_ids,
-                    referral_ar=NO_REFERENCE_AR, **notes)
+                    referral_ar=NO_REFERENCE_AR, coverage_ar=coverage(issues), **notes)
 
     referral = KHILAF_REFERRAL_AR if issue.position.khilaf else None
     if kind == "question":  # نصوص المصدر وترجمتها المعتمدة فقط، بلا حكم من النموذج

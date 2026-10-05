@@ -114,6 +114,7 @@
     <h2 class="rv-h">ما قرأتَه</h2>
     <p class="rv-you" dir="auto">{{ r.text }}</p>
     <p class="t14 muted">مِرآة لا تجيب إلا من مكتبتها الموثّقة، ولا تولّد حكماً أو مرجعاً من ذاكرة النموذج.</p>
+    {% if r.coverage_ar and not r.verifications %}<p class="t14 rv-coverage">{{ r.coverage_ar }}</p>{% endif %}
   </section>
   {% endif %}
 
@@ -127,9 +128,13 @@
       <footer class="rv-pills"><span class="rv-pill">{{ v.source_name }}</span>
         <a class="rv-pill rv-pill-link" href="{{ v.source_url }}" target="_blank" rel="noopener">المراجع المعتمدة في الدرر السنية ↗</a></footer>
       {% else %}
+      {% if v.cue %}
       <p class="rv-alert">«<bdi>{{ v.quote }}</bdi>» (منسوب إلى {{ 'الله تعالى' if v.attributed_to == 'allah' else 'النبي ﷺ' }}) · {{ v.note_ar }}</p>
+      {% else %}
+      <p class="rv-alert rv-found">«<bdi>{{ v.quote }}</bdi>» ({{ 'من القرآن الكريم' if v.attributed_to == 'allah' else 'من الحديث النبوي' }}) · {{ v.note_ar }}</p>
       {% endif %}
-      {% if v.item_text and v.status != 'supported' %}
+      {% endif %}
+      {% if v.item_text %}
       <blockquote class="rv-quote">
         <p class="rv-sub">النص كما في المدونة</p>
         <p class="ar-source" dir="rtl">{{ v.item_text }}</p>
