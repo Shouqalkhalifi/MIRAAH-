@@ -4,8 +4,6 @@ services:
     name: miraah
     runtime: docker
     dockerfilePath: ./Dockerfile
-    # الخطة المجانية تنام بعد 15 دقيقة بلا زيارات (أول طلب بعدها يتأخر قرابة دقيقة) وتمسح SQLite عند كل تشغيل.
-    # طوال فترة التحكيم يُفضَّل starter، أو إبقاء free مع cache الأمثلة المحفوظ في data/seed/.
     plan: free
     healthCheckPath: /api/health
     autoDeploy: false

@@ -8,7 +8,7 @@ import unicodedata
 _DIACRITICS = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ۜ۟-۪ۨ-ۭ]")
 _TATWEEL = "ـ"
 _ALEF = re.compile(r"[آأإٱٲٳ]")  # آ أ إ ٱ ...
-_DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789")
+_DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹०१२३४५६७८९", "012345678901234567890123456789")
 _SPACES = re.compile(r"\s+")
 
 

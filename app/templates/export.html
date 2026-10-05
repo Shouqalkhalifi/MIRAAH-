@@ -39,21 +39,21 @@
 <main>
   <header>
     <h1>{{ d.title }}</h1>
-    <p class="muted" style="margin:0">{{ d.report_title or 'مقابلة' }} · مِرآة MIRAAH</p>
+    <p class="muted" style="margin:0">{{ d.report_title or 'مقابلة' }} · <span class="notranslate" translate="no">مِرآة MIRAAH</span></p>
     <dl class="meta">
       <dt>مرجع المصدر</dt><dd>{{ d.source.source_ref or 'غير مسجّل' }}</dd>
-      <dt>مستوى المحتوى</dt><dd>{{ d.source.content_level }}</dd>
+      <dt>مستوى المحتوى</dt><dd>{{ d.content_level_ar }}</dd>
       <dt>تاريخ التقرير</dt><dd>{{ d.exported_at }}</dd>
       <dt>رقم التقرير</dt><dd dir="ltr" style="text-align:right">{{ d.report_ref }}</dd>
     </dl>
-    <div class="verdict v-{{ d.verdict.tone }}"><small>حكم مِرآة</small><b>{{ d.verdict.text }}</b></div>
+    <div class="verdict v-{{ d.verdict.tone }}"><b>{{ d.verdict.text }}</b></div>
     <p class="banner">{{ d.notice_ar }}</p>
     <button type="button" class="print" onclick="window.print()">اطبع التقرير</button>
   </header>
 
   <section>
     <h2>المصدر</h2>
-    <div class="box"><p class="text" style="margin:0">{{ d.source.text }}</p></div>
+    <div class="box"><p class="text notranslate" translate="no" dir="{{ 'rtl' if d.source.lang in ['ar', 'ur'] else 'ltr' }}" style="margin:0">{{ d.source.text }}</p></div>
   </section>
 
   <section>
@@ -68,7 +68,7 @@
     {% for n in d.chain %}
     <div class="box">
       <p class="muted" style="margin:0">{{ n.name }} · {{ lang_ar.get(n.lang, n.lang) }}{% if n.applied_edits %} · طُبّقت {{ n.applied_edits | length }} صياغة اعتمدها المراجع{% endif %}</p>
-      <p class="text {{ '' if n.lang in ['ar', 'ur'] else 'ltr' }}" style="margin:.3rem 0 0">{{ n.approved_text }}</p>
+      <p class="text notranslate {{ '' if n.lang in ['ar', 'ur'] else 'ltr' }}" translate="no" dir="{{ 'rtl' if n.lang in ['ar', 'ur'] else 'ltr' }}" style="margin:.3rem 0 0">{{ n.approved_text }}</p>
     </div>
     {% endfor %}
   </section>
@@ -81,11 +81,11 @@
       <p class="muted">في {{ a.version_name }} · دخل في {{ a.introduced_name }}</p>
       <p>{{ a.explanation_ar }}</p>
       {% if a.why_it_matters_ar %}<p class="muted">لماذا يهم: {{ a.why_it_matters_ar }}</p>{% endif %}
-      {% for s in a.suggestions[:1] %}<div class="suggest"><p><b>صياغة مقترحة ({{ s.label_ar }}):</b> <bdi>{{ s.text }}</bdi></p></div>{% endfor %}
+      {% for s in a.suggestions[:1] %}<div class="suggest"><p><b>صياغة مقترحة ({{ s.label_ar }}):</b> <bdi class="notranslate" translate="no">{{ s.text }}</bdi></p></div>{% endfor %}
       {% if a.decision %}
       <div class="decision">
         <p><b>القرار:</b> {{ a.decision.action_ar }}</p>
-        {% if a.decision.edited_text %}<p><b>الصياغة المعتمدة:</b> <bdi>{{ a.decision.edited_text }}</bdi></p>{% endif %}
+        {% if a.decision.edited_text %}<p><b>الصياغة المعتمدة:</b> <bdi class="notranslate" translate="no">{{ a.decision.edited_text }}</bdi></p>{% endif %}
         {% if a.decision.reason %}<p><b>السبب:</b> {{ a.decision.reason }}</p>{% endif %}
         <p class="muted">{{ a.decision.decided_at }}</p>
       </div>
@@ -107,5 +107,31 @@
 
   <footer>{{ d.disclaimer }}.</footer>
 </main>
+{% if tr %}
+{# نسخة مترجمة للطباعة PDF: ترجمة Google بلغة الواجهة، ثم نافذة الطباعة. نصوص الحلقات لا تُترجم #}
+<div id="gt-el" hidden></div>
+<style>
+  body > .skiptranslate, .goog-te-banner-frame, #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+  body { top: 0 !important; }
+  .goog-text-highlight { background: none !important; box-shadow: none !important; }
+  html[dir="ltr"] h2 { text-align: left; } html[dir="ltr"] .meta dd[dir="ltr"] { text-align: left !important; }
+</style>
+<script>
+  document.documentElement.lang = '{{ tr }}'; document.documentElement.dir = 'ltr';
+  if (!document.cookie.includes('googtrans=/ar/{{ tr }}')) document.cookie = 'googtrans=/ar/{{ tr }}; path=/';
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({ pageLanguage: 'ar', includedLanguages: '{{ tr }}', autoDisplay: false }, 'gt-el');
+  }
+  let printed = false;
+  const go = () => { if (!printed) { printed = true; window.print(); } };
+  const t0 = Date.now();
+  (function wait() {
+    if (document.documentElement.classList.contains('translated-ltr')) return setTimeout(go, 1500);
+    if (Date.now() - t0 > 10000) return go();
+    setTimeout(wait, 250);
+  })();
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+{% endif %}
 </body>
 </html>

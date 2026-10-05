@@ -4,7 +4,7 @@
 {% set status = ui.status_line(report) %}
 {% set approved = report.status.value == 'approved' %}
 {% set first_label = nodes[first_tab + 1].label if report.versions else 'source' %}
-{% set lang_ar = {'ar': 'العربية', 'en': 'الإنجليزية', 'fr': 'الفرنسية', 'id': 'الإندونيسية', 'ur': 'الأردية'} %}
+{% set lang_ar = {'ar': 'العربية', 'en': 'الإنجليزية', 'fr': 'الفرنسية', 'id': 'الإندونيسية', 'ur': 'الأردية', 'hi': 'الهندية'} %}
 {% set vnames = ui.version_names(report) %}
 {% set ns = namespace() %}
 {% set dec = {} %}{% for k, d in report.decisions.items() %}{% set _ = dec.update({k: d.model_dump(mode='json')}) %}{% endfor %}
@@ -57,6 +57,12 @@
       async download(ext) {
         const name = `miraah-report-${this.reportId}.${ext}`;
         this.shareMsg = '';
+        const l = typeof miraahLang === 'function' ? miraahLang() : 'ar';
+        if (ext === 'pdf' && l !== 'ar') {  // ملف PDF الخادم عربي؛ الواجهة المترجمة تحفظ نسخة مترجمة من نافذة الطباعة
+          window.open(`/api/report/${this.reportId}/export.html?lang=${l}`, '_blank');
+          this.shareMsg = l === 'hi' ? 'प्रिंट विंडो में "PDF के रूप में सहेजें" चुनें।' : 'Choose "Save as PDF" in the print window.';
+          return;
+        }
         miraahBusy('يُجهَّز ملف ' + ext.toUpperCase() + '…');
         const minShow = new Promise(r => setTimeout(r, 700));
         try {
@@ -91,7 +97,8 @@
         const src = grid.querySelector('.source-pane'), matn = grid.querySelector('.matn');
         if (!src || src.offsetParent === null) return;
         const g = grid.getBoundingClientRect(), pa = src.getBoundingClientRect(), pb = matn.getBoundingClientRect();
-        if (pb.right > pa.left + 1) return;  // الأعمدة متراكبة على الشاشات الضيقة
+        const ltr = pa.right <= pb.left + 1;  // الواجهة المترجمة من اليسار: الأصل يسار النسخة
+        if (!ltr && pb.right > pa.left + 1) return;  // الأعمدة متراكبة على الشاشات الضيقة
         const mid = r => r.top - g.top + Math.min(r.height / 2, 16);
         matn.querySelectorAll('[data-src]').forEach(el => {
           if (el.offsetParent === null) return;
@@ -103,7 +110,7 @@
             const s = src.querySelector(`.src-sent[data-i="${i}"]`);
             const a = s && (s.querySelector('[data-alert]') || s).getClientRects()[0];
             if (!a) return;
-            const x1 = pa.left - g.left, y1 = mid(a), x2 = pb.right - g.left, y2 = mid(b), mx = (x1 + x2) / 2;
+            const x1 = (ltr ? pa.right : pa.left) - g.left, y1 = mid(a), x2 = (ltr ? pb.left : pb.right) - g.left, y2 = mid(b), mx = (x1 + x2) / 2;
             svg.insertAdjacentHTML(c === '#E5484D' ? 'beforeend' : 'afterbegin',
               `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="1.6" stroke-dasharray="4 4"/>` +
               `<circle cx="${x1}" cy="${y1}" r="4" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="4" fill="${c}"/>`);
@@ -159,7 +166,7 @@
       <div class="panel-b ar-source" dir="rtl">
         {% for seg in source_sentences %}<span class="src-sent" data-i="{{ seg.index }}">{{ seg.text | hl(report.alerts, 'source') }}</span> {% endfor %}
       </div>
-      <footer class="panel-f"><span class="pill">مستوى المحتوى {{ report.source.content_level.value }}</span><span class="pill">المرجع: {{ report.source.source_ref or 'غير مسجّل' }}</span></footer>
+      <footer class="panel-f"><span class="pill">مستوى المحتوى: {{ content_levels[report.source.content_level.value] }}</span><span class="pill">المرجع: {{ report.source.source_ref or 'غير مسجّل' }}</span></footer>
     </article>
 
     {# المتن #}
@@ -305,7 +312,7 @@
       <form class="learn-box" @submit.prevent="check()">
         <label class="sr-only" for="learn-t">ما تعلّمته من الأصل</label>
         <textarea id="learn-t" rows="1" dir="auto" maxlength="600" x-model="text" @input="res = null"
-                  placeholder="مثال: يجوز للمسافر أن يفطر في رمضان، ويجب عليه قضاء ما أفطره"></textarea>
+                  placeholder="اكتب بكلماتك ما فهمته من الأصل…"></textarea>
         <div class="learn-bar">
           <span class="learn-foot learn-foot-m"><span aria-hidden="true">🔒</span> مقابلة بالألفاظ لا تقييم للفهم، ولا يُحفظ ما تكتبه.</span>
           <span class="learn-count" x-text="text.length + ' / 600'">0 / 600</span>

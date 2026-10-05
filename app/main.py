@@ -45,6 +45,7 @@ templates.env.globals["meta"] = meta
 templates.env.globals["ui"] = ui
 templates.env.globals["sentences"] = split_sentences
 templates.env.globals["approved_text"] = export.approved_text
+templates.env.globals["content_levels"] = export.CONTENT_LEVEL_AR
 templates.env.globals["medium_ar"] = ui.MEDIUM_CHOICES
 templates.env.globals["max_versions"] = MAX_VERSIONS
 templates.env.globals["footer_ar"] = "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى"
@@ -170,17 +171,18 @@ def _download(name: str) -> dict:
 
 @app.get("/api/report/{report_id}/export.json")
 def api_export_json(report_id: str):
-    """تقرير المراجعة بصيغة JSON: للمراجعة قبل النشر، وليس شهادة اعتماد."""
+    """تقرير المراجعة بصيغة JSON: للمراجعة قبل النشر."""
     r = _exportable(report_id)
     return JSONResponse(export.build(r, DISCLAIMER), headers=_download(f"miraah-report-{r.id}.json"))
 
 
 @app.get("/api/report/{report_id}/export.html", response_class=HTMLResponse)
-def api_export_html(request: Request, report_id: str):
-    """تقرير المراجعة صفحةً مستقلة قابلة للطباعة."""
+def api_export_html(request: Request, report_id: str, lang: str | None = None):
+    """تقرير المراجعة صفحةً مستقلة قابلة للطباعة. lang=en|hi: تُفتح مترجمة لتُحفظ PDF بلغة الواجهة."""
     r = _exportable(report_id)
-    html = templates.get_template("export.html").render(d=export.build(r, DISCLAIMER), lang_ar=export.LANG_AR)
-    return HTMLResponse(html, headers=_download(f"miraah-report-{r.id}.html"))
+    tr = lang if lang in ("en", "hi") else None
+    html = templates.get_template("export.html").render(d=export.build(r, DISCLAIMER), lang_ar=export.LANG_AR, tr=tr)
+    return HTMLResponse(html, headers=None if tr else _download(f"miraah-report-{r.id}.html"))
 
 
 @app.get("/api/report/{report_id}/export.pdf")

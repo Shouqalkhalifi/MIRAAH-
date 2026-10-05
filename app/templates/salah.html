@@ -2,7 +2,7 @@
 {% block title %}تعلّم الصلاة مع الذكاء الاصطناعي{% endblock %}
 {% block content %}
 <script>window.SALAH_STEPS = {{ steps|tojson }};</script>
-<script src="/static/salah.js?v=13"></script>
+<script src="/static/salah.js?v=18"></script>
 <section class="salah" x-data="salahTrainer()" @beforeunload.window="stop()">
   <header class="salah-head">
     <span class="salah-kicker-top">قابِل ذكرك بمصدره</span>
@@ -11,9 +11,6 @@
     <p class="salah-engine">المحرك نفسه الذي يقابل الترجمة بأصلها: ما تنطقه «نسخة»، ونص الذكر في المصدر «الأصل»، فيظهر ما سقط أو تغيّر ترتيبه. وكل ذكر هنا من مدونة مِرآة بعد أن وجده الميزان بألفاظه ومرجعه.</p>
   </header>
   <div class="salah-notes" role="note">
-    <span>🔒 تُحلَّل الصورة داخل متصفحك، ولا تُرفع ولا تُحفظ</span>
-    <span x-show="canListen">🎙️ الاستماع اختياري، وفي Chrome يُرسَل الصوت إلى خدمة Google للتعرّف على الكلام</span>
-    <span>تدريب فقط، ولا يحكم بصحة صلاتك</span>
     <span>ضع الجهاز جانبك على بُعد مترين تقريباً حتى يظهر جسمك كاملاً</span>
   </div>
 
@@ -62,7 +59,7 @@
       </div>
       <p class="salah-unverified" x-show="!s.dhikr" x-text="s.mizan_note" role="note"></p>
       <p class="salah-dhikr ar-source" x-show="s.dhikr" :class="{ 'is-live': listening }">
-        <template x-for="(w, k) in hearing.tokens" :key="i + '-' + k"><span :class="listening && w.n ? (w.ok ? 'w-ok' : (w.skip ? 'w-drop' : 'w-miss')) : ''" x-text="w.t + ' '"></span></template>
+        <template x-for="w in dhikrWords" :key="i + '-' + w.k"><span :class="w.cls" x-text="w.t + ' '"></span></template>
       </p>
       <p class="salah-times" x-show="s.dhikr && s.times" x-text="s.times"></p>
       <p class="salah-mizan" x-show="s.mizan === 'supported'"><i aria-hidden="true"></i>ميزان: النص موجود في مدونة مِرآة بألفاظه وترتيبها</p>
@@ -76,13 +73,13 @@
         <p class="salah-bad" x-show="hearing.wrong" x-text="hearing.wrong"></p>
         <p class="salah-good" x-show="hearing.ok">أحسنت، قلتها صحيحة</p>
         <p x-show="!hearing.ok && !hearing.wrong && s.count && hearing.count" x-text="'سمعناها ' + hearing.count + ' من ' + s.count"></p>
-        <p x-show="!hearing.ok && !hearing.wrong && hearing.any">الأخضر ما قلته، والأحمر ما لم تذكره، والباهت ما لم تصل إليه بعد</p>
         <p class="salah-heard" x-show="heard" x-text="'سمعنا: «' + heard.slice(-90) + '»'"></p>
       </div>
       <ul class="salah-src" aria-label="المراجع">
         <template x-for="r in s.sources.concat(s.refs)" :key="i + r.id">
           <li><span x-text="r.type === 'quran' ? 'الآية: ' : (s.sources.includes(r) ? 'الذكر: ' : 'صفة الحركة: ')"></span><a :href="r.source_url" target="_blank" rel="noopener" x-text="r.source_name"></a></li>
         </template>
+        <li x-show="s.count_ref"><span>العدد: </span><a :href="s.count_ref && s.count_ref.source_url" target="_blank" rel="noopener" x-text="s.count_ref && s.count_ref.source_name"></a></li>
       </ul>
       <p class="salah-note" x-show="s.note" x-text="s.note"></p>
       <p class="salah-wait" x-show="state === 'run' && s.pose && !hit && !away && !done"><i aria-hidden="true"></i><span x-text="'ننتظر وضعية: ' + {takbir: 'التكبير', qiyam: 'القيام', ruku: 'الركوع', sujud: 'السجود', julus: 'الجلوس'}[s.pose]"></span></p>
@@ -113,6 +110,5 @@
     <span>آخر محاولة <strong x-text="score && score.last + '٪'"></strong></span>
     <small x-text="score && ('متوسط ' + score.n + ' خطوات سمعناها. يُحسب في متصفحك ولا يُرسل ولا يُحفظ.')"></small>
   </div>
-  <p class="demo-note t14 muted">للتعلّم الصحيح ارجع إلى مختص. كل ذكر وآية هنا من مدونة مِرآة بمرجعه المذكور تحت الخطوة، والمقابلة تدريب على الألفاظ لا حكم على الصلاة.</p>
 </section>
 {% endblock %}

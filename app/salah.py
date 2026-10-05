@@ -39,9 +39,17 @@ def load_steps() -> list[dict]:
         missing = [i for i in s.get("dhikr", []) if i not in corpus]
         statuses = [mizan_status(i) for i in found]
         verified = bool(found) and not missing and all(x == "supported" for x in statuses)
-        step = {k: v for k, v in s.items() if k not in ("dhikr", "refs", "wrong")}
+        step = {k: v for k, v in s.items() if k not in ("dhikr", "refs", "wrong", "count_ref")}
+        dhikr = " ".join(i.text_ar for i in found) if verified else ""
+        cref = corpus.get(s.get("count_ref", ""))
+        if dhikr and cref and s.get("times"):
+            spoken = f" قل: {dhikr}، {s['times']}."
+            step["say"] = s.get("say", "") + spoken
+            if s.get("praise"):
+                step["praise"] = s["praise"] + spoken
         step.update(
-            dhikr=" ".join(i.text_ar for i in found) if verified else "",
+            dhikr=dhikr,
+            count_ref=_ref(cref) if cref else None,
             dhikr_en=" ".join(i.text_en for i in found if i.text_en) if verified else "",
             sources=[_ref(i) for i in found],
             refs=[_ref(corpus[i]) for i in s.get("refs", []) if i in corpus],

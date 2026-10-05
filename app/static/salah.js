@@ -184,19 +184,25 @@ function salahTrainer() {
       while (b + 1 < segs.length && nWords(a, b) < (narrow ? 4 : 8) && nWords(a, b + 1) <= (narrow ? 7 : 14)) b++;
       return { words: all.slice(segs[a][0], segs[b][1] + 1), pre: a > 0, post: b < segs.length - 1 };
     },
+    /* الذكر في اللوحة الجانبية: الصنف يُحسب هنا لا في القالب، فلا يبقى x-for على كائنات كلمات قديمة */
+    get dhikrWords() {
+      const live = this.listening;
+      return this.hearing.tokens.map((x, k) => ({ t: x.t, k, cls: live && x.n ? (x.ok ? 'w-ok' : (x.skip ? 'w-drop' : 'w-miss')) : '' }));
+    },
     get stageVerdict() {
       const h = this.hearing;
       return { match: '✓ مطابق للمصدر', dropped: 'لم تذكر ' + h.missing.map(w => '«' + w + '»').join(' و'),
                order: 'الترتيب يختلف عن المصدر', other: 'هذا ذكر ' + h.where + '، لا ذكر هذه الخطوة' }[h.verdict] || '';
     },
-    /* تنبيه صوتي حين يتوقف عن الكلام وفي الذكر كلمة سقطت. لا يُنطق الذكر نفسه، بل يُدلّ على الكلمة الحمراء */
+    /* تنبيه صوتي حين يتوقف عن الكلام وفي الذكر كلمة سقطت: يُنطق ما سقط بلفظه من المدونة، فلا يحتاج المتعلّم الواقف إلى الشاشة */
     cue() {
       clearTimeout(cueT);
       cueT = setTimeout(() => {
-        const key = this.hearing.missing.join('|');
+        const miss = this.hearing.missing, key = miss.join('|');
         if (!this.listening || !key || key === cued) return;
-        cued = key; this.say('فاتتك كلمة، انظر إلى الكلمة الحمراء على الشاشة');
-      }, 2500);
+        cued = key;
+        this.say((miss.length > 1 ? 'لم تذكر: ' : 'لم تذكر كلمة: ') + miss.join('، ') + '. قلها حتى يكتمل الذكر.');
+      }, 2000);
     },
     fullscreen() {
       const el = this.$refs.stage;
@@ -274,13 +280,13 @@ function salahTrainer() {
     listenStart() {
       if (!this.listening || rec) return;
       rec = new SALAH_SR();
-      rec.lang = 'ar-SA'; rec.continuous = true; rec.interimResults = true;
+      rec.lang = 'ar-SA'; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 5;
       rec.onresult = e => {
         if (Date.now() < ttsUntil) return;
         let interim = '';
         for (let k = e.resultIndex; k < e.results.length; k++) {
-          const r = e.results[k];
-          if (r.isFinal) finals += ' ' + r[0].transcript; else interim += ' ' + r[0].transcript;
+          const r = e.results[k], t = this.pickAlt(r);
+          if (r.isFinal) finals += ' ' + t; else interim += ' ' + t;
         }
         this.heard = (finals + ' ' + interim).trim();
         this.record();
@@ -294,6 +300,20 @@ function salahTrainer() {
       };
       rec.onend = () => { if (this.listening && rec) { try { rec.start(); } catch { } } else rec = null; };
       try { rec.start(); this.micErr = ''; } catch { rec = null; }
+    },
+    /* التعرّف على الكلام قد يخلط العربية بكلمات إنجليزية: يُحذف الحرف اللاتيني، ومن البدائل يُختار أقربها إلى ذكر الخطوة
+       (والذكر الخاطئ المتوقع، حتى لا يُخفى «ذكر خطوة أخرى»)، ثم أكثرها عربية */
+    pickAlt(r) {
+      const ref = salahNorm([this.s.dhikr || ''].concat((this.s.wrong || []).map(w => w.text)).join(' '));
+      let best = '', bestScore = -1;
+      for (let a = 0; a < r.length; a++) {
+        const raw = r[a].transcript || '', t = raw.replace(/[A-Za-z'’-]+/g, ' ').replace(/(^|\s)[,.!?]+(?=\s|$)/g, ' ').replace(/\s+/g, ' ').trim();
+        const words = salahNorm(t);
+        const hits = words.filter(w => salahWordHeard(w, ref)).length;
+        const score = hits * 10 + words.length - (raw.length - t.length > 0 ? 1 : 0);
+        if (score > bestScore) { bestScore = score; best = t; }
+      }
+      return best;
     },
     listenStop() { if (rec) { const r = rec; rec = null; try { r.stop(); } catch { } } },
     toggleListen() {

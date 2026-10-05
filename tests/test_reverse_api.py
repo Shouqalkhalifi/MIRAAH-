@@ -104,7 +104,7 @@ def test_home_offers_both_services_and_section_nav():
     assert 'action="/reverse"' in html and 'href="/new"' in html
     assert ">راجِع قبل النشر</a>" in html and "حلّل بمِرآة" not in html
     nav = re.search(r'<nav class="topnav".*?</nav>', html, re.S).group(0)
-    assert re.findall(r'href="([^"]+)"', nav) == ["/", "/#about", "/#features", "/#how", "/#app", "/#faq", "/docs"]
+    assert re.findall(r'href="([^"]+)"', nav) == ["/", "/#about", "/#features", "/#how", "/#app", "/#faq"]
     for anchor in ("about", "features", "how", "app", "faq"):
         assert f'id="{anchor}"' in html
     assert 'class="phone"' in html and "الاعتكاف سنة للرجال والنساء" in html

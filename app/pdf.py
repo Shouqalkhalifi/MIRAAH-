@@ -29,6 +29,9 @@ class _Doc(FPDF):
         self.footer_text, self.ref = footer_text, ref
         self.add_font("Amiri", "", str(FONTS / "Amiri-Regular.ttf"))
         self.add_font("Amiri", "B", str(FONTS / "Amiri-Bold.ttf"))
+        self.add_font("NotoDeva", "", str(FONTS / "NotoSansDevanagari-Regular.ttf"))
+        self.add_font("NotoDeva", "B", str(FONTS / "NotoSansDevanagari-Bold.ttf"))
+        self.set_fallback_fonts(["NotoDeva"])  # أميري بلا حروف ديفاناغاري، فنص الحلقات الهندية يُكتب بهذا
         self.set_margins(16, 16, 16)
         self.set_auto_page_break(True, 22)
         self.set_title("تقرير مراجعة مِرآة")
@@ -136,7 +139,7 @@ def _cover(p, d: dict) -> None:
     p.rect(0, band, p.w, 1.2, style="F")
     p.set_y(9)
     _write(p, "تقرير مراجعة مِرآة", 21, WHITE, bold=True)
-    _write(p, "للمراجعة قبل النشر، وليس شهادة اعتماد", 11, TURQ)
+    _write(p, "للمراجعة قبل النشر", 11, TURQ)
     p.set_y(11)
     _write(p, "مِرآة", 20, WHITE, bold=True, align="L")
     _write(p, "MIRAAH", 9, tint(WHITE, 0.7), rtl=False)
@@ -146,7 +149,7 @@ def _cover(p, d: dict) -> None:
 
     cells = [("رقم التقرير", d["report_ref"], False),
              ("تاريخ التقرير (الرياض)", d["exported_at"].replace(" (بتوقيت الرياض)", ""), False),
-             ("مستوى المحتوى", f"المستوى {d['source']['content_level']}", True),
+             ("مستوى المحتوى", d["content_level_ar"], True),
              ("مرجع المصدر", d["source"]["source_ref"] or "غير مسجّل", True)]
     gap, n = 2.5, len(cells)
     w = (p.epw - gap * (n - 1)) / n
@@ -168,7 +171,7 @@ def _verdict(p, d: dict) -> None:
     counts = {k: 0 for k in ("red", "yellow", "info")}
     for a in d["alerts"]:
         counts[a["severity"]] = counts.get(a["severity"], 0) + 1
-    lines = [("حكم مِرآة", 9.5, MUTED, True, True), (head, 19, tone, True, True)]
+    lines = [(head, 19, tone, True, True)]
     if rest:
         lines.append(("\u200f" + " · ".join(rest), 11, NAVY, False, True))
     lines.append(("\u200f" + f"التنبيهات: {counts['red']} خطير · {counts['yellow']} متوسط · {counts['info']} للعلم",

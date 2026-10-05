@@ -13,6 +13,14 @@ def test_negations_arabic():
     assert count_negations("لِيَ الأمرُ") == 0
 
 
+def test_hindi_negations_and_numbers():
+    assert count_negations("यात्री रोज़ा नहीं रख सकता") == 1  # «नहीं» كلمة واحدة رغم علامات الحركات
+    assert count_negations("यात्री रोज़ा रख सकता") == 0
+    assert extract_numbers("तीन दिन") == ["3"]
+    assert extract_numbers("३ बार") == ["3"]  # أرقام ديفاناغاري
+    assert extract_numbers("एक हज़ार") == ["1000"]
+
+
 def test_negations_english():
     assert count_negations("He did not fast and doesn't need to") == 2
     assert count_negations("There is no blame, never.") == 2

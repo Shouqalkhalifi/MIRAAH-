@@ -1,4 +1,4 @@
-"""تصدير تقرير المراجعة: JSON و HTML قابل للطباعة و PDF، للمراجعة قبل النشر لا شهادة اعتماد."""
+"""تصدير تقرير المراجعة: JSON و HTML قابل للطباعة و PDF، للمراجعة قبل النشر."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -7,11 +7,13 @@ from app import ui
 from app.models import Report
 from app.pipeline.locks import LOCK_TYPE_AR
 
-TITLE = "تقرير مراجعة مِرآة – للمراجعة قبل النشر، وليس شهادة اعتماد"
+TITLE = "تقرير مراجعة مِرآة – للمراجعة قبل النشر"
 NOTICE_AR = ("هذا التقرير نتيجة فحص آلي مساعد يراجعه الإنسان قبل النشر، والقرار الأخير للمراجع البشري. "
-             "ليس شهادة اعتماد، ولا يُصدر حكماً شرعياً.")
+             "ولا يُصدر حكماً شرعياً.")
+CONTENT_LEVEL_AR = {"A": "نصوص منسوبة إلى الله ورسوله ﷺ", "B": "أحكام وفتاوى منقولة",
+                    "C": "محتوى دعوي وتربوي", "D": "خارج النطاق، يُحال إلى مختص"}
 RIYADH = timezone(timedelta(hours=3), "Asia/Riyadh")  # الرياض بلا توقيت صيفي، فلا حاجة إلى tzdata
-LANG_AR = {"ar": "العربية", "en": "الإنجليزية", "fr": "الفرنسية", "id": "الإندونيسية", "ur": "الأردية"}
+LANG_AR = {"ar": "العربية", "en": "الإنجليزية", "fr": "الفرنسية", "id": "الإندونيسية", "ur": "الأردية", "hi": "الهندية"}
 ACTION_AR = {"edit": "طُبّق التصحيح", "reject": "ليس خطأ", "accept": "أُحيل للمختص"}  # accept: خلل في الأصل نفسه
 SEVERITY_AR = {"red": "خطير", "yellow": "متوسط", "info": "للعلم"}
 
@@ -106,6 +108,7 @@ def build(r: Report, disclaimer: str) -> dict:
         "verdict": _verdict(r),
         "source": {"text": r.source.text, "lang": r.source.lang, "source_ref": r.source.source_ref,
                    "content_level": r.source.content_level.value},
+        "content_level_ar": CONTENT_LEVEL_AR[r.source.content_level.value],
         "chain": chain,
         "alerts": alerts,
         "locks": [{"span_text": x["lock"].span_text, "lock_type": x["lock"].lock_type.value,

@@ -2,7 +2,6 @@
 {% block title %}مِرآة{% endblock %}
 {% block content %}
 <section class="hero" aria-labelledby="hero-h">
-  <p class="hero-kicker"><span class="dot" aria-hidden="true"></span> الترجمة والتحقق في المحتوى الإسلامي</p>
   <h1 id="hero-h" class="hero-title">تتبّع <span class="hl">أثر المعنى</span><br>من الأصل العربي إلى كل ترجمة</h1>
   <p class="hero-sub">تكشف مِرآة أين سقط شرط، أو ارتفعت درجة يقين، أو نُسب قول إلى النبي ﷺ بلا مصدر، وفي أي حلقة دخل الخلل. والقرار للمراجع.</p>
 
@@ -11,7 +10,7 @@
     <svg class="hero-bar-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-4.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     <label class="sr-only" for="hero-in">الصق ما قرأته أو اكتب سؤالك</label>
     <input id="hero-in" name="text" x-model="t" dir="auto" minlength="3" maxlength="1000" required
-           placeholder="الصق عبارة قرأتها أو اكتب سؤالك…" autocomplete="off">
+           placeholder="الصق المنشور أو العبارة التي قرأتها…" autocomplete="off">
     <button class="hero-go" :disabled="sending || t.trim().length < 3" aria-label="تحقّق من مصدرها">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
@@ -24,27 +23,27 @@
   <ol class="demo-chain" aria-label="سلسلة النسخ">
     <li class="ok"><span class="k"></span><span class="lbl">١. الأصل العربي<small>المعنى سليم</small></span></li>
     <li class="ok"><span class="k"></span><span class="lbl">٢. الترجمة الإنجليزية<small>المعنى محفوظ</small></span></li>
-    <li class="bad"><span class="k"></span><span class="lbl">٣. منشور تواصل<small>هنا تغيّر المعنى</small></span></li>  </ol>
+    <li class="bad"><span class="k"></span><span class="lbl">٣. منشور على مواقع التواصل<small>هنا تغيّر المعنى</small></span></li>  </ol>
 
   <div class="demo-grid" x-ref="grid">
     <svg class="demo-wires" x-ref="svg" aria-hidden="true"></svg>
 
     <article class="panel">
       <header class="panel-h"><span>المصدر الرسمي</span><small>الأصل</small></header>
-      <div class="panel-b ar-source">
+      <div class="panel-b ar-source" dir="rtl">
         <p><span data-w="1">يجوز <mark class="m-ok">للمسافر</mark> أن يفطر في رمضان.</span></p>
         <p><span data-w="2">ويجب عليه قضاء ما أفطره من أيام.</span></p>
       </div>
-      <footer class="panel-f"><span class="pill">مستوى المحتوى B</span><span class="pill">المرجع: يُضاف المصدر الرسمي</span></footer>
+      <footer class="panel-f"><span class="pill">مستوى المحتوى: أحكام وفتاوى منقولة</span><span class="pill">المرجع: يُضاف المصدر الرسمي</span></footer>
     </article>
 
     <article class="panel">
-      <header class="panel-h"><span>المصدر المنشور</span><small>منشور تواصل</small></header>
+      <header class="panel-h"><span>المصدر المنشور</span><small>منشور على مواقع التواصل</small></header>
       <div class="panel-b latin" dir="ltr">
-        <p><span data-w="1" data-to="1"><mark class="m-red">Muslims</mark> may break the fast in Ramadan.</span>
+        <p><span data-w="1" data-to="1" class="notranslate" translate="no"><mark class="m-red">Muslims</mark> may break the fast in Ramadan.</span>
           <span class="bubble b-red" dir="rtl">تحذير: سقط الشرط «للمسافر»</span></p>
         <p><span data-w="2" data-to="2" class="gap">— sentence missing —</span>
-          <span class="bubble b-yel" dir="rtl">تنبيه: جملة القضاء بلا مقابل</span></p>
+          <span class="bubble b-yel" dir="rtl">تنبيه: سقطت جملة صيام الأيام التي أفطرها</span></p>
       </div>
       <footer class="panel-f"><span class="pill">راجع 2 من 2 جملة</span></footer>
     </article>
@@ -54,8 +53,8 @@
       <ul class="alerts">
         <li class="a-red"><span class="ab">أثر</span><div><b>سقط الشرط</b><small>خاص بالمسافر ← عام لكل المسلمين</small></div></li>
         <li class="a-yel"><span class="ab">أثر</span><div><b>اتّسع النطاق</b><small>من «المسافر» إلى «Muslims»</small></div></li>
-        <li class="a-grn"><span class="ab">ميزان</span><div><b>لا نسبة غير موثّقة</b><small>لم يُنسب قول إلى النبي ﷺ</small></div></li>
-        <li class="a-pur"><span class="ab">فهم</span><div><b>مخاطر فهم محتملة</b><small>قد يُفهم أن الفطر مباح للجميع</small></div></li>
+        <li class="a-grn"><span class="ab">ميزان</span><div><b>لا قول منسوب بلا مصدر</b><small>لم يُنسب قول إلى النبي ﷺ</small></div></li>
+        <li class="a-pur"><span class="ab">فهم</span><div><b>مخاطر فهم محتملة</b><small>قد يُفهم أن ترك الصيام في رمضان مباح للجميع</small></div></li>
       </ul>
       <div class="light"><span class="lamp red"></span><b>لا تنشر</b></div>
       <div class="panel-acts">
@@ -72,7 +71,6 @@
     <span class="ftile" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M12 7.5v6M8 10.5l4 1.5 4-1.5M12 13.5l-3 7M12 13.5l3 7"/></svg></span>
     <div>
       <h2>تعلّم الصلاة مع الذكاء الاصطناعي</h2>
-      <p>افتح الكاميرا، وتتعرّف مِرآة على وضعيتك وترشدك خطوة خطوة: التكبير، والقيام، والركوع، والسجود، مع الأذكار.</p>
       <p class="teach-tie">قابِل ذكرك بمصدره: المحرك نفسه يقابل ما تقوله بنص الذكر في المصدر، فيظهر ما سقط أو تغيّر.</p>
       <span class="teach-go">ابدأ التدريب <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg></span>
     </div>
@@ -94,7 +92,7 @@
     <span class="rule" aria-hidden="true"></span>
   </div>
   <div class="about-txt">
-    <p>مِرآة منظومة ذكاء اصطناعي تتتبّع أثر المعنى في المحتوى الإسلامي، من الأصل العربي إلى الترجمة والملخص، وتكشف أين تغيّر المعنى وفي أي حلقة دخل الخلل.</p>
+    <p>مِرآة منظومة ذكاء اصطناعي تتتبّع أثر المعنى في المحتوى الإسلامي، من الأصل العربي إلى كشف أين تغيّر المعنى وفي أي حلقة دخل الخلل.</p>
     <p>تقابل كل نسخة بأمها وبالأصل، وتربط كل تنبيه بموضعه في النص وبمصدر من مدونتها المحلية، وتقترح صياغة آمنة.</p>
     <p class="strong">لا تُصدر فتوى ولا تعدّل النص المصدر؛ مهمتها أن تجعل نقل المعنى أدق وأوضح وأجدر بالثقة، والقرار الأخير للمراجع.</p>
   </div>
@@ -132,8 +130,8 @@
     <li class="fcard">
       <span class="fnum">01</span>
       <span class="ftile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></span>
-      <h3>الصق الأصل وترجمته</h3>
-      <p>النص العربي وما أُخذ منه: ترجمة أو ملخص، حتى أربع حلقات متتابعة.</p>
+      <h3>الصق الأصل وعبارة منشورة</h3>
+      <p>النص العربي وما أُخذ منه: منشور أو ملخص، حتى أربع حلقات متتابعة.</p>
     </li>
     <li class="fcard">
       <span class="fnum">02</span>
@@ -189,7 +187,7 @@
     <h2 id="faq-h" class="big">أسئلة <span class="soft">متكررة.</span></h2>
     <p class="sec-sub">كل ما تحتاج معرفته عن منهج مِرآة ومصادرها وطريقة تحققها.</p>
     {% set faqs = [
-        ('ما هي مِرآة؟', 'أداة مراجعة مدعومة بالذكاء الاصطناعي تقابل الترجمات والملخصات بالأصل العربي، وتكشف أين تغيّر المعنى وفي أي حلقة.'),
+        ('ما هي مِرآة؟', 'أداة مراجعة مدعومة بالذكاء الاصطناعي تقابل المنشورات والملخصات بالأصل العربي، وتكشف أين تغيّر المعنى وفي أي حلقة.'),
         ('كيف تعمل مِرآة؟', 'تقسّم النص إلى جمل وتحاذيها بجمل الأصل، وتستخرج بصمة المعنى لكل جملة، ثم تقارن البصمات بقواعد ثابتة وتحدد الحلقة التي دخل فيها الخلل.'),
         ('كيف تتجنب مِرآة اختلاق المصادر؟', 'لا تبحث إلا في مدونتها المحلية الموثّقة. إن لم تجد المرجع قالت «غير متحقق» وأحالت إلى المراجع، ولا يُسمح للنموذج بتوليد آية أو حديث من ذاكرته.'),
         ('هل أستطيع التحقق من منشور قرأته؟', 'نعم، عبر «تحقّق مما قرأت»: الصق العبارة فتعرض لك مِرآة نص المصدر من مكتبتها وموضع الاختلاف، إن كانت المسألة فيها.'),

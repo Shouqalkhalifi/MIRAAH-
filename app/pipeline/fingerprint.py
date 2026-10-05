@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -18,7 +19,9 @@ _NEG_AR = {"لا", "لم", "لن", "ليس", "ليست", "لست", "لسنا", "
 _NEG_EN = {"not", "no", "never", "none", "nor", "neither", "cannot", "without", "nobody", "nothing"}
 _NEG_FR = {"sans", "jamais"}
 _FR_NEG_PARTNERS = {"pas", "jamais", "plus", "rien", "aucun", "aucune", "personne", "point"}
-_WORD = re.compile(r"[\w']+", re.UNICODE)
+_NEG_HI = {unicodedata.normalize("NFKC", w) for w in ("नहीं", "न", "मत", "बिना")}
+# الهندية: علامات الحركات (मात्रा) ليست من \w في re، فتُضمّ كتلة الديفاناغاري كلها وإلا انقسمت «नहीं» إلى «नह»
+_WORD = re.compile(r"[\w'\u0900-\u097F]+", re.UNICODE)
 
 
 def _strip_ar_prefix(tok: str, vocab) -> str:
@@ -43,7 +46,7 @@ def count_negations(text: str) -> int:
     # (يقابلها "only ... / only when")، فتُترجم إحداهما بالأخرى دون أن يتغيّر المعنى
     pending_ar = pending_en = 0
     for tok in toks:
-        if tok.endswith("n't") or tok in _NEG_EN:
+        if tok.endswith("n't") or tok in _NEG_EN or tok in _NEG_HI:
             n += 1
             pending_en += 1
         elif tok in ("except", "unless", "until") and pending_en:
@@ -76,6 +79,11 @@ _NUM_WORDS = {
     "onze": 11, "douze": 12, "vingt": 20, "trente": 30, "quarante": 40, "cinquante": 50, "cent": 100,
     "mille": 1000,
 }
+# الهندية («एक» مستبعد لأنه أداة تنكير أيضاً). المفاتيح بعد NFKC كالنص، فالنقطة (़) في «हज़ार» تنفصل في الطرفين
+_NUM_WORDS.update({unicodedata.normalize("NFKC", w): n for w, n in {
+    "दो": 2, "तीन": 3, "चार": 4, "पाँच": 5, "पांच": 5, "छह": 6, "छः": 6, "सात": 7, "आठ": 8, "नौ": 9, "दस": 10,
+    "बीस": 20, "तीस": 30, "चालीस": 40, "पचास": 50, "सौ": 100, "हज़ार": 1000, "हजार": 1000,
+}.items()})
 _DIGITS = re.compile(r"\d+(?:[.,]\d+)?")
 
 

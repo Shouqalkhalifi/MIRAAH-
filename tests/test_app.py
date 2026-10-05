@@ -130,7 +130,7 @@ def test_all_screens_render_with_disclaimer():
 
 def test_salah_page_is_local_only_and_home_links_it():
     html = client.get("/salah").text
-    assert "لا تُرفع ولا تُحفظ" in html and "لا يحكم بصحة صلاتك" in html and "salah.js" in html
+    assert "ولا تُصدر فتوى" in html and "salah.js" in html
     home = client.get("/").text
     assert 'href="/salah"' in home and "تعلّم الوضوء" in home and "قريباً" in home
 
@@ -253,7 +253,7 @@ def test_unknown_alert_rejected():
     assert decide(rep["id"], "nope").status_code == 404
 
 
-EXPORT_TITLE = "تقرير مراجعة مِرآة – للمراجعة قبل النشر، وليس شهادة اعتماد"
+EXPORT_TITLE = "تقرير مراجعة مِرآة – للمراجعة قبل النشر"
 
 
 def approve(rid):
@@ -297,7 +297,8 @@ def test_approve_locked_until_all_reds_decided_then_export_and_audit():
     assert f"<title>{EXPORT_TITLE}</title>" in html and DISCLAIMER in html
     assert "اصطناعي" in html and "صفة المراجع" not in html and "بتوقيت الرياض" in html
     assert "ليس خطأ" in html and "السبب:" in html and "window.print()" in html
-    assert html.index("حكم مِرآة") < html.index("<h2>المصدر</h2>") < html.index("حلقات السلسلة") < html.index("نص كل حلقة") \
+    assert "حكم مِرآة" not in html and "شهادة اعتماد" not in html and "أحكام وفتاوى منقولة" in html
+    assert html.index('class="verdict') < html.index("<h2>المصدر</h2>") < html.index("حلقات السلسلة") < html.index("نص كل حلقة") \
         < html.index("<h2>التنبيهات</h2>")
 
     p = client.get(f"/api/report/{rid}/export.pdf")

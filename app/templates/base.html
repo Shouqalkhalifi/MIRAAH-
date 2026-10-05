@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@7..72,400;7..72,600&family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/app.css?v=53">
+  <link rel="stylesheet" href="/static/app.css?v=59">
   <script>
     {# خيوط العرض المتقابل: من [data-w=N] في لوحة إلى [data-to=N] في اللوحة المجاورة؛ اللون من data-tone #}
     function demoWires() {
@@ -24,8 +24,9 @@
             if (!from) return;
             const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
             const pa = from.closest('.panel').getBoundingClientRect(), pb = to.closest('.panel').getBoundingClientRect();
-            const x1 = pa.left - g.left, y1 = a.top - g.top + Math.min(a.height / 2, 20);
-            const x2 = pb.right - g.left, y2 = b.top - g.top + Math.min(b.height / 2, 16);
+            const ltr = pa.left < pb.left;   {# الواجهة المترجمة من اليسار: الأصل يساراً، فيخرج الخيط من حافته اليمنى #}
+            const x1 = (ltr ? pa.right : pa.left) - g.left, y1 = a.top - g.top + Math.min(a.height / 2, 20);
+            const x2 = (ltr ? pb.left : pb.right) - g.left, y2 = b.top - g.top + Math.min(b.height / 2, 16);
             const mx = (x1 + x2) / 2, c = to.dataset.tone || (to.dataset.to === '1' ? '#E5484D' : '#D9A21B');
             svg.insertAdjacentHTML('beforeend',
               `<path d="M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="1.6" stroke-dasharray="4 4"/>` +
@@ -68,17 +69,81 @@
     <div class="topbar-in">
       <a href="/" class="brand" aria-label="مِرآة — الرئيسية">مِرآة <small dir="ltr">MIRAAH</small></a>
       <nav class="topnav" aria-label="التنقل">
-        <a href="/" {% if path == '/' %}aria-current="page"{% endif %}>الرئيسية</a>
-        <a href="/#about">عن المنصة</a>
-        <a href="/#features">قدرات المنصة</a>
-        <a href="/#how">الدقة في كل خطوة</a>
-        <a href="/#app">التطبيق</a>
-        <a href="/#faq">الأسئلة الشائعة</a>
-        <a href="/docs">التوثيق</a>
+        {# data-en / data-hi: أسماء قصيرة ثابتة للواجهة المترجمة بدل ترجمة Google الطويلة، و data-o ترتيبها فيها #}
+        <a href="/" {% if path == '/' %}aria-current="page"{% endif %} data-en="Home" data-hi="होम" data-o="1">الرئيسية</a>
+        <a href="/#about" data-en="About" data-hi="परिचय" data-o="3">عن المنصة</a>
+        <a href="/#features" data-en="Platform" data-hi="प्लेटफ़ॉर्म" data-o="4">قدرات المنصة</a>
+        <a href="/#how" data-en="Precision" data-hi="सटीकता" data-o="5">الدقة في كل خطوة</a>
+        <a href="/#app" data-en="App" data-hi="ऐप" data-o="6">التطبيق</a>
+        <a href="/#faq" data-en="Ask" data-hi="सवाल" data-o="2">الأسئلة الشائعة</a>
       </nav>
-      <a href="/new" class="top-cta">ابدأ مقابلة جديدة</a>
+      <label class="top-lang notranslate" translate="no">
+        <span class="sr-only">لغة الموقع</span>
+        <select id="site-lang" onchange="miraahSetLang(this.value)" aria-label="لغة الموقع">
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+        </select>
+      </label>
+      <a href="/new" class="top-cta">راجِع قبل النشر</a>
     </div>
   </header>
+  <div id="gt-el" hidden></div>
+  <script>
+    {# ترجمة الواجهة بترجمة Google الآلية، ولا يُحمَّل سكربتها إلا إن اختار الزائر لغة غير العربية.
+       النصوص المصدرية والمقابَلة والآيات والأحاديث والأذكار لا تُترجم أبداً: الترجمة الآلية تغيّر المعنى، وهذا ما تكشفه مِرآة. #}
+    const MIRAAH_NO_TRANSLATE = '.ar-source, .v-sent, .card-quote, .rv-quote, .rv-src, .salah-dhikr, .live-text, .salah-heard, .salah-en, .brand, textarea, input';
+    function miraahLang() { const m = document.cookie.match(/(?:^|;\s*)googtrans=\/ar\/([a-z]+)/); return m ? m[1] : 'ar'; }
+    function miraahSetLang(l) {
+      const host = location.hostname, past = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      for (const d of ['', `; domain=${host}`, `; domain=.${host}`])
+        document.cookie = l === 'ar' ? `googtrans=; path=/${d}; ${past}` : `googtrans=/ar/${l}; path=/${d}`;
+      location.reload();
+    }
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({ pageLanguage: 'ar', includedLanguages: 'en,hi', autoDisplay: false }, 'gt-el');
+      {# الترجمة تغيّر أطوال الأسطر، فتُعاد رسم الخيوط في العرض المتقابل بعد أن تنتهي #}
+      [1200, 3000].forEach(t => setTimeout(() => dispatchEvent(new Event('resize')), t));
+    }
+    (function () {
+      const l = miraahLang();
+      document.getElementById('site-lang').value = l;
+      if (l === 'ar') return;
+      {# علامات النسّاخ كلمة واحدة بلا سياق فتخطئها Google («سقط» ← He fell)، فلها أسماء ثابتة #}
+      const marks = { 'سقط': { en: 'Dropped', hi: 'छूटा' }, 'زيادة': { en: 'Added', hi: 'जोड़ा' }, 'تغيّر': { en: 'Changed', hi: 'बदला' },
+                      'يُنظر': { en: 'Check', hi: 'जाँचें' }, 'حُسم': { en: 'Resolved', hi: 'तय' } };
+      {# Google لا تترجم نص الإرشاد داخل الحقول (placeholder) #}
+      const hints = {
+        'الصق نص المصدر الرسمي هنا': { en: 'Paste the official source text here', hi: 'आधिकारिक स्रोत का पाठ यहाँ चिपकाएँ' },
+        'مثال: كتاب الصيام، ص 12': { en: 'e.g. Book of Fasting, p. 12', hi: 'उदाहरण: रोज़े की किताब, पृ. 12' },
+        'مثال: رخصة الفطر للمسافر': { en: 'e.g. The traveler\'s permission not to fast', hi: 'उदाहरण: यात्री के लिए रोज़ा न रखने की छूट' },
+        'المقطع، مثل: للمسافر': { en: 'The phrase, e.g. للمسافر', hi: 'अंश, जैसे: للمسافر' },
+        'الصق نص الحلقة': { en: 'Paste this version\'s text', hi: 'इस संस्करण का पाठ चिपकाएँ' },
+        'مثال: الاعتكاف واجب على النساء': { en: 'e.g. I\'tikaf is obligatory for women', hi: 'उदाहरण: एतिकाफ़ महिलाओं पर अनिवार्य है' },
+        'الصق المنشور أو العبارة التي قرأتها…': { en: 'Paste the post or statement you read…', hi: 'वह पोस्ट या कथन चिपकाएँ जो आपने पढ़ा…' },
+        'اكتب بكلماتك ما فهمته من الأصل…': { en: 'Write in your own words what you understood from the source…', hi: 'अपने शब्दों में लिखें कि आपने मूल पाठ से क्या समझा…' },
+      };
+      const guard = () => {
+        document.querySelectorAll(MIRAAH_NO_TRANSLATE + ', .ab, .sigla').forEach(el => { el.classList.add('notranslate'); el.setAttribute('translate', 'no'); });
+        document.querySelectorAll('.ab, .sigla').forEach(el => { const m = marks[el.textContent.trim()]; if (m) el.textContent = m[l]; });
+        document.querySelectorAll('[placeholder]').forEach(el => { const h = hints[el.getAttribute('placeholder')]; if (h) el.setAttribute('placeholder', h[l]); });
+      };
+      document.documentElement.lang = l; document.documentElement.dir = 'ltr';
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.topnav a[data-' + l + ']').forEach(a => {
+          a.textContent = a.dataset[l]; a.classList.add('notranslate'); a.setAttribute('translate', 'no');
+          a.style.order = a.dataset.o;
+        });
+        guard();
+        let queued = 0;
+        new MutationObserver(() => { if (!queued) queued = requestAnimationFrame(() => { queued = 0; guard(); }); })
+          .observe(document.body, { childList: true, subtree: true });
+        const s = document.createElement('script');
+        s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        document.body.appendChild(s);
+      });
+    })();
+  </script>
   <main class="page">
     {% if service == 'publish' %}<p class="svc-line"><span class="svc-dot svc-dot-pub" aria-hidden="true"></span>أنت في <b>راجِع قبل النشر</b> · للمترجمين والمحررين والجهات: راجِع نصك قبل نشره</p>
     {% elif service == 'read' %}<p class="svc-line"><span class="svc-dot svc-dot-read" aria-hidden="true"></span>أنت في <b>تحقّق مما قرأت</b> · للقرّاء: تعرف الحكم ومصدره، بلا تعديل</p>{% endif %}
