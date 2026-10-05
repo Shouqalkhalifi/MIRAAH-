@@ -616,6 +616,7 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .teach-card .ftile { flex: none; }
 .teach-card h2 { font-size: 1.1rem; font-weight: 600; margin: .2rem 0 .45rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
 .teach-card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.8; }
+.teach-card .teach-tie { margin-top: .45rem; color: var(--accent); font-size: .84rem; font-weight: 500; }
 .teach-go { display: inline-flex; align-items: center; gap: .35rem; margin-top: .8rem; color: var(--accent); font-weight: 600; font-size: .92rem; }
 .teach-go svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .teach-card.is-soon { background: #FAFBFF; }
@@ -648,8 +649,26 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .salah-side h2 { font-size: 1.3rem; font-weight: 600; margin: .2rem 0 .5rem; }
 .salah-do { margin: 0 0 .9rem; line-height: 1.8; }
 .salah-dhikr { margin: 0 0 .6rem; padding: .85rem 1rem; border-radius: 14px; background: #F3F1FF; border-inline-start: 3px solid var(--accent); font-family: var(--f-ar); font-size: 1.25rem; line-height: 2.1; }
-.salah-dhikr small { display: block; font-family: var(--f-ui); font-size: .78rem; color: var(--muted); line-height: 1.6; }
-.salah-src { font-size: .78rem; color: var(--muted); margin: 0 0 1rem; }
+.salah-times { font-size: .78rem; color: var(--muted); margin: -.3rem 0 .6rem; }
+.salah-src { list-style: none; font-size: .78rem; color: var(--muted); margin: 0 0 .5rem; padding: 0; display: grid; gap: .2rem; }
+.salah-src a { color: var(--accent); }
+.salah-note { font-size: .78rem; color: var(--saffron-text); background: #FFF8E8; border-radius: 10px; padding: .45rem .7rem; margin: 0 0 1rem; line-height: 1.7; }
+.salah-kicker-top { display: inline-block; font-size: .78rem; font-weight: 600; color: var(--accent); background: #F3F1FF; padding: .2rem .7rem; border-radius: 999px; }
+.salah-head .salah-engine { margin-top: .45rem; font-size: .88rem; line-height: 1.8; max-width: 80ch; }
+.salah-mizan { display: flex; align-items: center; gap: .4rem; font-size: .76rem; color: var(--verified-text); margin: 0 0 .6rem; }
+.salah-mizan i { width: 7px; height: 7px; border-radius: 50%; background: var(--verified); }
+.salah-unverified { font-size: .85rem; color: var(--rubric); background: #FDF0F1; border-radius: 12px; padding: .7rem .9rem; margin: 0 0 .6rem; }
+.salah-en { font-size: .82rem; margin: 0 0 .8rem; }
+.salah-en summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.salah-en p { font-family: var(--f-lat); margin: .4rem 0 .2rem; line-height: 1.7; text-align: left; }
+.salah-en small { color: var(--muted); }
+.salah-fb .salah-verdict { display: inline-block; font-weight: 700; padding: .2rem .7rem; border-radius: 999px; margin-bottom: .45rem; }
+.salah-fb .v-match { background: #EBFDF7; color: var(--verified-text); }
+.salah-fb .v-dropped, .salah-fb .v-order { background: #FFF4D6; color: var(--saffron-text); }
+.salah-fb .v-other { background: #FDF0F1; color: var(--rubric); }
+.salah-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .9rem; margin: 1rem 0 0; padding: .9rem 1.1rem; border-radius: 16px; background: var(--white); border: 1px solid var(--line); }
+.salah-score strong { font-size: 1.3rem; color: var(--verified-text); }
+.salah-score small { flex-basis: 100%; color: var(--muted); font-size: .76rem; }
 .salah-wait { font-size: .85rem; color: var(--muted); margin: 0 0 1rem; display: flex; align-items: center; gap: .45rem; }
 .salah-wait i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: salahPulse 1.2s infinite; }
 @keyframes salahPulse { 50% { opacity: .25; } }

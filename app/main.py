@@ -15,6 +15,7 @@ from app import export, ratelimit, review, service
 from app.corpus import load_corpus
 from app.examples import get_example, load_examples
 from app.library import load_library
+from app.salah import load_steps
 from app.models import MAX_VERSIONS, Decision, Lock, Report, ReportStatus, Revision
 from app.service import STAGES
 from app.pipeline import learned
@@ -278,6 +279,12 @@ def api_examples() -> list[dict]:
     return [e.model_dump(mode="json") for e in load_examples()]
 
 
+@app.get("/api/salah/steps")
+def api_salah_steps() -> list[dict]:
+    """خطوات «قابِل ذكرك»: كل ذكر بنصه ومرجعه من المدونة، ونتيجة فحص الميزان له."""
+    return load_steps()
+
+
 # ---------- الشاشات ----------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
@@ -288,8 +295,8 @@ def home(request: Request):
 
 @app.get("/salah", response_class=HTMLResponse)
 def salah_page(request: Request):
-    """تعلّم الصلاة: التعرّف على الوضعية في المتصفح، ولا تصل الصورة إلى الخادم."""
-    return page(request, "salah.html")
+    """تعلّم الصلاة · قابِل ذكرك: الوضعية تُعرف في المتصفح، والأذكار من المدونة بعد فحص الميزان."""
+    return page(request, "salah.html", steps=load_steps())
 
 
 @app.get("/about")

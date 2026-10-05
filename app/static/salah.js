@@ -4,56 +4,11 @@ const MP_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
 const MP_MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
 const SALAH_SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const FATIHA = 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ﴿١﴾ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿٢﴾ الرَّحْمَنِ الرَّحِيمِ ﴿٣﴾ مَالِكِ يَوْمِ الدِّينِ ﴿٤﴾ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ﴿٥﴾ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ﴿٦﴾ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ ﴿٧﴾';
-const IKHLAS = 'قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾';
-const TASHAHHUD = 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ. اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ';
-
-/* say: ما يُنطق بالصوت (تعليمات فقط؛ لا يُنطق القرآن ولا الذكر آلياً).
-   wait: ثوانٍ للقراءة حين يكون الاستماع مطفأً. alt: مدة الخطوة بالوقت حين لا يظهر الجسم والاستماع مطفأ.
-   count/key: عدد مرات الذكر المطلوب وكلمته. wrong: ذكر في غير موضعه. */
-const SALAH_STEPS = [
-  { name: 'التكبير', pose: 'takbir', title: 'تكبيرة الإحرام', alt: 4,
-    do: 'قف مستقبلاً القبلة، وارفع يديك حذو منكبيك وأصابعك مضمومة، وقل:', dhikr: 'اللَّهُ أَكْبَرُ',
-    say: 'قف مستقبلاً القبلة، وارفع يديك حذو منكبيك، وقل: الله أكبر.', praise: 'أحسنت، رفعت يديك',
-    src: 'رفع اليدين حذو المنكبين عند التكبير: صحيح البخاري (735) عن ابن عمر رضي الله عنهما.' },
-  { name: 'الفاتحة', pose: 'qiyam', title: 'القيام وقراءة الفاتحة', wait: 35, quran: true,
-    do: 'أنزل يديك وقف معتدلاً، ثم اقرأ سورة الفاتحة:', dhikr: FATIHA,
-    say: 'أنزل يديك وقف معتدلاً، ثم اقرأ سورة الفاتحة.', praise: 'أحسنت، أنت قائم. اقرأ الفاتحة',
-    src: 'سورة الفاتحة. وفي صحيح البخاري (756): «لا صلاة لمن لم يقرأ بفاتحة الكتاب».' },
-  { name: 'سورة', pose: null, title: 'ما تيسّر من القرآن', wait: 20, quran: true,
-    do: 'بعد الفاتحة اقرأ ما تيسّر لك من القرآن، مثل سورة الإخلاص:', dhikr: IKHLAS,
-    say: 'اقرأ ما تيسّر لك من القرآن، مثل سورة الإخلاص.', src: 'سورة الإخلاص.' },
-  { name: 'الركوع', pose: 'ruku', title: 'الركوع', alt: 8, count: 3, key: 'سبحان',
-    do: 'قل «الله أكبر» وانحنِ: اجعل ظهرك مستوياً ورأسك بمحاذاته، وضع يديك على ركبتيك، وقل:', dhikr: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ', times: 'ثلاث مرات',
-    say: 'قل الله أكبر، ثم انحنِ واجعل ظهرك مستوياً، وضع يديك على ركبتيك.', praise: 'أحسنت، ركوع صحيح الوضعية. سبّح ثلاث مرات',
-    wrong: [{ has: 'الاعلي', msg: 'في الركوع نقول «سبحان ربي العظيم»، أما «سبحان ربي الأعلى» ففي السجود.' }],
-    src: 'صحيح مسلم (772) عن حذيفة رضي الله عنه.' },
-  { name: 'الرفع', pose: 'qiyam', title: 'الرفع من الركوع', alt: 5,
-    do: 'ارفع من الركوع حتى تعتدل قائماً، وقل:', dhikr: 'سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ، رَبَّنَا لَكَ الْحَمْدُ',
-    say: 'ارفع ظهرك حتى تعتدل قائماً، وقل الذكر.', praise: 'أحسنت، اعتدلت قائماً',
-    src: 'صحيح البخاري (789) عن أبي هريرة رضي الله عنه.' },
-  { name: 'السجود', pose: 'sujud', title: 'السجود', alt: 8, count: 3, key: 'سبحان',
-    do: 'قل «الله أكبر» وانزل ساجداً على سبعة أعضاء: الجبهة مع الأنف، والكفّين، والركبتين، وأطراف القدمين، وقل:', dhikr: 'سُبْحَانَ رَبِّيَ الْأَعْلَى', times: 'ثلاث مرات',
-    say: 'قل الله أكبر، ثم انزل ساجداً، وضع جبهتك وأنفك وكفيك وركبتيك وأطراف قدميك على الأرض.', praise: 'أحسنت، سجود صحيح الوضعية. سبّح ثلاث مرات',
-    wrong: [{ has: 'العظيم', msg: 'في السجود نقول «سبحان ربي الأعلى»، أما «سبحان ربي العظيم» ففي الركوع.' }],
-    src: 'الذكر: صحيح مسلم (772) عن حذيفة. والأعضاء السبعة: صحيح البخاري (812) عن ابن عباس رضي الله عنهما.' },
-  { name: 'الجلوس', pose: 'julus', title: 'الجلوس بين السجدتين', alt: 5,
-    do: 'قل «الله أكبر» وارفع رأسك من السجود واجلس معتدلاً، وقل:', dhikr: 'رَبِّ اغْفِرْ لِي، رَبِّ اغْفِرْ لِي',
-    say: 'قل الله أكبر، وارفع رأسك واجلس معتدلاً.', praise: 'أحسنت، جلست',
-    src: 'سنن أبي داود (874) عن حذيفة رضي الله عنه.' },
-  { name: 'السجدة الثانية', pose: 'sujud', title: 'السجدة الثانية', alt: 8, count: 3, key: 'سبحان',
-    do: 'قل «الله أكبر» واسجد مرة ثانية كالأولى، وقل:', dhikr: 'سُبْحَانَ رَبِّيَ الْأَعْلَى', times: 'ثلاث مرات',
-    say: 'قل الله أكبر، واسجد مرة ثانية كالأولى.', praise: 'أحسنت، سجدت الثانية. سبّح ثلاث مرات',
-    wrong: [{ has: 'العظيم', msg: 'في السجود نقول «سبحان ربي الأعلى»، أما «سبحان ربي العظيم» ففي الركوع.' }],
-    src: 'صحيح مسلم (772) عن حذيفة رضي الله عنه.' },
-  { name: 'التشهد', pose: 'julus', title: 'الجلوس للتشهد', wait: 30,
-    do: 'هذا تدريب على ركعة واحدة؛ في الصلاة تُكمل ركعاتها، ثم تجلس في آخرها للتشهد، وتقول:', dhikr: TASHAHHUD,
-    say: 'اجلس للتشهد، واقرأ التشهد.', praise: 'أحسنت، جلست للتشهد. اقرأ التشهد',
-    src: 'التشهد: صحيح البخاري (831) عن ابن مسعود. والصلاة على النبي ﷺ: صحيح البخاري (3370) عن كعب بن عجرة رضي الله عنهما.' },
-  { name: 'التسليم', pose: null, title: 'التسليم', wait: 8, count: 2, key: 'السلام',
-    do: 'التفت إلى يمينك وقل، ثم إلى يسارك وقل:', dhikr: 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ', times: 'مرتين: يميناً ثم يساراً',
-    say: 'التفت إلى يمينك وسلّم، ثم إلى يسارك وسلّم.', src: 'سنن أبي داود (996) عن ابن مسعود رضي الله عنه.' },
-];
+/* الخطوات تأتي من الخادم (app/salah.py): لا نص ذكر ولا آية في هذا الملف. كل dhikr من مدونة مِرآة (data/corpus)
+   بعد أن يجده الميزان بألفاظه وترتيبها، ومعه مرجعه ورابطه (sources) ومراجع صفة الحركة (refs).
+   say: ما يُنطق بالصوت (تعليمات فقط؛ لا يُنطق القرآن ولا الذكر آلياً). wait/alt: ثوانٍ حين يكون الاستماع مطفأً.
+   count/key: عدد مرات الذكر في التدريب وكلمته. wrong: ذكر خطوة أخرى في المصدر إن سُمع هنا. */
+const SALAH_STEPS = window.SALAH_STEPS || [];
 
 const POSE_DO = { takbir: 'كبّر', qiyam: 'قم', ruku: 'اركع', sujud: 'اسجد', julus: 'اجلس' };
 const POSE_AR = { absent: 'لا يظهر جسمك كاملاً', none: 'لا وضعية واضحة', takbir: 'تكبير', qiyam: 'قيام', ruku: 'ركوع', sujud: 'سجود', julus: 'جلوس' };
@@ -87,15 +42,37 @@ function salahLev(a, b) {
 function salahWordHeard(w, heard) {
   return heard.some(h => h === w || h === 'و' + w || w === 'و' + h || (w.length >= 4 && salahLev(h, w) <= 1));
 }
+/* المقابلة بلغة مِرآة: النسخة (ما سُمع) بأصلها (نص الذكر في المصدر).
+   verdict: match «مطابق للمصدر» · dropped «سقط من الذكر» · order «الترتيب يختلف عن المصدر» */
+function salahInOrder(tokens, heard) {
+  let pos = 0;
+  for (const x of tokens.filter(t => t.n && t.ok)) {
+    let k = pos;
+    while (k < heard.length && !salahWordHeard(x.n, [heard[k]])) k++;
+    if (k >= heard.length) return false;
+    pos = k + 1;
+  }
+  return true;
+}
 function salahHear(step, text) {
   const heard = salahNorm(text || '');
-  const tokens = step.dhikr.split(/\s+/).map(t => ({ t, n: salahNorm(t).join('') }));
+  const tokens = (step.dhikr || '').split(/\s+/).filter(Boolean).map(t => ({ t, n: salahNorm(t).join('') }));
   tokens.forEach(x => { x.ok = !!x.n && salahWordHeard(x.n, heard); });
   const words = tokens.filter(x => x.n), cover = words.filter(x => x.ok).length / (words.length || 1);
   const count = step.count ? heard.filter(h => h === step.key || h === 'و' + step.key).length : 0;
-  const wrong = (step.wrong || []).find(x => heard.includes(x.has));
-  const ok = !wrong && cover >= (step.quran ? 0.75 : 0.8) && (!step.count || count >= step.count);
-  return { tokens, cover, count, ok, wrong: wrong ? wrong.msg : '', any: heard.length > 0 };
+  const w = (step.wrong || []).find(x => heard.includes(x.has));
+  const wrong = w ? `ما سمعناه هو ذكر ${w.where} في المصدر: «${w.text}». وذكر هذه الخطوة في المصدر: «${step.dhikr}».` : '';
+  const ordered = salahInOrder(tokens, heard);
+  const ok = !wrong && ordered && cover >= (step.quran ? 0.75 : 0.8) && (!step.count || count >= step.count);
+  const missing = words.filter(x => !x.ok).map(x => x.t);
+  let verdict = '';
+  if (heard.length && words.length) {
+    if (wrong) verdict = 'other';
+    else if (!missing.length && ordered) verdict = 'match';
+    else if (!missing.length) verdict = 'order';
+    else verdict = 'dropped';
+  }
+  return { tokens, cover, count, ok, wrong, any: heard.length > 0, verdict, missing, ordered };
 }
 
 /* النقاط: 0 الأنف، 11/12 الكتفان، 15/16 المعصمان، 23/24 الوركان، 25/26 الركبتان. الإحداثيات من 0 إلى 1 والمحور y للأسفل. */
@@ -150,12 +127,29 @@ function salahTrainer() {
   return {
     steps: SALAH_STEPS, i: 0, state: 'idle', err: '', pose: 'none', hit: false, done: false, countdown: 0, fallback: false,
     voice: true, voiceOk: false, canListen: !!SALAH_SR, listen: !!SALAH_SR, micErr: '', heard: '', away: false, praiseText: '',
+    stats: {},  // مؤشر الأثر: مطابقة الألفاظ للمصدر في أول محاولة وآخرها لكل خطوة، يُحسب في المتصفح ولا يُرسل
     get s() { return this.steps[this.i]; },
     get poseAr() { return POSE_AR[this.pose] || ''; },
     get fig() { return SALAH_FIG[this.s.pose] || ''; },
     get listening() { return this.listen && this.canListen && this.state === 'run'; },
     get hearing() { return salahHear(this.s, this.heard); },
     get poseOk() { return !this.s.pose || this.hit || this.away; },
+    get verdictAr() {
+      return { match: 'مطابق للمصدر', dropped: 'سقط من الذكر: «' + this.hearing.missing.join(' ') + '»',
+               order: 'الألفاظ موجودة لكن ترتيبها يختلف عن المصدر', other: 'ذكر خطوة أخرى في المصدر' }[this.hearing.verdict] || '';
+    },
+    /* أول محاولة = أول ما سمعناه في الخطوة، وآخر محاولة = أفضل ما سمعناه قبل مغادرتها */
+    record() {
+      if (!this.heard || !this.s.dhikr) return;
+      const c = Math.round(this.hearing.cover * 100), st = this.stats[this.i];
+      this.stats = { ...this.stats, [this.i]: st ? { first: st.first, last: Math.max(st.last, c) } : { first: c, last: c } };
+    },
+    get score() {
+      const v = Object.values(this.stats);
+      if (!v.length) return null;
+      const avg = k => Math.round(v.reduce((a, x) => a + x[k], 0) / v.length);
+      return { first: avg('first'), last: avg('last'), n: v.length };
+    },
 
     init() {
       if (!('speechSynthesis' in window)) return;
@@ -195,7 +189,7 @@ function salahTrainer() {
       clearTimeout(moving); moving = 0; this.clearTimer(); this.say(this.s.say);
       if (!this.s.pose) this.startTimer();
     },
-    go(n) { this.i = n; this.done = false; this.enter(); },
+    go(n) { if (n === 0) this.stats = {}; this.i = n; this.done = false; this.enter(); },
     next() {
       this.clearTimer(); clearTimeout(moving); moving = 0;
       if (this.i < this.steps.length - 1) return this.go(this.i + 1);
@@ -230,6 +224,7 @@ function salahTrainer() {
           if (r.isFinal) finals += ' ' + r[0].transcript; else interim += ' ' + r[0].transcript;
         }
         this.heard = (finals + ' ' + interim).trim();
+        this.record();
         this.check();
       };
       rec.onerror = e => {
