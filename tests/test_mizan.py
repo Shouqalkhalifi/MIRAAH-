@@ -107,3 +107,9 @@ def test_cited_verse_number_must_hold_the_quote():
     v = verify("قال الله تعالى: ﴿لا إكراه في الدين﴾ (3:10)", "x", 0, M)[0]
     assert v.status == "unsupported" and v.item_id == "q-3-10-kfgqpc" and "2:256" in v.note_ar
     assert verify("قال الله تعالى: ﴿لا إكراه في الدين﴾ (2:256)", "x", 0, M)[0].status == "supported"
+
+
+def test_fabricated_hadith_sharing_half_its_words_with_a_real_one_stays_unverified():
+    # يشارك حديث غُسل الجمعة في «يوم الجمعة» و«غفر» فقط: نصف كلمات المعنى لا يجعله «رواية بلفظ آخر»
+    [v] = verify("قال رسول الله ﷺ: من صام يوم الجمعة غفر له ذنوب سنة", "x", 0)
+    assert v.status == "unverified" and v.note_ar == NOT_FOUND_AR
