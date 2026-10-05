@@ -2,7 +2,7 @@
 {% block title %}تعلّم الصلاة مع الذكاء الاصطناعي{% endblock %}
 {% block content %}
 <script>window.SALAH_STEPS = {{ steps|tojson }};</script>
-<script src="/static/salah.js?v=9"></script>
+<script src="/static/salah.js?v=13"></script>
 <section class="salah" x-data="salahTrainer()" @beforeunload.window="stop()">
   <header class="salah-head">
     <span class="salah-kicker-top">قابِل ذكرك بمصدره</span>
@@ -18,7 +18,7 @@
   </div>
 
   <div class="salah-grid">
-    <div class="salah-stage">
+    <div class="salah-stage" x-ref="stage">
       <video x-ref="video" playsinline muted aria-hidden="true"></video>
       <canvas x-ref="canvas" aria-hidden="true"></canvas>
       <div class="salah-idle" x-show="state !== 'run'">
@@ -29,8 +29,18 @@
       </div>
       <span class="salah-pose" :class="{ 'is-hit': s.pose && pose === s.pose }" x-show="state === 'run'" x-text="'وضعيتك: ' + poseAr" aria-live="polite" x-cloak></span>
       <span class="salah-mic" x-show="listening" x-cloak><i aria-hidden="true"></i>نسمعك</span>
-      <span class="salah-far" x-show="state === 'run' && pose === 'absent' && !done" role="status" x-cloak>ابتعد عن الكاميرا أو ضع الجهاز جانبك، حتى يظهر جسمك من الرأس إلى الركبتين</span>
-      <span class="salah-praise" x-show="state === 'run' && pose !== 'absent' && (done || praiseText || hit)" x-text="done ? 'أحسنت، أتممت التدريب' : (praiseText || s.praise)" role="status" x-cloak></span>
+      {# ما يُقرأ من بُعد مترين: الذكر بخط كبير ملوّن، والحكم في شارة كبيرة، ومفتاح الألوان بنقاط لا بجملة #}
+      <div class="salah-hud" x-show="state === 'run'" x-cloak>
+        <span class="salah-far" x-show="pose === 'absent' && !done" role="status">ابتعد عن الكاميرا أو ضع الجهاز جانبك، حتى يظهر جسمك من الرأس إلى الركبتين</span>
+        <span class="salah-praise" x-show="pose !== 'absent' && (done || praiseText || hit) && !(listening && hearing.verdict && !done)" x-text="done ? 'أحسنت، أتممت التدريب' : (praiseText || s.praise)" role="status"></span>
+        <div class="salah-live" x-show="s.dhikr && !done">
+          <p class="live-verdict" x-show="listening && hearing.verdict" :class="'v-' + hearing.verdict" x-text="stageVerdict" role="status" aria-live="assertive"></p>
+          <p class="live-sub" x-show="listening && hearing.verdict === 'dropped'">قلها حتى يكتمل الذكر</p>
+          <p class="live-say" x-show="!(listening && hearing.verdict)" x-text="listening ? 'قل:' : 'اقرأ:'"></p>
+          <p class="live-text ar-source" dir="rtl"><span class="live-more" x-show="stage.pre">… </span><template x-for="w in stage.words" :key="i + '-' + w.k"><span :class="w.cls" x-text="w.t + ' '"></span></template><span class="live-more" x-show="stage.post">…</span></p>
+          <p class="live-legend" x-show="listening && hearing.any" aria-hidden="true"><span><i class="d-ok"></i>قلته</span><span><i class="d-drop"></i>لم تذكره</span><span><i class="d-miss"></i>لم تصل إليه</span></p>
+        </div>
+      </div>
     </div>
 
     <div class="salah-side">
@@ -88,6 +98,7 @@
         <button type="button" class="btn-text salah-skip" @click="next()" x-show="state === 'run' && !done && (listening ? true : (s.pose && !hit))" x-cloak x-text="listening ? 'لم نسمعك جيداً؟ تخطَّ' : 'لم تُكتشف وضعيتي؟ تخطَّ'"></button>
         <button type="button" class="btn btn-sm btn-quiet" @click="go(0)" x-show="done" x-cloak>أعد التدريب</button>
         <button type="button" class="btn btn-sm btn-quiet" @click="stop()" x-show="state === 'run'" x-cloak>أوقف الكاميرا</button>
+        <button type="button" class="btn btn-sm btn-quiet" @click="fullscreen()" x-show="state === 'run'" x-cloak>ملء الشاشة</button>
         <span class="salah-toggles">
           <label x-show="canListen" x-cloak><input type="checkbox" x-model="listen" @change="toggleListen()"> استمع إلى ما أقول</label>
           <label x-show="voiceOk" x-cloak><input type="checkbox" x-model="voice"> الإرشاد الصوتي</label>

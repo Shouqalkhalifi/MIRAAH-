@@ -75,7 +75,7 @@ function salahHear(step, text) {
   const cover = words.filter(x => x.ok).length / (words.length || 1);
   const lastOk = words.reduce((k, x, n) => (x.ok ? n : k), -1);
   words.forEach((x, n) => { x.skip = !x.ok && n < lastOk; });
-  const missing = words.filter(x => x.skip).map(x => x.t);
+  const missing = words.filter(x => x.skip).map(x => x.t.replace(/[،.؛:]+$/, ''));
   const count = step.count ? heard.filter(h => h === step.key || h === 'و' + step.key).length : 0;
   const w = (step.wrong || []).find(x => heard.includes(x.has));
   const wrong = w ? `ما سمعناه هو ذكر ${w.where} في المصدر: «${w.text}». وذكر هذه الخطوة في المصدر: «${step.dhikr}».` : '';
@@ -89,7 +89,7 @@ function salahHear(step, text) {
     else if (!ordered) verdict = 'order';
     else if (cover === 1) verdict = 'match';
   }
-  return { tokens, cover, count, ok, wrong, any: heard.length > 0, verdict, missing, ordered };
+  return { tokens, cover, count, ok, wrong, where: w ? w.where : '', any: heard.length > 0, verdict, missing, ordered };
 }
 
 /* النقاط: 0 الأنف، 11/12 الكتفان، 15/16 المعصمان، 23/24 الوركان، 25/26 الركبتان. الإحداثيات من 0 إلى 1 والمحور y للأسفل. */
@@ -140,7 +140,7 @@ function salahDraw(canvas, video, L, match) {
 
 function salahTrainer() {
   let landmarker = null, stream = null, raf = 0, lastT = -1, since = 0, timer = 0, absent = 0, seen = 0;
-  let rec = null, finals = '', ttsUntil = 0, moving = 0;
+  let rec = null, finals = '', ttsUntil = 0, moving = 0, cueT = 0, cued = '';
   return {
     steps: SALAH_STEPS, i: 0, state: 'idle', err: '', pose: 'none', hit: false, done: false, countdown: 0, fallback: false,
     voice: true, voiceOk: false, canListen: !!SALAH_SR, listen: !!SALAH_SR, micErr: '', heard: '', away: false, praiseText: '',
@@ -163,6 +163,45 @@ function salahTrainer() {
       if (!this.heard || !this.s.dhikr) return;
       const c = Math.round(this.hearing.cover * 100), st = this.stats[this.i];
       this.stats = { ...this.stats, [this.i]: st ? { first: st.first, last: Math.max(st.last, c) } : { first: c, last: c } };
+    },
+    /* ما يظهر على المسرح: الذكر كله إن كان قصيراً، وإلا المقطع (آية أو جملة) الذي فيه أول كلمة سقطت أو أول ما لم يُقل */
+    get stage() {
+      const toks = this.hearing.tokens, live = this.listening && this.hearing.any;
+      const cls = x => (live && x.n ? (x.ok ? 'w-ok' : (x.skip ? 'w-drop' : 'w-miss')) : '');
+      const all = toks.map((x, k) => ({ t: x.t, k, cls: cls(x) }));
+      const narrow = (this.$refs.stage?.clientWidth || 999) < 520;   // مسرح الجوال: مقطع أقصر حتى لا تغطي الطبقة الكاميرا
+      if (toks.filter(x => x.n).length <= (narrow ? 10 : 16)) return { words: all, pre: false, post: false };
+      const segs = []; let st = 0;
+      toks.forEach((x, k) => { if (/^﴿|[،.]$/.test(x.t)) { segs.push([st, k]); st = k + 1; } });
+      if (st < toks.length) segs.push([st, toks.length - 1]);
+      let f = toks.findIndex(x => x.skip);
+      if (f < 0 && live) f = toks.findIndex(x => x.n && !x.ok);
+      if (f < 0) f = live ? toks.length - 1 : 0;
+      const a = segs.findIndex(([x, y]) => f >= x && f <= y);
+      // يُلحق المقطع التالي بالقصير ما دام المجموع قصيراً يُقرأ من بُعد
+      const nWords = (x, y) => toks.slice(segs[x][0], segs[y][1] + 1).filter(t => t.n).length;
+      let b = a;
+      while (b + 1 < segs.length && nWords(a, b) < (narrow ? 4 : 8) && nWords(a, b + 1) <= (narrow ? 7 : 14)) b++;
+      return { words: all.slice(segs[a][0], segs[b][1] + 1), pre: a > 0, post: b < segs.length - 1 };
+    },
+    get stageVerdict() {
+      const h = this.hearing;
+      return { match: '✓ مطابق للمصدر', dropped: 'لم تذكر ' + h.missing.map(w => '«' + w + '»').join(' و'),
+               order: 'الترتيب يختلف عن المصدر', other: 'هذا ذكر ' + h.where + '، لا ذكر هذه الخطوة' }[h.verdict] || '';
+    },
+    /* تنبيه صوتي حين يتوقف عن الكلام وفي الذكر كلمة سقطت. لا يُنطق الذكر نفسه، بل يُدلّ على الكلمة الحمراء */
+    cue() {
+      clearTimeout(cueT);
+      cueT = setTimeout(() => {
+        const key = this.hearing.missing.join('|');
+        if (!this.listening || !key || key === cued) return;
+        cued = key; this.say('فاتتك كلمة، انظر إلى الكلمة الحمراء على الشاشة');
+      }, 2500);
+    },
+    fullscreen() {
+      const el = this.$refs.stage;
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
     },
     get score() {
       const v = Object.values(this.stats);
@@ -205,7 +244,7 @@ function salahTrainer() {
     },
 
     enter() {
-      this.hit = false; since = 0; finals = ''; this.heard = ''; this.praiseText = '';
+      this.hit = false; since = 0; finals = ''; this.heard = ''; this.praiseText = ''; clearTimeout(cueT); cued = '';
       clearTimeout(moving); moving = 0; this.clearTimer(); this.say(this.s.say);
       if (!this.s.pose) this.startTimer();
     },
@@ -245,6 +284,7 @@ function salahTrainer() {
         }
         this.heard = (finals + ' ' + interim).trim();
         this.record();
+        this.cue();
         this.check();
       };
       rec.onerror = e => {

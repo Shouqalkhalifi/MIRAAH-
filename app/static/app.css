@@ -631,15 +631,37 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .salah-notes { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 1.25rem; }
 .salah-notes span { font-size: .8rem; padding: .3rem .75rem; border-radius: 999px; background: var(--white); border: 1px solid var(--line); color: var(--muted); }
 .salah-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
-.salah-stage { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; background: var(--ink); color: var(--white); }
+.salah-stage { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; background: var(--ink); color: var(--white); container-type: inline-size; }
+.salah-stage:fullscreen { aspect-ratio: auto; border-radius: 0; }
 .salah-stage video, .salah-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .salah-idle { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: .8rem; padding: 1.5rem; text-align: center; }
 .salah-idle p { margin: 0; color: #C9CCE0; font-size: .92rem; max-width: 34ch; line-height: 1.8; }
 .salah-idle .btn-primary { background: var(--accent); border-color: var(--accent); }
 .salah-pose { position: absolute; top: .8rem; inset-inline-start: .8rem; font-size: .8rem; font-weight: 600; padding: .3rem .75rem; border-radius: 999px; background: rgba(18, 24, 63, .7); }
 .salah-pose.is-hit { background: #0E8F77; }
-.salah-praise { position: absolute; inset-inline: 0; bottom: 1.2rem; margin: auto; width: max-content; max-width: 90%; padding: .6rem 1.2rem; border-radius: 999px; background: var(--identity); color: var(--ink); font-weight: 700; font-size: 1.1rem; box-shadow: 0 10px 26px rgba(0, 0, 0, .25); }
-.salah-far { position: absolute; inset-inline: 0; bottom: 1.2rem; margin: auto; width: max-content; max-width: 90%; padding: .6rem 1.1rem; border-radius: 14px; background: #FFF4D6; color: var(--ink); font-weight: 600; font-size: .95rem; text-align: center; line-height: 1.7; box-shadow: 0 10px 26px rgba(0, 0, 0, .25); }
+.salah-praise { max-width: 100%; padding: .35em 1.1em; border-radius: 999px; background: var(--identity); color: var(--ink); font-weight: 700; font-size: clamp(1rem, 3.4cqi, 1.9rem); box-shadow: 0 10px 26px rgba(0, 0, 0, .25); }
+.salah-far { max-width: 100%; padding: .5em 1em; border-radius: 14px; background: #FFF4D6; color: var(--ink); font-weight: 600; font-size: clamp(.95rem, 2.8cqi, 1.5rem); text-align: center; line-height: 1.7; box-shadow: 0 10px 26px rgba(0, 0, 0, .25); }
+/* طبقة المسرح: تُقرأ من بُعد مترين، والمقاسات بنسبة عرض المسرح (cqi) فتكبر في ملء الشاشة */
+.salah-hud { position: absolute; inset-inline: 0; bottom: 3.5cqi; display: flex; flex-direction: column; align-items: center; gap: 2cqi; padding: 0 3.5cqi; pointer-events: none; }
+.salah-live { width: 100%; background: rgba(18, 24, 63, .84); backdrop-filter: blur(6px); border-radius: 18px; padding: 2.4cqi 3.2cqi 2.6cqi; text-align: center; box-shadow: 0 12px 30px rgba(0, 0, 0, .3); }
+.salah-live p { margin: 0; }
+.salah-live .live-verdict { display: inline-block; font-weight: 800; font-size: clamp(1.15rem, 5cqi, 2.6rem); line-height: 1.5; padding: .1em .8em; border-radius: 999px; margin-bottom: 1cqi; }
+.live-verdict.v-dropped, .live-verdict.v-other { background: #E5484D; color: #fff; }
+.live-verdict.v-match { background: var(--identity); color: var(--ink); }
+.live-verdict.v-order { background: #FFD166; color: var(--ink); }
+.salah-live .live-sub { color: #FFD9DB; font-weight: 600; font-size: clamp(.9rem, 3cqi, 1.5rem); margin-bottom: .8cqi; }
+.live-say { color: #C9CCE0; font-size: clamp(.85rem, 2.6cqi, 1.3rem); }
+.live-text { font-family: var(--f-ar); font-size: clamp(1.3rem, 5.6cqi, 3.4rem); line-height: 1.85; color: #fff; }
+.live-text .w-ok { color: var(--identity); }
+.live-text .w-miss { opacity: .42; }
+.live-text .w-drop { color: #fff; background: #E5484D; border-radius: .25em; padding: 0 .18em; animation: salahDrop 1.1s ease-in-out infinite; }
+.live-more { opacity: .5; }
+@keyframes salahDrop { 50% { box-shadow: 0 0 0 .22em rgba(229, 72, 77, .45); } }
+.salah-live .live-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: .4em 1.4em; margin-top: 1cqi; color: #C9CCE0; font-size: clamp(.8rem, 2.5cqi, 1.25rem); }
+.live-legend i { display: inline-block; width: .8em; height: .8em; border-radius: 50%; margin-inline-end: .4em; vertical-align: -.05em; }
+.live-legend .d-ok { background: var(--identity); }
+.live-legend .d-drop { background: #E5484D; }
+.live-legend .d-miss { background: rgba(255, 255, 255, .35); }
 .salah-side { background: var(--white); border: 1px solid #ECEEF6; border-radius: 22px; padding: 1.2rem; }
 .salah-steps { list-style: none; display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 1rem; padding: 0; }
 .salah-steps li { font-size: .74rem; padding: .2rem .55rem; border-radius: 999px; background: var(--paper); color: var(--muted); }
@@ -701,7 +723,7 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .salah-mic i { width: 8px; height: 8px; border-radius: 50%; background: #E5484D; animation: salahPulse 1.2s infinite; }
 .salah-err { color: var(--rubric); font-size: .88rem; margin: .5rem 0 0; }
 @media (max-width: 860px) { .salah-grid { grid-template-columns: 1fr; } }
-@media (prefers-reduced-motion: reduce) { .salah-wait i, .salah-mic i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .salah-wait i, .salah-mic i, .live-text .w-drop { animation: none; } }
 .b-grn { background: var(--ink); border-inline-end: 3px solid #17B892; }
 
 /* «تحقّق مما قرأت»: النتيجة بالعرض المتقابل نفسه في الرئيسية */
