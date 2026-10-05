@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}مصادر مِرآة{% endblock %}
+{% block content %}
+<section class="src-page">
+  <header class="src-head">
+    <span class="salah-kicker-top">ما يرجع إليه الميزان</span>
+    <h1>مصادر مِرآة</h1>
+    <p>كل نص تعرضه مِرآة أو تقابل به من هذه المصادر وحدها، محفوظاً في مدونتها بمرجعه ورابطه. ما لا نجده فيها نقول عنه:
+      «لم نعثر على هذا النص في المصادر المعتمدة المتاحة لمِرآة»، ولا يولّد النموذج نصاً ولا مرجعاً من ذاكرته.</p>
+  </header>
+
+  <div class="src-grid">
+    <article class="rv-card src-card">
+      <h2>القرآن الكريم</h2>
+      <p class="src-num"><b>{{ "{:,}".format(o.quran_verses) }}</b> آية، المصحف كاملاً</p>
+      <p>مصحف المدينة النبوية برواية حفص من <a href="https://qurancomplex.gov.sa/quran-dev/" target="_blank" rel="noopener">منصة مطوري برمجيات القرآن الكريم ↗</a>
+        في مجمع الملك فهد لطباعة المصحف الشريف: الرسم العثماني للعرض، والإملائي للمطابقة.</p>
+      <p>ترجمة المعاني بالإنجليزية: Saheeh International من <a href="https://quranenc.com" target="_blank" rel="noopener">موسوعة القرآن الكريم QuranEnc ↗</a>.</p>
+      <p class="src-use">يعرف الميزان أي آية يُستشهد بها، ويكشف الآية المحرّفة الألفاظ أو المقلوبة الترتيب، والآية التي ذُكر لها رقم غير رقمها.</p>
+    </article>
+
+    <article class="rv-card src-card">
+      <h2>الحديث النبوي</h2>
+      <p class="src-num"><b>{{ "{:,}".format(o.hadith_he) }}</b> حديثاً ({{ "{:,}".format(o.hadith_sahih) }} صحيح، {{ o.hadith_hasan }} حسن)</p>
+      <p>من <a href="https://hadeethenc.com" target="_blank" rel="noopener">موسوعة الأحاديث النبوية HadeethEnc ↗</a>: المتن، والحكم، والعزو والتخريج
+        (الصحيحان والسنن)، والترجمة الإنجليزية. ومعها {{ o.hadith_salah }} نصاً لأذكار الصلاة، قوبل كل منها بصفحته في sunnah.com.</p>
+      <p class="src-use">كل «قال رسول الله ﷺ» يُبحث عنه بالعربية والإنجليزية. وغياب الحديث من المدونة لا يعني ضعفه، لذلك لا نقول «حديث مكذوب» أبداً.</p>
+    </article>
+
+    <article class="rv-card src-card src-wide">
+      <h2>الفقه: المذاهب الأربعة</h2>
+      <p>المذاهب مراجعُ للتحقق لا أحكام: <b>مِرآة لا تُفتي ولا ترجّح بين المذاهب</b>، ولا تنسب قولاً إلى مذهب إلا من مصدر مكتوب.
+        فإن نُسب قول إلى مذهب («عند الحنفية»، "the Hanbali school") ظهر «لم نتحقق من هذه النسبة» مع كتب المذهب للرجوع إليها.
+        الكتب من <a href="{{ o.fiqh.source.refs_url }}" target="_blank" rel="noopener">المراجع المعتمدة في الموسوعة الفقهية بالدرر السنية ↗</a>.</p>
+      <div class="src-madhahib">
+        {% for m in o.madhahib %}
+        <section class="src-m">
+          <h3>{{ m.name_ar }}</h3>
+          <p class="src-imam">نسبة إلى {{ m.imam_ar }}</p>
+          <ul>
+            {% for b in m.books %}<li><b>{{ b.title }}</b><span>{{ b.author }}{% if b.publisher %} · {{ b.publisher }}{% endif %}{% if b.edition %} · {{ b.edition }}{% endif %}</span></li>{% endfor %}
+          </ul>
+        </section>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="rv-card src-card">
+      <h2>المسائل والمصطلحات</h2>
+      <p class="src-num"><b>{{ o.issues }}</b> مسألة في «تحقّق مما قرأت»، و<b>{{ o.terms }}</b> ضابط مصطلح</p>
+      <p>المسائل مقتطفات حرفية من كتابين للشيخ عبد العزيز بن باز على موقعه الرسمي، وضوابط المصطلحات من «نماذج قاموس المصطلحات
+        الأساسية» في الحزمة العلمية للتحدي.</p>
+    </article>
+
+    <article class="rv-card src-card">
+      <h2>القواعد الثابتة</h2>
+      <ul class="src-rules">
+        {% for r in o.fiqh.rules %}<li>{{ r }}</li>{% endfor %}
+        <li>كل مصدر وترخيصه وتاريخ إدخاله في <a href="https://github.com/Shouqalkhalifi/MIRAAH-/blob/main/SOURCES.md" target="_blank" rel="noopener">SOURCES.md ↗</a>.</li>
+      </ul>
+    </article>
+  </div>
+</section>
+{% endblock %}

@@ -122,7 +122,13 @@
     <h2 id="rv-notes" class="rv-h">من مدونة مِرآة</h2>
     {% for v in r.verifications %}
     <div class="rv-note">
+      {% if v.attributed_to == 'madhhab' %}
+      <p class="rv-alert">«<bdi>{{ v.quote }}</bdi>» · {{ v.note_ar }}</p>
+      <footer class="rv-pills"><span class="rv-pill">{{ v.source_name }}</span>
+        <a class="rv-pill rv-pill-link" href="{{ v.source_url }}" target="_blank" rel="noopener">المراجع المعتمدة في الدرر السنية ↗</a></footer>
+      {% else %}
       <p class="rv-alert">«<bdi>{{ v.quote }}</bdi>» (منسوب إلى {{ 'الله تعالى' if v.attributed_to == 'allah' else 'النبي ﷺ' }}) · {{ v.note_ar }}</p>
+      {% endif %}
       {% if v.item_text and v.status != 'supported' %}
       <blockquote class="rv-quote">
         <p class="rv-sub">النص كما في المدونة</p>

@@ -893,3 +893,26 @@ body { overflow-x: clip; }
   .engine-core { margin: 0 auto; width: 56px; height: 56px; }
   .svc { padding: 1.25rem; }
 }
+
+/* مصادر مِرآة (/sources) */
+.src-page { max-width: 1120px; margin: 0 auto; }
+.src-head h1 { font-size: clamp(1.5rem, 3.2vw, 2.1rem); font-weight: 600; margin: .4rem 0; }
+.src-head p { margin: 0 0 1.25rem; color: var(--muted); line-height: 1.9; max-width: 85ch; }
+.src-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.src-card h2 { font-size: 1.2rem; font-weight: 600; margin: 0 0 .5rem; }
+.src-card p { line-height: 1.85; margin: 0 0 .6rem; }
+.src-card a { color: var(--accent); }
+.src-num { color: var(--muted); }
+.src-num b { font-size: 1.6rem; color: var(--ink); margin-inline-end: .2rem; }
+.src-use { font-size: .88rem; color: var(--verified-text); background: #EBFDF7; border-radius: 12px; padding: .55rem .8rem; }
+.src-wide { grid-column: 1 / -1; }
+.src-madhahib { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; margin-top: .8rem; }
+.src-m { background: var(--paper); border-radius: 14px; padding: .9rem 1rem; }
+.src-m h3 { font-size: 1.05rem; font-weight: 600; margin: 0; }
+.src-imam { font-size: .82rem; color: var(--accent) !important; margin: .1rem 0 .5rem !important; }
+.src-m ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+.src-m li b { display: block; font-weight: 600; font-size: .9rem; }
+.src-m li span { font-size: .76rem; color: var(--muted); line-height: 1.6; }
+.src-rules { margin: 0; padding-inline-start: 1.1rem; line-height: 1.9; }
+@media (max-width: 960px) { .src-madhahib { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .src-grid, .src-madhahib { grid-template-columns: 1fr; } }

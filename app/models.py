@@ -67,6 +67,7 @@ class AlertType(str, Enum):
     unverified_attribution = "unverified_attribution"  # لم يُعثر عليه في المدونة
     source_conflict = "source_conflict"  # وُجد لكن درجته ضعيفة/مخالفة، أو الآية المرقّمة لا تطابق
     quote_wording_differs = "quote_wording_differs"  # تطابق جزئي مع النص المعتمد
+    madhhab_unverified = "madhhab_unverified"  # قول منسوب إلى أحد المذاهب الأربعة لا نملك نصه
     # من المراحل اللاحقة
     reader_divergence = "reader_divergence"
     witness_disagreement = "witness_disagreement"
@@ -200,7 +201,7 @@ SupportStatus = Literal["supported", "partially_supported", "unsupported", "conf
 class Verification(BaseModel):
     label: str  # "source" أو label النسخة
     sentence_index: int
-    attributed_to: Literal["prophet", "allah"]
+    attributed_to: Literal["prophet", "allah", "madhhab"]
     cue: str
     quote: str  # النص المنسوب كما ورد
     status: SupportStatus

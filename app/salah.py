@@ -23,8 +23,9 @@ def _ref(item: CorpusItem) -> dict:
 
 def mizan_status(item: CorpusItem) -> str:
     """يبحث الميزان عن نص الذكر في المدونة كما يبحث عن أي نص منسوب، فيتأكد أنه يجده بألفاظه وترتيبها."""
-    hits = default_mizan().search(item.text_ar, types=(item.type,), k=1)
-    ok = bool(hits) and hits[0].item.id == item.id and hits[0].containment >= SUPPORTED_AT and in_order(item.text_ar, item)
+    # «الله أكبر» في مئات الأحاديث، فيكفي أن يكون عنصر الذكر بين النتائج بالتطابق الكافي، لا أن يكون أولها
+    hits = default_mizan().search(item.text_ar, types=(item.type,), k=50)
+    ok = any(h.item.id == item.id and h.containment >= SUPPORTED_AT for h in hits) and in_order(item.text_ar, item)
     return "supported" if ok else "unverified"
 
 

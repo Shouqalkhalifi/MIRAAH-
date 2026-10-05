@@ -299,6 +299,13 @@ def salah_page(request: Request):
     return page(request, "salah.html", steps=load_steps())
 
 
+@app.get("/sources", response_class=HTMLResponse)
+def sources_page(request: Request):
+    """مصادر مِرآة: المصحف والحديث والمذاهب الأربعة والمصطلحات، بأعدادها من المدونة."""
+    from app.sources_page import overview
+    return page(request, "sources.html", o=overview())
+
+
 @app.get("/about")
 def about():
     return RedirectResponse("/#about", status_code=308)

@@ -25,6 +25,7 @@ MEDIUM_CHOICES = {k: v for k, v in MEDIUM_AR.items() if k != "summary"}
 ALERT_META: dict[str, tuple[str, str]] = {
     # الميزان: النسبة والدليل
     T.unverified_attribution: ("mizan", "نسبة غير متحقق منها"),
+    T.madhhab_unverified: ("mizan", "نسبة إلى مذهب لم نتحقق منها"),
     T.source_conflict: ("mizan", "تعارض مع المصدر"),
     T.quote_wording_differs: ("mizan", "اختلاف لفظ النص المنسوب"),
     T.new_prophetic_attribution: ("mizan", "نسبة جديدة إلى النبي ﷺ"),
@@ -55,7 +56,7 @@ ALERT_META = {k.value: v for k, v in ALERT_META.items()}
 
 # سطر إنجليزي قصير لكل نوع (كما في التصميم: "Meaning: Constraint Loss")
 ALERT_EN = {
-    "unverified_attribution": "Evidence: Not Verified", "source_conflict": "Evidence: Source Conflict",
+    "unverified_attribution": "Evidence: Not Verified", "madhhab_unverified": "Evidence: School Not Verified", "source_conflict": "Evidence: Source Conflict",
     "quote_wording_differs": "Evidence: Wording Differs", "new_prophetic_attribution": "Evidence: New Attribution",
     "attribution_upgraded": "Evidence: Attribution Upgraded", "hadith_grade_dropped": "Evidence: Grade Dropped",
     "consensus_inflated": "Evidence: Consensus Inflated",
@@ -87,7 +88,7 @@ MARK_WORD = {
     "certainty_raised": "تغيّر", "ruling_shift": "تغيّر", "scope_widened": "تغيّر", "scope_narrowed": "تغيّر",
     "negation_mismatch": "تغيّر", "number_mismatch": "تغيّر", "term_narrowing": "تغيّر",
     "attribution_upgraded": "تغيّر", "quote_wording_differs": "تغيّر", "source_conflict": "تغيّر",
-    "unverified_attribution": "يُنظر", "witness_disagreement": "يُنظر", "reader_divergence": "يُنظر",
+    "unverified_attribution": "يُنظر", "madhhab_unverified": "يُنظر", "witness_disagreement": "يُنظر", "reader_divergence": "يُنظر",
     "length_drop": "يُنظر",
 }
 
@@ -101,7 +102,8 @@ _HEADLINE = {
     "scope_widened": "اتسع النطاق", "scope_narrowed": "ضاق النطاق", "negation_mismatch": "تغيّر النفي",
     "number_mismatch": "تغيّر الرقم", "term_narrowing": "خالف المصطلحُ ضابطه", "attribution_upgraded": "صار المرويّ جازماً",
     "quote_wording_differs": "تغيّر لفظ النص المنسوب", "source_conflict": "خالف النصُّ مصدره",
-    "unverified_attribution": "نسبةٌ لم نجد مصدرها", "witness_disagreement": "اختلف الشاهدان",
+    "unverified_attribution": "نسبةٌ لم نجد مصدرها", "madhhab_unverified": "نسبةٌ إلى مذهب لم نتحقق منها",
+    "witness_disagreement": "اختلف الشاهدان",
     "reader_divergence": "فهم قارئ النسخة مختلف", "length_drop": "اختُصرت الحلقة كثيراً",
 }
 # أعراض تُطوى تحت سببها الجذري إن وُجد في الحلقة نفسها
@@ -122,7 +124,7 @@ STATUS_WORD = {
     "scope_narrowed": "ضاق النطاق", "negation_mismatch": "تغيّر النفي", "number_mismatch": "تغيّر الرقم",
     "term_narrowing": "خالف مصطلح ضابطه", "attribution_upgraded": "صار المرويّ جازماً",
     "quote_wording_differs": "تغيّر لفظ النص", "source_conflict": "خالف المصدر",
-    "unverified_attribution": "نسبة بلا مصدر", "witness_disagreement": "اختلف الشاهدان",
+    "unverified_attribution": "نسبة بلا مصدر", "madhhab_unverified": "نسبة إلى مذهب", "witness_disagreement": "اختلف الشاهدان",
     "reader_divergence": "اختلف الفهم", "length_drop": "اختصار كبير",
 }
 

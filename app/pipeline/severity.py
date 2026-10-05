@@ -21,7 +21,7 @@ TIERS: dict[T, int] = {
     T.new_prophetic_attribution: 0, T.attribution_upgraded: 0, T.unverified_attribution: 0,
     T.source_conflict: 0, T.quote_wording_differs: 0, T.hadith_grade_dropped: 0,
     # 1) الأحكام
-    T.ruling_shift: 1, T.consensus_inflated: 1, T.disagreement_collapsed: 1, T.attribution_generalized: 1, T.negation_mismatch: 1, T.number_mismatch: 1,
+    T.ruling_shift: 1, T.madhhab_unverified: 1, T.consensus_inflated: 1, T.disagreement_collapsed: 1, T.attribution_generalized: 1, T.negation_mismatch: 1, T.number_mismatch: 1,
     # 2) الشروط والاستثناءات واليقين
     T.condition_dropped: 2, T.exception_dropped: 2, T.certainty_raised: 2, T.scope_widened: 2,
     T.scope_narrowed: 2, T.hasr_lost: 2, T.lock_violated: 2, T.reader_divergence: 2, T.sentence_dropped: 2,

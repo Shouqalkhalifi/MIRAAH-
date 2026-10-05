@@ -20,6 +20,7 @@ from typing import Optional
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
 
+from app import madhahib
 from app.corpus import CorpusItem, load_corpus
 from app.models import Alert, AlertType, Evidence, Report, Severity, Span, Verification
 from app.pipeline.segment import split_sentences
@@ -221,7 +222,21 @@ def _check_cited_verse(v: Verification, quote: str, text: str, found: CorpusItem
         v.note_ar = f"الآية المشار إليها برقمها لا تطابق النص المقتبس؛ والنص موجود في {where}"
 
 
+def verify_madhhab(text: str, label: str, sentence_index: int) -> list[Verification]:
+    """قول منسوب إلى أحد المذاهب الأربعة: لا نملك أقوال المذاهب، فالنسبة «غير متحقق» مع كتب المذهب للرجوع إليها."""
+    out = []
+    for mid, cue in madhahib.find(text):
+        m = madhahib.by_id(mid)
+        out.append(Verification(
+            label=label, sentence_index=sentence_index, attributed_to="madhhab", cue=cue, quote=text.strip(),
+            status="unverified", item_id=f"madhhab-{mid}", source_name=madhahib.books_line(mid),
+            source_url=madhahib.load()["source"]["refs_url"],
+            note_ar=f"نُسب هذا إلى {m['name_ar']}، و{madhahib.NOT_VERIFIED_AR}. راجعه في كتب المذهب أو عند مختص"))
+    return out
+
+
 # ---------- من نتائج الميزان إلى تنبيهات ----------
+_MADHHAB_ALERT = (AlertType.madhhab_unverified, Severity.yellow)
 _STATUS_ALERT = {
     "unverified": (AlertType.unverified_attribution, Severity.red),
     "conflicting": (AlertType.source_conflict, Severity.red),
@@ -233,6 +248,10 @@ _GRADE_AR = {"sahih": "صحيح", "hasan": "حسن", "daif": "ضعيف", "mawdu"
 
 
 def _texts(v: Verification) -> tuple[str, str]:
+    if v.attributed_to == "madhhab":
+        return (v.note_ar + ".",
+                "نسبة قول إلى مذهب بعينه دون مصدر قد تنقل إلى القارئ ما لا يقوله المذهب، أو تجعل مسألة خلافية قولاً واحداً. "
+                "مِرآة لا ترجّح بين المذاهب؛ راجع النسبة في كتب المذهب المذكورة قبل النشر.")
     to = _TO_AR[v.attributed_to]
     if v.status == "unverified":
         return (f"{NOT_FOUND_AR}: «{v.quote}» (منسوب إلى {to}). يُحال إلى المراجع.",
@@ -264,9 +283,14 @@ def check_report(report: Report, mizan: Mizan | None = None) -> tuple[list[Verif
 
     verifications: list[Verification] = []
     records: list[tuple[Verification, Alert]] = []
+    # المذهب المذكور في الأصل أو في حلقة سابقة ليس نسبة جديدة: الأصل هو المرجع
+    named = {label: {mid for mid, _ in madhahib.find(texts[label])} for label in order}
     for label in order:
         for seg in split_sentences(texts[label]):
-            for v in verify(seg.text, label, seg.index, mizan):
+            inherited = set().union(*(named[a] for a in ancestors(label))) if label != "source" else set()
+            found = [v for v in verify_madhhab(seg.text, label, seg.index)
+                     if label != "source" and v.item_id.removeprefix("madhhab-") not in inherited]
+            for v in verify(seg.text, label, seg.index, mizan) + found:
                 verifications.append(v)
                 if v.status == "supported":
                     continue
@@ -277,7 +301,7 @@ def check_report(report: Report, mizan: Mizan | None = None) -> tuple[list[Verif
                     if label not in prev.propagated_to:
                         prev.propagated_to.append(label)
                     continue
-                kind, sev = _STATUS_ALERT[v.status]
+                kind, sev = _MADHHAB_ALERT if v.attributed_to == "madhhab" else _STATUS_ALERT[v.status]
                 exp, why = _texts(v)
                 evidence = [Evidence(kind="corpus", ref=v.item_id or "—",
                                      detail=(f"{v.source_name} {v.source_url}".strip() if v.item_id

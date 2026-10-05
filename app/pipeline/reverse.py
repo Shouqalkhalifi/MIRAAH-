@@ -293,7 +293,8 @@ def run_reverse(llm, text: str, issues=None, presence_fn: Optional[PresenceFn] =
         return done(kind=kind, verdict="referral", headline_ar=PERSONAL_AR, tone="ink", referral_ar=PERSONAL_AR)
 
     # فحوص حتمية من المدونة تعمل وإن لم تكن المسألة في المكتبة: آية أو حديث منسوب، ومصطلح من قاموس الحزمة
-    notes = dict(verifications=mizan.verify(text, "reader", 0), terms=term_notes(text))
+    notes = dict(verifications=mizan.verify(text, "reader", 0) + mizan.verify_madhhab(text, "reader", 0),
+                 terms=term_notes(text))
     has_notes = bool(notes["verifications"] or notes["terms"])
     if kind == "out_of_scope":
         return done(kind=kind, verdict="out_of_scope", headline_ar=NOTES_ONLY_AR if has_notes else OUT_OF_SCOPE_AR,
