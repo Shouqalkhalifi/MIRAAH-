@@ -575,10 +575,10 @@
    "expected": [
     "unverified_attribution"
    ],
-   "source": "قال رسول الله ﷺ: «الطهور شطر الإيمان».",
+   "source": "من العبارات المتداولة: «اطلبوا العلم ولو في الصين».",
    "level": "A",
-   "reference_en": "Purification is half of faith.",
-   "version": "The Prophet ﷺ said: \"Purification is half of faith.\"",
+   "reference_en": "Seek knowledge even if it is in China.",
+   "version": "The Prophet ﷺ said: \"Seek knowledge even if it is in China.\"",
    "change": "attributed to the Prophet ﷺ"
   }
  ],
@@ -597,7 +597,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 2.18
+    "seconds": 11.02
    },
    "s01-scope_widened": {
     "id": "s01-scope_widened",
@@ -612,7 +612,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.52
+    "seconds": 6.45
    },
    "s01-ruling_shift": {
     "id": "s01-ruling_shift",
@@ -626,7 +626,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.47
+    "seconds": 8.14
    },
    "s02-number_mismatch": {
     "id": "s02-number_mismatch",
@@ -640,7 +640,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.63
+    "seconds": 8.87
    },
    "s02-ruling_shift": {
     "id": "s02-ruling_shift",
@@ -654,7 +654,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.22
+    "seconds": 1.91
    },
    "s02-consensus_inflated": {
     "id": "s02-consensus_inflated",
@@ -669,7 +669,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.22
+    "seconds": 0.1
    },
    "s03-negation_mismatch": {
     "id": "s03-negation_mismatch",
@@ -682,7 +682,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.4
+    "seconds": 2.53
    },
    "s03-condition_dropped": {
     "id": "s03-condition_dropped",
@@ -696,7 +696,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.43
+    "seconds": 0.15
    },
    "s04-attribution_upgraded": {
     "id": "s04-attribution_upgraded",
@@ -710,7 +710,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.27
+    "seconds": 1.43
    },
    "s04-new_prophetic_attribution": {
     "id": "s04-new_prophetic_attribution",
@@ -728,8 +728,8 @@
      "unverified"
     ],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 0.14
+    "witness_agreement": 0.5,
+    "seconds": 1.09
    },
    "s05-certainty_raised": {
     "id": "s05-certainty_raised",
@@ -739,12 +739,13 @@
     "predicted": [
      "certainty_raised",
      "condition_dropped",
-     "reader_divergence"
+     "reader_divergence",
+     "scope_narrowed"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 0.2
+    "witness_agreement": 0.5,
+    "seconds": 3.03
    },
    "s05-scope_widened": {
     "id": "s05-scope_widened",
@@ -754,12 +755,13 @@
     "predicted": [
      "certainty_raised",
      "condition_dropped",
-     "reader_divergence"
+     "reader_divergence",
+     "scope_widened"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 0.7
+    "witness_agreement": 1.0,
+    "seconds": 2.96
    },
    "s06-hasr_lost": {
     "id": "s06-hasr_lost",
@@ -775,7 +777,7 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.37
+    "seconds": 1.41
    },
    "s07-consensus_inflated": {
     "id": "s07-consensus_inflated",
@@ -791,7 +793,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.1
+    "seconds": 1.38
    },
    "s07-condition_dropped": {
     "id": "s07-condition_dropped",
@@ -805,7 +807,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 5.07
+    "seconds": 2.97
    },
    "s08-term_narrowing": {
     "id": "s08-term_narrowing",
@@ -820,7 +822,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.06
+    "seconds": 1.5
    },
    "s08-ruling_shift": {
     "id": "s08-ruling_shift",
@@ -835,7 +837,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.08
+    "seconds": 1.48
    },
    "s09-condition_dropped": {
     "id": "s09-condition_dropped",
@@ -850,7 +852,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.31
+    "seconds": 2.53
    },
    "s09-negation_mismatch": {
     "id": "s09-negation_mismatch",
@@ -864,7 +866,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.2
+    "seconds": 2.59
    },
    "s10-ruling_shift": {
     "id": "s10-ruling_shift",
@@ -879,7 +881,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.08
+    "seconds": 1.52
    },
    "s10-term_narrowing": {
     "id": "s10-term_narrowing",
@@ -894,7 +896,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.37
+    "seconds": 1.55
    },
    "s11-number_mismatch": {
     "id": "s11-number_mismatch",
@@ -907,8 +909,8 @@
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 0.08
+    "witness_agreement": 0.5,
+    "seconds": 1.45
    },
    "s12-hadith_grade_dropped": {
     "id": "s12-hadith_grade_dropped",
@@ -921,8 +923,8 @@
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 0.14
+    "witness_agreement": 0.0,
+    "seconds": 1.62
    },
    "s13-exception_dropped": {
     "id": "s13-exception_dropped",
@@ -937,7 +939,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.52
+    "seconds": 1.43
    },
    "s13-scope_widened": {
     "id": "s13-scope_widened",
@@ -952,7 +954,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.29
+    "seconds": 1.79
    },
    "s14-negation_mismatch": {
     "id": "s14-negation_mismatch",
@@ -967,7 +969,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.42
+    "seconds": 1.51
    },
    "s14-ruling_shift": {
     "id": "s14-ruling_shift",
@@ -982,7 +984,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.11
+    "seconds": 3.41
    },
    "s15-negation_mismatch": {
     "id": "s15-negation_mismatch",
@@ -999,7 +1001,7 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.11
+    "seconds": 5.06
    },
    "s01-faithful": {
     "id": "s01-faithful",
@@ -1010,7 +1012,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 1.14
+    "seconds": 1.57
    },
    "s02-faithful": {
     "id": "s02-faithful",
@@ -1021,7 +1023,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.22
+    "seconds": 1.58
    },
    "s03-faithful": {
     "id": "s03-faithful",
@@ -1032,18 +1034,20 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.09
+    "seconds": 1.76
    },
    "s04-faithful": {
     "id": "s04-faithful",
     "status": "analyzed",
     "error": "",
     "warnings": [],
-    "predicted": [],
+    "predicted": [
+     "scope_widened"
+    ],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.28
+    "seconds": 0.14
    },
    "s05-faithful": {
     "id": "s05-faithful",
@@ -1053,12 +1057,13 @@
     "predicted": [
      "certainty_raised",
      "negation_mismatch",
-     "ruling_shift"
+     "ruling_shift",
+     "scope_narrowed"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 0.34
+    "witness_agreement": 0.5,
+    "seconds": 1.08
    },
    "s06-faithful": {
     "id": "s06-faithful",
@@ -1071,7 +1076,7 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.11
+    "seconds": 0.09
    },
    "s07-faithful": {
     "id": "s07-faithful",
@@ -1082,7 +1087,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.13
+    "seconds": 0.08
    },
    "s08-faithful": {
     "id": "s08-faithful",
@@ -1093,7 +1098,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.24
+    "seconds": 0.13
    },
    "s09-faithful": {
     "id": "s09-faithful",
@@ -1104,20 +1109,18 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.21
+    "seconds": 0.43
    },
    "s10-faithful": {
     "id": "s10-faithful",
     "status": "analyzed",
     "error": "",
     "warnings": [],
-    "predicted": [
-     "scope_narrowed"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 0.23
+    "seconds": 0.27
    },
    "s11-faithful": {
     "id": "s11-faithful",
@@ -1128,29 +1131,33 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.93
+    "seconds": 0.28
    },
    "s12-faithful": {
     "id": "s12-faithful",
     "status": "analyzed",
     "error": "",
     "warnings": [],
-    "predicted": [],
+    "predicted": [
+     "witness_disagreement"
+    ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 0.13
+    "witness_agreement": 0.0,
+    "seconds": 0.41
    },
    "s13-faithful": {
     "id": "s13-faithful",
     "status": "analyzed",
     "error": "",
     "warnings": [],
-    "predicted": [],
+    "predicted": [
+     "reader_divergence"
+    ],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.13
+    "seconds": 0.34
    },
    "s14-faithful": {
     "id": "s14-faithful",
@@ -1161,7 +1168,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.17
+    "seconds": 0.21
    },
    "s15-faithful": {
     "id": "s15-faithful",
@@ -1169,17 +1176,16 @@
     "error": "",
     "warnings": [],
     "predicted": [
-     "quote_wording_differs",
      "unverified_attribution"
     ],
     "verifications": [
      "supported",
-     "partially_supported",
+     "unverified",
      "unverified"
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 0.38
+    "seconds": 0.44
    },
    "a01": {
     "id": "a01",
@@ -1196,7 +1202,7 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.19
+    "seconds": 0.16
    },
    "a02": {
     "id": "a02",
@@ -1204,6 +1210,7 @@
     "error": "",
     "warnings": [],
     "predicted": [
+     "attribution_upgraded",
      "new_prophetic_attribution",
      "reader_divergence",
      "unverified_attribution"
@@ -1213,7 +1220,7 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.16
+    "seconds": 0.34
    },
    "a03": {
     "id": "a03",
@@ -1230,7 +1237,7 @@
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 0.28
+    "seconds": 0.29
    },
    "a04": {
     "id": "a04",
@@ -1238,15 +1245,16 @@
     "error": "",
     "warnings": [],
     "predicted": [
+     "new_prophetic_attribution",
+     "reader_divergence",
      "unverified_attribution"
     ],
     "verifications": [
-     "unverified",
      "unverified"
     ],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 0.19
+    "witness_agreement": 0.5,
+    "seconds": 16.8
    }
   }
  ],
@@ -1482,8 +1490,8 @@
    "flagged": false
   },
   "a04": {
-   "chrf": 86.7,
-   "len_ratio": 2.4,
+   "chrf": 88.8,
+   "len_ratio": 1.88,
    "flagged": false
   }
  },
@@ -1568,14 +1576,6 @@
    "recall": 1.0,
    "precision": 1.0
   },
-  "quote_wording_differs": {
-   "tp": 0,
-   "fn": 0,
-   "fp": 1,
-   "support": 0,
-   "recall": null,
-   "precision": 0.0
-  },
   "ruling_shift": {
    "tp": 5,
    "fn": 0,
@@ -1587,17 +1587,17 @@
   "scope_narrowed": {
    "tp": 0,
    "fn": 0,
-   "fp": 1,
+   "fp": 2,
    "support": 0,
    "recall": null,
    "precision": 0.0
   },
   "scope_widened": {
-   "tp": 2,
-   "fn": 1,
-   "fp": 2,
+   "tp": 3,
+   "fn": 0,
+   "fp": 3,
    "support": 3,
-   "recall": 0.6666666666666666,
+   "recall": 1.0,
    "precision": 0.5
   },
   "term_narrowing": {
@@ -1618,20 +1618,25 @@
   }
  },
  "cost": {
-  "calls": 403,
-  "live_calls": 1,
-  "cache_hits": 402,
+  "calls": 402,
+  "live_calls": 39,
+  "cache_hits": 363,
   "failed_calls": 0,
   "errors": [],
   "by_model": {
    "claude-sonnet-5-5": [
-    774,
-    355,
-    1
+    33304,
+    3875,
+    37
+   ],
+   "claude-haiku-4-5": [
+    5471,
+    454,
+    2
    ]
   },
-  "usd": 0.0051
+  "usd": 0.1131
  },
- "start": "2026-10-02T13:09:58.093643+00:00",
+ "start": "2026-10-05T15:52:37.404644+00:00",
  "first_run_cached": false
 }
