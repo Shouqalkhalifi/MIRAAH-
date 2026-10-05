@@ -2,7 +2,7 @@
 {% block title %}تعلّم الصلاة مع الذكاء الاصطناعي{% endblock %}
 {% block content %}
 <script>window.SALAH_STEPS = {{ steps|tojson }};</script>
-<script src="/static/salah.js?v=18"></script>
+<script src="/static/salah.js?v=19"></script>
 <section class="salah" x-data="salahTrainer()" @beforeunload.window="stop()">
   <header class="salah-head">
     <span class="salah-kicker-top">قابِل ذكرك بمصدره</span>
@@ -28,6 +28,8 @@
       <span class="salah-mic" x-show="listening" x-cloak><i aria-hidden="true"></i>نسمعك</span>
       {# ما يُقرأ من بُعد مترين: الذكر بخط كبير ملوّن، والحكم في شارة كبيرة، ومفتاح الألوان بنقاط لا بجملة #}
       <div class="salah-hud" x-show="state === 'run'" x-cloak>
+        <span class="salah-far salah-micerr" x-show="micErr" x-text="micErr" role="alert"></span>
+        <span class="salah-far" x-show="silentHint && !micErr" x-text="silentHint" role="status"></span>
         <span class="salah-far" x-show="pose === 'absent' && !done" role="status">ابتعد عن الكاميرا أو ضع الجهاز جانبك، حتى يظهر جسمك من الرأس إلى الركبتين</span>
         <span class="salah-praise" x-show="pose !== 'absent' && (done || praiseText || hit) && !(listening && hearing.verdict && !done)" x-text="done ? 'أحسنت، أتممت التدريب' : (praiseText || s.praise)" role="status"></span>
         <div class="salah-live" x-show="s.dhikr && !done">
@@ -35,6 +37,7 @@
           <p class="live-sub" x-show="listening && hearing.verdict === 'dropped'">قلها حتى يكتمل الذكر</p>
           <p class="live-say" x-show="!(listening && hearing.verdict)" x-text="listening ? 'قل:' : 'اقرأ:'"></p>
           <p class="live-text ar-source" dir="rtl"><span class="live-more" x-show="stage.pre">… </span><template x-for="w in stage.words" :key="i + '-' + w.k"><span :class="w.cls" x-text="w.t + ' '"></span></template><span class="live-more" x-show="stage.post">…</span></p>
+          <p class="live-heard" x-show="listening && heard" x-text="'سمعنا: ' + heard.slice(-60)" dir="rtl"></p>
           <p class="live-legend" x-show="listening && hearing.any" aria-hidden="true"><span><i class="d-ok"></i>قلته</span><span><i class="d-drop"></i>لم تذكره</span><span><i class="d-miss"></i>لم تصل إليه</span></p>
         </div>
       </div>

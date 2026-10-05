@@ -140,10 +140,11 @@ function salahDraw(canvas, video, L, match) {
 
 function salahTrainer() {
   let landmarker = null, stream = null, raf = 0, lastT = -1, since = 0, timer = 0, absent = 0, seen = 0;
-  let rec = null, finals = '', ttsUntil = 0, moving = 0, cueT = 0, cued = '';
+  let rec = null, finals = '', ttsUntil = 0, moving = 0, cueT = 0, cued = '', heardAt = 0, enteredAt = 0, ticker = 0;
   return {
     steps: SALAH_STEPS, i: 0, state: 'idle', err: '', pose: 'none', hit: false, done: false, countdown: 0, fallback: false,
     voice: true, voiceOk: false, canListen: !!SALAH_SR, listen: !!SALAH_SR, micErr: '', heard: '', away: false, praiseText: '',
+    tick: Date.now(),  // ساعة كل ثانية لتلميح «لم نسمع شيئاً»
     stats: {},  // مؤشر الأثر: مطابقة الألفاظ للمصدر في أول محاولة وآخرها لكل خطوة، يُحسب في المتصفح ولا يُرسل
     get s() { return this.steps[this.i]; },
     get poseAr() { return POSE_AR[this.pose] || ''; },
@@ -228,9 +229,18 @@ function salahTrainer() {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = v.lang; u.voice = v; u.rate = 0.95;
-      ttsUntil = Infinity;                                   // لا نحتسب ما يلتقطه الميكروفون من صوت الإرشاد
+      // لا نحتسب ما يلتقطه الميكروفون من صوت الإرشاد، لكن بمهلة محدودة بطول الجملة: Safari في iPhone قد يمنع النطق
+      // بلا لمسة مباشرة فلا يصل حدث النهاية أبداً، فيبقى كل ما يقوله المتعلّم مهملاً
+      ttsUntil = Date.now() + Math.min(12000, 1500 + text.length * 90);
       u.onend = u.onerror = () => { ttsUntil = Date.now() + 600; };
       speechSynthesis.speak(u);
+      setTimeout(() => { if (!speechSynthesis.speaking && !speechSynthesis.pending) ttsUntil = Math.min(ttsUntil, Date.now()); }, 1200);
+    },
+    /* داخل اللمسة نفسها (قبل تحميل الكاميرا والنموذج): Safari لا يسمح بالنطق ولا بالميكروفون إلا بعد لمسة مباشرة */
+    unlockAudio() {
+      if ('speechSynthesis' in window) {
+        try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch { }
+      }
     },
 
     /* أول خطوة بعد الحالية لها وضعية؛ الوصول إليها ينقل المتدرب تلقائياً (حين يكون الاستماع مطفأً) */
@@ -251,7 +261,7 @@ function salahTrainer() {
 
     enter() {
       this.hit = false; since = 0; finals = ''; this.heard = ''; this.praiseText = ''; clearTimeout(cueT); cued = '';
-      clearTimeout(moving); moving = 0; this.clearTimer(); this.say(this.s.say);
+      clearTimeout(moving); moving = 0; this.clearTimer(); enteredAt = Date.now(); this.say(this.s.say);
       if (!this.s.pose) this.startTimer();
     },
     go(n) { if (n === 0) this.stats = {}; this.i = n; this.done = false; this.enter(); },
@@ -277,11 +287,15 @@ function salahTrainer() {
       moving = setTimeout(() => { moving = 0; this.next(); }, 1600);
     },
 
+    /* الاستماع يبدأ مع اللمسة (والكاميرا ما زالت تُحمَّل)، ويستمر ما دام التدريب قائماً */
+    get wantListen() { return this.listen && this.canListen && this.state !== 'idle'; },
     listenStart() {
-      if (!this.listening || rec) return;
+      if (!this.wantListen || rec) return;
       rec = new SALAH_SR();
       rec.lang = 'ar-SA'; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 5;
+      rec.onstart = () => { this.micErr = ''; };
       rec.onresult = e => {
+        heardAt = Date.now();
         if (Date.now() < ttsUntil) return;
         let interim = '';
         for (let k = e.resultIndex; k < e.results.length; k++) {
@@ -294,12 +308,32 @@ function salahTrainer() {
         this.check();
       };
       rec.onerror = e => {
-        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-          this.listen = false; this.micErr = 'لم يُسمح بالميكروفون، فننتقل بالوقت بدل الاستماع.';
+        const msg = {
+          'not-allowed': 'لم يُسمح بالميكروفون، فننتقل بالوقت بدل الاستماع.',
+          'service-not-allowed': 'التعرّف على الكلام غير مفعّل في هذا الجهاز. في iPhone: الإعدادات ← عام ← لوحة المفاتيح ← فعّل «الإملاء». وننتقل بالوقت الآن.',
+          'language-not-supported': 'هذا المتصفح لا يتعرّف على الكلام العربي، فننتقل بالوقت. جرّب Chrome أو Safari بعد إضافة العربية إلى الإملاء.',
+          'audio-capture': 'لم نصل إلى الميكروفون. أغلق أي تطبيق يستعمله ثم أعد المحاولة.',
+          'network': 'التعرّف على الكلام يحتاج اتصالاً بالإنترنت. تحقّق من الاتصال.',
+        }[e.error];
+        if (!msg) return;                                     // no-speech و aborted: يعاد الاستماع من onend
+        this.micErr = msg;
+        if (['not-allowed', 'service-not-allowed', 'language-not-supported'].includes(e.error)) {
+          this.listen = false; rec = null;
+          if (!this.s.pose || this.hit) this.startTimer();
         }
       };
-      rec.onend = () => { if (this.listening && rec) { try { rec.start(); } catch { } } else rec = null; };
+      rec.onend = () => {
+        if (!this.wantListen || !rec) { rec = null; return; }
+        // Safari يُنهي الاستماع بعد كل جملة: نعيده، وإن رفض البدء فوراً نحاول بعد لحظة
+        try { rec.start(); } catch { setTimeout(() => { try { rec && rec.start(); } catch { } }, 400); }
+      };
       try { rec.start(); this.micErr = ''; } catch { rec = null; }
+    },
+    /* لم نسمع شيئاً منذ مدة والمتعلّم في وضعه: تلميح على المسرح بدل الصمت */
+    get silentHint() {
+      if (!this.listening || this.done || !this.poseOk || this.hearing.any) return '';
+      return this.tick - Math.max(heardAt, enteredAt) > 9000
+        ? 'لم نسمع شيئاً بعد: تكلّم بصوت أوضح وقرّب الجهاز قليلاً، أو اضغط «تخطَّ»' : '';
     },
     /* التعرّف على الكلام قد يخلط العربية بكلمات إنجليزية: يُحذف الحرف اللاتيني، ومن البدائل يُختار أقربها إلى ذكر الخطوة
        (والذكر الخاطئ المتوقع، حتى لا يُخفى «ذكر خطوة أخرى»)، ثم أكثرها عربية */
@@ -323,6 +357,8 @@ function salahTrainer() {
 
     async start() {
       this.err = ''; this.state = 'load';
+      this.unlockAudio(); this.listenStart();               // داخل اللمسة، قبل أي انتظار
+      clearInterval(ticker); ticker = setInterval(() => { this.tick = Date.now(); }, 1000);
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 720 } }, audio: false });
         const v = this.$refs.video;
@@ -344,7 +380,7 @@ function salahTrainer() {
     },
 
     stop() {
-      cancelAnimationFrame(raf); this.listenStop();
+      cancelAnimationFrame(raf); this.listenStop(); clearInterval(ticker);
       if (stream) stream.getTracks().forEach(t => t.stop());
       stream = null; lastT = -1; this.state = 'idle'; this.pose = 'none'; this.away = false; this.clearTimer();
       clearTimeout(moving); moving = 0;

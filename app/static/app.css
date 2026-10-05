@@ -668,6 +668,8 @@ a.teach-card:hover { transform: translateY(-3px); border-color: #D8D2FB; box-sha
 .live-text .w-miss { opacity: .42; }
 .live-text .w-drop { color: #fff; background: #E5484D; border-radius: .25em; padding: 0 .18em; animation: salahDrop 1.1s ease-in-out infinite; }
 .live-more { opacity: .5; }
+.salah-live .live-heard { color: #C9CCE0; font-size: clamp(.8rem, 2.4cqi, 1.15rem); margin-top: .8cqi; }
+.salah-micerr { background: #FDF0F1; color: #B4232F; }
 @keyframes salahDrop { 50% { box-shadow: 0 0 0 .22em rgba(229, 72, 77, .45); } }
 .salah-live .live-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: .4em 1.4em; margin-top: 1cqi; color: #C9CCE0; font-size: clamp(.8rem, 2.5cqi, 1.25rem); }
 .live-legend i { display: inline-block; width: .8em; height: .8em; border-radius: 50%; margin-inline-end: .4em; vertical-align: -.05em; }
