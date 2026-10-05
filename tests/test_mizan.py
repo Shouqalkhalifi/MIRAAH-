@@ -113,3 +113,11 @@ def test_fabricated_hadith_sharing_half_its_words_with_a_real_one_stays_unverifi
     # يشارك حديث غُسل الجمعة في «يوم الجمعة» و«غفر» فقط: نصف كلمات المعنى لا يجعله «رواية بلفظ آخر»
     [v] = verify("قال رسول الله ﷺ: من صام يوم الجمعة غفر له ذنوب سنة", "x", 0)
     assert v.status == "unverified" and v.note_ar == NOT_FOUND_AR
+
+
+def test_meaning_words_scattered_in_a_long_narration_are_not_a_partial_match():
+    # ترجمة الحديث في الموسوعة فيها الرواية وشرحها: love وpart وfaith تتفرق فيها، وليست اقتباساً
+    [v] = verify('The Prophet ﷺ said: "Love of one\'s homeland is part of faith."', "x", 0)
+    assert v.status == "unverified"
+    [v] = verify("قال رسول الله ﷺ: «الطهور شطر الإيمان»", "x", 0)
+    assert v.status == "supported"

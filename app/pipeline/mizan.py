@@ -114,6 +114,22 @@ def containment(query: list[str], doc: list[str]) -> float:
     return sum(1 for t in query if t in d) / len(query)
 
 
+def near(query: list[str], item: CorpusItem) -> float:
+    """أعلى نسبة من كلمات المعنى تقع متقاربة في موضع واحد من العنصر (نافذة بقدر ثلاثة أضعاف الاقتباس).
+    ترجمة الحديث في الموسوعة تحمل الرواية وشرحها، فكلمات عامة مثل love وpart وfaith تتفرق فيها وتجمع 60٪ وهي ليست اقتباساً."""
+    q = set(query)
+    if not q:
+        return 0.0
+    w = max(8, 3 * len(query))
+    best = 0
+    for doc in item_forms(item):
+        for start in range(max(1, len(doc) - w + 1)):
+            best = max(best, len(q & set(doc[start:start + w])))
+            if best == len(q):
+                return 1.0
+    return best / len(q)
+
+
 def in_order(quote: str, item: CorpusItem) -> bool:
     """كلمات الاقتباس الموجودة في النص المعتمد تأتي فيه بالترتيب نفسه (تُتجاهل الكلمات الزائدة)."""
     q = tokens(quote)
@@ -173,8 +189,10 @@ def verify(text: str, label: str, sentence_index: int, mizan: Mizan | None = Non
         best = hits[0] if hits else None
         v = Verification(label=label, sentence_index=sentence_index, attributed_to=to, cue=cue, quote=quote,
                          status="unverified", note_ar=NOT_FOUND_AR)
-        # التطابق الجزئي يحتاج 3 كلمات معنى مشتركة على الأقل، فلا تكفي كلمتان متفرقتان في حديث طويل
-        if best and best.containment >= PARTIAL_AT and (best.containment >= SUPPORTED_AT or best.matched >= PARTIAL_MIN_WORDS):
+        # التطابق الجزئي يحتاج 3 كلمات معنى مشتركة على الأقل، فلا تكفي كلمتان متفرقتان في حديث طويل،
+        # ويجب أن تقع الكلمات متقاربة في موضع واحد من النص المعتمد لا متفرقة في روايته وشرحه
+        if best and best.containment >= PARTIAL_AT and (best.containment >= SUPPORTED_AT or best.matched >= PARTIAL_MIN_WORDS) \
+                and near(content_tokens(tokens(quote or text)), best.item) >= PARTIAL_AT:
             it = best.item
             v.score, v.item_id, v.item_text, v.item_grade = round(best.containment, 2), it.id, it.text_ar, it.grade
             v.source_name, v.source_url = it.source_name, it.source_url
@@ -244,7 +262,7 @@ def find_quote(text: str, label: str, sentence_index: int, mizan: Mizan | None =
         hits = mizan.search(seg, types=("quran", "hadith"), k=1)
         best = hits[0] if hits else None
         if not best or best.item.id in seen or best.matched < QUOTE_MIN_WORDS or best.containment < SUPPORTED_AT \
-                or not in_order(seg, best.item):
+                or not in_order(seg, best.item) or near(content_tokens(tokens(seg)), best.item) < SUPPORTED_AT:
             continue
         it = best.item
         seen.add(it.id)
