@@ -2,7 +2,7 @@
  {
   "n": 1,
   "q": "لماذا يعبد المسلمون الكعبة؟",
-  "kind": "question",
+  "kind": "claim",
   "verdict": "no_reference",
   "headline_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
   "issue": null,
@@ -20,7 +20,7 @@
   "verdict": "no_reference",
   "headline_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
   "issue": null,
-  "confidence": 0.95,
+  "confidence": 0.97,
   "findings": [],
   "explanation_ar": null,
   "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
@@ -32,15 +32,13 @@
   "q": "هل انتشر الإسلام بالسيف؟",
   "kind": "question",
   "verdict": "no_reference",
-  "headline_ar": "المسألة ليست في مكتبة مِرآة، لكن في نصك ما تقابله مدونتها:",
+  "headline_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
   "issue": null,
   "confidence": 0.0,
   "findings": [],
   "explanation_ar": null,
   "referral_ar": "لا يوجد مرجع كافٍ في مكتبة مِرآة لهذه المسألة، يُرجى الرجوع لجهة مختصة.",
-  "terms": [
-   "t-islam"
-  ],
+  "terms": [],
   "verifications": []
  },
  {
@@ -128,9 +126,7 @@
   "findings": [],
   "explanation_ar": null,
   "referral_ar": null,
-  "terms": [
-   "t-islam"
-  ],
+  "terms": [],
   "verifications": []
  },
  {
