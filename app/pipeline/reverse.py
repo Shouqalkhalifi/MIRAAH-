@@ -144,9 +144,21 @@ def _kw_norm(s: str) -> str:
     return _APOSTROPHES.sub("", normalize_ar(s))
 
 
+_AR = re.compile(r"[؀-ۿ]")
+
+
 def _has(phrase: str, norm_text: str) -> bool:
+    """الكلمة المفتاحية كلمةً كاملة؛ والعربية تقبل الحروف المتصلة قبلها: «والمسافر»، «بالاعتكاف»، و«للمسافر» (لِـ + المسافر)."""
     p = _kw_norm(phrase)
-    return bool(p) and re.search(rf"(?<!\w){re.escape(p)}(?!\w)", norm_text) is not None
+    if not p:
+        return False
+    if _AR.search(p):
+        body = (rf"(?:[بك]?ال|لل){re.escape(p[2:])}" if p.startswith("ال") and len(p) > 3
+                else rf"[بكل]?{re.escape(p)}")
+        pattern = rf"(?<!\w)[وف]?{body}(?!\w)"
+    else:
+        pattern = rf"(?<!\w){re.escape(p)}(?!\w)"
+    return re.search(pattern, norm_text) is not None
 
 
 def candidates(text: str, issues) -> list[tuple[Issue, int]]:
@@ -197,12 +209,17 @@ def compare(fp: MeaningFingerprint, issue: Issue, text: str, lang: str,
         return "khilafi", "مسألة خلافية", "saffron", findings
 
     want = RULING_TO_FP[pos.ruling]
-    if pos.ruling != "none" and fp.ruling not in ("none", want):
+    # «يجوز» لما يذكره المصدر مستحباً أو مكروهاً ليس تعارضاً: المستحب والمكروه جائزان، والعبارة سكتت عن الأفضل
+    weaker = pos.ruling in ("mustahab", "makruh") and fp.ruling == "permissible"
+    if pos.ruling != "none" and fp.ruling not in ("none", want) and not weaker:
         findings.append(Finding(mark="تغيّر", tone="rubric",
                                 text_ar=f"العبارة تذكر حكماً غير الذي يذكره المصدر؛ المصدر يذكره {RULING_AR[pos.ruling]}."))
         return "contradicts", f"متعارض مع المصدر: المصدر يذكر الحكم {RULING_AR[pos.ruling]}", "rubric", findings
 
     missing: list[str] = []
+    if weaker:
+        findings.append(Finding(mark="تغيّر", text_ar=f"العبارة تكتفي بالجواز؛ المصدر يذكره {RULING_AR[pos.ruling]}."))
+        missing.append("وصف الحكم")
     if pos.ruling != "none" and fp.ruling == "none":
         findings.append(Finding(mark="سقط", text_ar=f"لم تذكر العبارة الحكم؛ المصدر يذكره {RULING_AR[pos.ruling]}."))
         missing.append("الحكم")
@@ -234,6 +251,8 @@ def compare(fp: MeaningFingerprint, issue: Issue, text: str, lang: str,
     lacks = [x for x in uniq if x in ("الحكم", "شرط", "استثناء")]
     if lacks:
         parts.append("ينقص " + " و".join(lacks))
+    if "وصف الحكم" in uniq:
+        parts.append(f"المصدر يذكر الحكم {RULING_AR[pos.ruling]}")
     if "نطاق" in uniq:
         parts.append("اتسع النطاق")
     if "ادعاء إجماع" in uniq:

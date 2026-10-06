@@ -214,3 +214,22 @@ def test_quoted_hadith_inside_a_post_is_found():
     from app.pipeline.mizan import find_quote
     [v] = find_quote("قرأت منشوراً يقول: «لا ضرر ولا ضرار» فهل هو حديث؟", "x", 0)
     assert v.attributed_to == "prophet" and v.quote == "لا ضرر ولا ضرار" and v.item_grade in ("sahih", "hasan")
+
+
+def test_arabic_keyword_with_attached_preposition_finds_its_issue():
+    from app.library import default_library
+    ids = [i.id for i, _ in rv.candidates("يجوز للمسافر أن يفطر في رمضان ويقضي", default_library())]
+    assert "BZ02" in ids  # «للمسافر» = لِـ + المسافر
+    assert [i.id for i, _ in rv.candidates("بالاعتكاف", default_library())] == ["BZ09"]
+
+
+def test_permissible_for_a_recommended_ruling_is_partial_not_contradiction():
+    from app.library import default_library
+    from app.models import MeaningFingerprint
+    bz02 = next(i for i in default_library() if i.id == "BZ02")  # الأفضل للمسافر الفطر
+    verdict, head, _, _ = rv.compare(MeaningFingerprint(ruling="permissible", conditions=["person is traveling"]),
+                                     bz02, "يجوز للمسافر أن يفطر", "ar", None)
+    assert verdict == "partial" and "مستحباً" in head
+    verdict, *_ = rv.compare(MeaningFingerprint(ruling="obligatory", conditions=["person is traveling"]),
+                             bz02, "يجب على المسافر أن يفطر", "ar", None)
+    assert verdict == "contradicts"
