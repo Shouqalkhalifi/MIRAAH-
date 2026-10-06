@@ -931,3 +931,8 @@ body { overflow-x: clip; }
 @media (max-width: 960px) { .src-madhahib { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .src-grid, .src-madhahib { grid-template-columns: 1fr; } }
 .rv-coverage { color: var(--ink); background: var(--paper); border-radius: 12px; padding: .7rem .9rem; line-height: 1.9; }
+.rv-scope { margin: .6rem 0 .2rem; padding-inline-start: 1.2rem; line-height: 1.9; color: var(--ink); }
+.rv-scope li { margin: .15rem 0; }
+.src-layers { background: var(--paper); border-radius: 14px; padding: .9rem 1.1rem; margin: 0 0 1.25rem; line-height: 1.9; max-width: 95ch; }
+.src-layers ul { margin: .3rem 0; padding-inline-start: 1.2rem; }
+.src-layers p { margin: .2rem 0; color: var(--ink); }

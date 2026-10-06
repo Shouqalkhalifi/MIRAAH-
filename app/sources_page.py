@@ -15,6 +15,7 @@ def overview() -> dict:
         "hadith_salah": count(lambda i: i.id.startswith("h-salah-")),
         "hadith_sahih": count(lambda i: i.id.startswith("h-he-") and i.grade == "sahih"),
         "hadith_hasan": count(lambda i: i.id.startswith("h-he-") and i.grade == "hasan"),
+        "hadith_all": count(lambda i: i.type == "hadith"),
         "terms": count(lambda i: i.type == "term"),
         "issues": len(load_library()),
         "madhahib": madhahib.madhahib(),

@@ -35,6 +35,7 @@ DISCLAIMER = "أداة مدعومة بالذكاء الاصطناعي للمسا
 app = FastAPI(title="مِرآة MIRAAH", version=VERSION,
               description="تتبّع أثر المعنى في المحتوى الإسلامي عبر سلسلة النسخ. " + DISCLAIMER)
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
+from app.sources_page import overview as sources_page_overview  # noqa: E402
 templates = Jinja2Templates(directory=APP_DIR / "templates")
 templates.env.globals["DISCLAIMER"] = DISCLAIMER
 templates.env.globals["tier_labels"] = TIER_LABELS_AR
@@ -46,6 +47,7 @@ templates.env.globals["ui"] = ui
 templates.env.globals["sentences"] = split_sentences
 templates.env.globals["approved_text"] = export.approved_text
 templates.env.globals["content_levels"] = export.CONTENT_LEVEL_AR
+templates.env.globals["sources_overview"] = sources_page_overview  # أعداد المدونة والمكتبة للصفحات
 templates.env.globals["medium_ar"] = ui.MEDIUM_CHOICES
 templates.env.globals["max_versions"] = MAX_VERSIONS
 templates.env.globals["footer_ar"] = "مِرآة تعرض المصادر وتقابلها، ولا تُصدر فتوى"
