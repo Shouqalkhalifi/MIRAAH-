@@ -11,8 +11,9 @@
 
 - **الرابط الحي: https://miraah.onrender.com** (أول فتح بعد خمول قد يستغرق نحو دقيقة، ثم يعمل بسرعة).
   للبدء: «راجِع قبل النشر» ← «جرّب مثالاً». الأمثلة الأربعة تعمل فوراً من ردود محفوظة، وما تكتبه بنفسك يُحلَّل بالنموذج الحقيقي.
-- المستودع: https://github.com/Shouqalkhalifi/MIRAAH- · التوثيق التلقائي للواجهة البرمجية: https://miraah.onrender.com/docs
-- مقدَّم في هاكاثون «تحدي الذكاء الاصطناعي في خدمة المحتوى الإسلامي» (المسار المفتوح: الترجمة والتوطين + التحقق).
+- **المستودع:** [github.com/Shouqalkhalifi/MIRAAH-](https://github.com/Shouqalkhalifi/MIRAAH-)
+- **الفيديو التوضيحي (دقيقتان):** [youtube.com/watch?v=QgAlv8EVc4A](https://www.youtube.com/watch?v=QgAlv8EVc4A)
+- **التوثيق التلقائي للواجهة البرمجية:** [miraah.onrender.com/docs](https://miraah.onrender.com/docs)
 - ما بُني قبل الهاكاثون موصوف بدقة في [BASELINE.md](BASELINE.md) (وسم `v0-baseline`).
 
 ## ماذا تغطي مِرآة؟ طبقتان من المصادر
