@@ -24,3 +24,7 @@ Thumbs.db
 
 # local tooling
 .claude/
+
+# ملاحظات شخصية للمطوّرة (لا تُرفع)
+PROMPTS.md
+CHANGES-2026-10-03.md
