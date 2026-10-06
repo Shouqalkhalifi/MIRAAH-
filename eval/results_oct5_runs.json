@@ -575,10 +575,10 @@
    "expected": [
     "unverified_attribution"
    ],
-   "source": "من العبارات المتداولة: «اطلبوا العلم ولو في الصين».",
+   "source": "قال رسول الله ﷺ: «الطهور شطر الإيمان».",
    "level": "A",
-   "reference_en": "Seek knowledge even if it is in China.",
-   "version": "The Prophet ﷺ said: \"Seek knowledge even if it is in China.\"",
+   "reference_en": "Purification is half of faith.",
+   "version": "The Prophet ﷺ said: \"Purification is half of faith.\"",
    "change": "attributed to the Prophet ﷺ"
   }
  ],
@@ -1169,12 +1169,12 @@
     "error": "",
     "warnings": [],
     "predicted": [
-     "unverified_attribution"
+     "quote_wording_differs"
     ],
     "verifications": [
      "supported",
-     "unverified",
-     "unverified"
+     "partially_supported",
+     "partially_supported"
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
@@ -1204,11 +1204,11 @@
     "warnings": [],
     "predicted": [
      "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
+     "quote_wording_differs",
+     "reader_divergence"
     ],
     "verifications": [
-     "unverified"
+     "partially_supported"
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
@@ -1233,11 +1233,9 @@
    },
    "a04": {
     "id": "a04",
-    "status": "replaced_case",
+    "status": "analyzed",
     "error": "",
-    "warnings": [
-     "الحالة استُبدلت بعد هذا التشغيل"
-    ],
+    "warnings": [],
     "predicted": [
      "unverified_attribution"
     ],
@@ -1837,12 +1835,12 @@
     "error": "",
     "warnings": [],
     "predicted": [
-     "unverified_attribution"
+     "quote_wording_differs"
     ],
     "verifications": [
      "supported",
-     "unverified",
-     "unverified"
+     "partially_supported",
+     "partially_supported"
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
@@ -1873,11 +1871,11 @@
     "predicted": [
      "attribution_upgraded",
      "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
+     "quote_wording_differs",
+     "reader_divergence"
     ],
     "verifications": [
-     "unverified"
+     "partially_supported"
     ],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
@@ -1902,11 +1900,9 @@
    },
    "a04": {
     "id": "a04",
-    "status": "replaced_case",
+    "status": "analyzed",
     "error": "",
-    "warnings": [
-     "الحالة استُبدلت بعد هذا التشغيل"
-    ],
+    "warnings": [],
     "predicted": [
      "unverified_attribution"
     ],
@@ -1933,7 +1929,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 22.01
+    "seconds": 21.51
    },
    "s01-scope_widened": {
     "id": "s01-scope_widened",
@@ -1948,7 +1944,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 21.31
+    "seconds": 22.48
    },
    "s01-ruling_shift": {
     "id": "s01-ruling_shift",
@@ -1962,7 +1958,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 1.0,
-    "seconds": 15.24
+    "seconds": 16.73
    },
    "s02-number_mismatch": {
     "id": "s02-number_mismatch",
@@ -1976,7 +1972,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 14.89
+    "seconds": 18.56
    },
    "s02-ruling_shift": {
     "id": "s02-ruling_shift",
@@ -1990,7 +1986,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 17.24
+    "seconds": 22.79
    },
    "s02-consensus_inflated": {
     "id": "s02-consensus_inflated",
@@ -2005,7 +2001,7 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 16.48
+    "seconds": 24.77
    },
    "s03-negation_mismatch": {
     "id": "s03-negation_mismatch",
@@ -2013,12 +2009,13 @@
     "error": "",
     "warnings": [],
     "predicted": [
+     "reader_divergence",
      "ruling_shift"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.5,
-    "seconds": 21.31
+    "seconds": 16.45
    },
    "s03-condition_dropped": {
     "id": "s03-condition_dropped",
@@ -2032,562 +2029,457 @@
     "verifications": [],
     "fixed_phrase_ok": true,
     "witness_agreement": 0.0,
-    "seconds": 19.56
+    "seconds": 19.18
    },
    "s04-attribution_upgraded": {
     "id": "s04-attribution_upgraded",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLuYX5j8hyjyYkvnSM'}",
     "warnings": [],
-    "predicted": [
-     "reader_divergence",
-     "scope_widened"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 17.34
+    "witness_agreement": null,
+    "seconds": 19.76
    },
    "s04-new_prophetic_attribution": {
     "id": "s04-new_prophetic_attribution",
     "status": "analyzed",
     "error": "",
-    "warnings": [],
+    "warnings": [
+     "تعذّر امتحان القارئ: BadRequestError"
+    ],
     "predicted": [
      "attribution_upgraded",
      "new_prophetic_attribution",
-     "reader_divergence",
+     "scope_widened",
      "unverified_attribution"
     ],
     "verifications": [
      "unverified"
     ],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 16.28
+    "witness_agreement": 0.5,
+    "seconds": 15.62
    },
    "s05-certainty_raised": {
     "id": "s05-certainty_raised",
     "status": "analyzed",
     "error": "",
-    "warnings": [],
+    "warnings": [
+     "تعذّر امتحان القارئ: BadRequestError"
+    ],
     "predicted": [
      "certainty_raised",
      "condition_dropped",
-     "reader_divergence"
+     "scope_narrowed"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.07
+    "witness_agreement": 0.5,
+    "seconds": 15.04
    },
    "s05-scope_widened": {
     "id": "s05-scope_widened",
     "status": "analyzed",
     "error": "",
-    "warnings": [],
+    "warnings": [
+     "تعذّر امتحان القارئ: BadRequestError"
+    ],
     "predicted": [
      "certainty_raised",
      "condition_dropped",
-     "reader_divergence"
+     "scope_widened"
     ],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 16.14
+    "witness_agreement": 1.0,
+    "seconds": 13.92
    },
    "s06-hasr_lost": {
     "id": "s06-hasr_lost",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLmQszTuxA4qrGVxce'}",
     "warnings": [],
-    "predicted": [
-     "hasr_lost"
-    ],
-    "verifications": [
-     "supported",
-     "supported"
-    ],
+    "predicted": [],
+    "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 14.22
+    "witness_agreement": null,
+    "seconds": 0.55
    },
    "s07-consensus_inflated": {
     "id": "s07-consensus_inflated",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLogJAVXFbuEH4v5Rd'}",
     "warnings": [],
-    "predicted": [
-     "consensus_inflated",
-     "disagreement_collapsed",
-     "reader_divergence",
-     "witness_disagreement"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 14.63
+    "witness_agreement": null,
+    "seconds": 0.36
    },
    "s07-condition_dropped": {
     "id": "s07-condition_dropped",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLqDpUpNtYg2DHwTZs'}",
     "warnings": [],
-    "predicted": [
-     "condition_dropped",
-     "reader_divergence"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.91
+    "witness_agreement": null,
+    "seconds": 0.37
    },
    "s08-term_narrowing": {
     "id": "s08-term_narrowing",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLrqoqLjhr55C7DkJz'}",
     "warnings": [],
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 13.78
+    "witness_agreement": null,
+    "seconds": 0.37
    },
    "s08-ruling_shift": {
     "id": "s08-ruling_shift",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLtH8GskqtCcM2hAiJ'}",
     "warnings": [],
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 12.08
+    "witness_agreement": null,
+    "seconds": 1.7
    },
    "s09-condition_dropped": {
     "id": "s09-condition_dropped",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLtW26KFs3ry7ZpvH6'}",
     "warnings": [],
-    "predicted": [
-     "condition_dropped",
-     "negation_mismatch",
-     "reader_divergence"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 18.82
+    "witness_agreement": null,
+    "seconds": 0.36
    },
    "s09-negation_mismatch": {
     "id": "s09-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLv9yfFJiNUBUe8fMC'}",
     "warnings": [],
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 16.15
+    "witness_agreement": null,
+    "seconds": 0.4
    },
    "s10-ruling_shift": {
     "id": "s10-ruling_shift",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLvV5ZkJVKt9vYu6YP'}",
     "warnings": [],
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 18.3
+    "witness_agreement": null,
+    "seconds": 0.37
    },
    "s10-term_narrowing": {
     "id": "s10-term_narrowing",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLwqSgFjFdzm7xasWj'}",
     "warnings": [],
-    "predicted": [
-     "reader_divergence",
-     "ruling_shift",
-     "term_narrowing"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 17.41
+    "witness_agreement": null,
+    "seconds": 0.4
    },
    "s11-number_mismatch": {
     "id": "s11-number_mismatch",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLx7Yk3JBDZq2HWnNA'}",
     "warnings": [],
-    "predicted": [
-     "number_mismatch",
-     "reader_divergence"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 11.42
+    "witness_agreement": null,
+    "seconds": 0.39
    },
    "s12-hadith_grade_dropped": {
     "id": "s12-hadith_grade_dropped",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLxZqVWT4WxpUJuHJ9'}",
     "warnings": [],
-    "predicted": [
-     "hadith_grade_dropped",
-     "reader_divergence"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 18.72
+    "witness_agreement": null,
+    "seconds": 0.64
    },
    "s13-exception_dropped": {
     "id": "s13-exception_dropped",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLyXdji8xut6v2EgBg'}",
     "warnings": [],
-    "predicted": [
-     "condition_dropped",
-     "negation_mismatch",
-     "reader_divergence",
-     "scope_widened"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 16.63
+    "witness_agreement": null,
+    "seconds": 0.38
    },
    "s13-scope_widened": {
     "id": "s13-scope_widened",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKLyjXxN7WuvVDn5DLq'}",
     "warnings": [],
-    "predicted": [
-     "condition_dropped",
-     "negation_mismatch",
-     "reader_divergence",
-     "scope_widened"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 17.28
+    "witness_agreement": null,
+    "seconds": 0.38
    },
    "s14-negation_mismatch": {
     "id": "s14-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM1As4RFSRE5D6uBDu'}",
     "warnings": [],
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence",
-     "ruling_shift"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 16.85
+    "witness_agreement": null,
+    "seconds": 0.39
    },
    "s14-ruling_shift": {
     "id": "s14-ruling_shift",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM1EKiu4M3qiHFPmdM'}",
     "warnings": [],
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence",
-     "ruling_shift"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 17.37
+    "witness_agreement": null,
+    "seconds": 0.39
    },
    "s15-negation_mismatch": {
     "id": "s15-negation_mismatch",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM1QkWw6syEEjDyVyE'}",
     "warnings": [],
-    "predicted": [
-     "negation_mismatch",
-     "reader_divergence"
-    ],
-    "verifications": [
-     "supported",
-     "supported"
-    ],
+    "predicted": [],
+    "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 17.38
+    "witness_agreement": null,
+    "seconds": 0.41
    },
    "s01-faithful": {
     "id": "s01-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM1UxBe3M4SApEJPeu'}",
     "warnings": [],
-    "predicted": [
-     "reader_divergence"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 15.42
+    "witness_agreement": null,
+    "seconds": 7.99
    },
    "s02-faithful": {
     "id": "s02-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM2uJ22PsZoZgi83SG'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 16.72
+    "witness_agreement": null,
+    "seconds": 0.41
    },
    "s03-faithful": {
     "id": "s03-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM2wmetesd1aq7P5VE'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 17.66
+    "witness_agreement": null,
+    "seconds": 0.42
    },
    "s04-faithful": {
     "id": "s04-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM3DtV4SnyrTHR7QrC'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 21.56
+    "witness_agreement": null,
+    "seconds": 0.47
    },
    "s05-faithful": {
     "id": "s05-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM4dEBRWXdFkXNNx14'}",
     "warnings": [],
-    "predicted": [
-     "certainty_raised",
-     "negation_mismatch",
-     "ruling_shift",
-     "scope_widened"
-    ],
+    "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 20.24
+    "witness_agreement": null,
+    "seconds": 0.41
    },
    "s06-faithful": {
     "id": "s06-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM4hC9eCUeLGk5p7dg'}",
     "warnings": [],
     "predicted": [],
-    "verifications": [
-     "supported"
-    ],
+    "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 15.19
+    "witness_agreement": null,
+    "seconds": 0.41
    },
    "s07-faithful": {
     "id": "s07-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM551WTc9eKsmQpKTu'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 22.58
+    "witness_agreement": null,
+    "seconds": 0.44
    },
    "s08-faithful": {
     "id": "s08-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM6NPwpyibaBBP8bug'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 13.29
+    "witness_agreement": null,
+    "seconds": 0.38
    },
    "s09-faithful": {
     "id": "s09-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM6Rs8YzP6QKTLoiiQ'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 18.48
+    "witness_agreement": null,
+    "seconds": 0.45
    },
    "s10-faithful": {
     "id": "s10-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM6zLsEXdmEdKpw9ss'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.0,
-    "seconds": 15.29
+    "witness_agreement": null,
+    "seconds": 0.44
    },
    "s11-faithful": {
     "id": "s11-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM86aMgpDzoeuDFezf'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 11.27
+    "witness_agreement": null,
+    "seconds": 0.44
    },
    "s12-faithful": {
     "id": "s12-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM8QgXdDnbBJgy5GGq'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 15.54
+    "witness_agreement": null,
+    "seconds": 0.41
    },
    "s13-faithful": {
     "id": "s13-faithful",
-    "status": "analyzed",
-    "error": "",
-    "warnings": [],
-    "predicted": [
-     "reader_divergence"
-    ],
-    "verifications": [],
-    "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 17.28
-   },
-   "s14-faithful": {
-    "id": "s14-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM8qEWh4QX283Ceyvw'}",
     "warnings": [],
     "predicted": [],
     "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 16.0
+    "witness_agreement": null,
+    "seconds": 0.44
+   },
+   "s14-faithful": {
+    "id": "s14-faithful",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKM9tEJiTgDu77cSPeq'}",
+    "warnings": [],
+    "predicted": [],
+    "verifications": [],
+    "fixed_phrase_ok": true,
+    "witness_agreement": null,
+    "seconds": 0.39
    },
    "s15-faithful": {
     "id": "s15-faithful",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKMABanAZdnmmfLU76o'}",
     "warnings": [],
-    "predicted": [
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "supported",
-     "unverified",
-     "unverified"
-    ],
+    "predicted": [],
+    "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 1.0,
-    "seconds": 15.74
+    "witness_agreement": null,
+    "seconds": 0.43
    },
    "a01": {
     "id": "a01",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKMAkaP2yPwvpAcLK5Z'}",
     "warnings": [],
-    "predicted": [
-     "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
+    "predicted": [],
+    "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 14.57
+    "witness_agreement": null,
+    "seconds": 0.4
    },
    "a02": {
     "id": "a02",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKMBSkLRDKigfyBVVoV'}",
     "warnings": [],
-    "predicted": [
-     "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
+    "predicted": [],
+    "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 20.1
+    "witness_agreement": null,
+    "seconds": 0.37
    },
    "a03": {
     "id": "a03",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKMC7BL1RnFjJJ5DTK2'}",
     "warnings": [],
-    "predicted": [
-     "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
+    "predicted": [],
+    "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 14.96
+    "witness_agreement": null,
+    "seconds": 0.45
    },
    "a04": {
     "id": "a04",
-    "status": "analyzed",
-    "error": "",
+    "status": "failed",
+    "error": "نفد رصيد خدمة النموذج اللغوي (Anthropic). أعد شحن الرصيد ثم أعد التحليل؛ التقارير التي سبق تحليلها ما زالت متاحة.\n— التفاصيل التقنية: BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CfjKMCSXR67Kq2RJLRq3G'}",
     "warnings": [],
-    "predicted": [
-     "attribution_upgraded",
-     "new_prophetic_attribution",
-     "reader_divergence",
-     "unverified_attribution"
-    ],
-    "verifications": [
-     "unverified"
-    ],
+    "predicted": [],
+    "verifications": [],
     "fixed_phrase_ok": true,
-    "witness_agreement": 0.5,
-    "seconds": 20.46
+    "witness_agreement": null,
+    "seconds": 0.43
    }
   }
  ],
@@ -2823,99 +2715,107 @@
    "flagged": false
   },
   "a04": {
-   "chrf": 88.8,
-   "len_ratio": 1.88,
+   "chrf": 86.7,
+   "len_ratio": 2.4,
    "flagged": false
   }
  },
  "metrics": {
   "attribution_upgraded": {
    "tp": 0,
-   "fn": 3,
+   "fn": 2,
    "fp": 0,
-   "support": 3,
+   "support": 2,
    "recall": 0.0,
    "precision": null
   },
   "certainty_raised": {
-   "tp": 3,
+   "tp": 2,
    "fn": 0,
-   "fp": 6,
-   "support": 3,
+   "fp": 4,
+   "support": 2,
    "recall": 1.0,
    "precision": 0.3333333333333333
   },
   "condition_dropped": {
-   "tp": 12,
+   "tp": 10,
    "fn": 0,
-   "fp": 3,
-   "support": 12,
+   "fp": 2,
+   "support": 10,
    "recall": 1.0,
-   "precision": 0.8
+   "precision": 0.8333333333333334
   },
   "consensus_inflated": {
-   "tp": 6,
+   "tp": 5,
    "fn": 0,
    "fp": 0,
-   "support": 6,
+   "support": 5,
    "recall": 1.0,
    "precision": 1.0
   },
   "exception_dropped": {
    "tp": 0,
-   "fn": 3,
+   "fn": 2,
    "fp": 0,
-   "support": 3,
+   "support": 2,
    "recall": 0.0,
    "precision": null
   },
   "hadith_grade_dropped": {
-   "tp": 3,
+   "tp": 2,
    "fn": 0,
    "fp": 0,
-   "support": 3,
+   "support": 2,
    "recall": 1.0,
    "precision": 1.0
   },
   "hasr_lost": {
-   "tp": 3,
+   "tp": 2,
    "fn": 0,
    "fp": 0,
-   "support": 3,
+   "support": 2,
    "recall": 1.0,
    "precision": 1.0
   },
   "negation_mismatch": {
-   "tp": 9,
+   "tp": 6,
    "fn": 3,
-   "fp": 9,
-   "support": 12,
-   "recall": 0.75,
-   "precision": 0.5
+   "fp": 5,
+   "support": 9,
+   "recall": 0.6666666666666666,
+   "precision": 0.5454545454545454
   },
   "new_prophetic_attribution": {
-   "tp": 3,
+   "tp": 2,
    "fn": 0,
    "fp": 0,
-   "support": 3,
+   "support": 2,
    "recall": 1.0,
    "precision": 1.0
   },
   "number_mismatch": {
-   "tp": 6,
+   "tp": 5,
    "fn": 0,
    "fp": 0,
-   "support": 6,
+   "support": 5,
    "recall": 1.0,
    "precision": 1.0
   },
-  "ruling_shift": {
-   "tp": 15,
+  "quote_wording_differs": {
+   "tp": 0,
    "fn": 0,
-   "fp": 3,
-   "support": 15,
+   "fp": 2,
+   "support": 0,
+   "recall": null,
+   "precision": 0.0
+  },
+  "ruling_shift": {
+   "tp": 12,
+   "fn": 0,
+   "fp": 2,
+   "support": 12,
    "recall": 1.0,
-   "precision": 0.8333333333333334
+   "precision": 0.8571428571428571
   },
   "scope_narrowed": {
    "tp": 0,
@@ -2926,50 +2826,52 @@
    "precision": 0.0
   },
   "scope_widened": {
-   "tp": 7,
-   "fn": 2,
-   "fp": 4,
-   "support": 9,
-   "recall": 0.7777777777777778,
-   "precision": 0.6363636363636364
+   "tp": 6,
+   "fn": 1,
+   "fp": 2,
+   "support": 7,
+   "recall": 0.8571428571428571,
+   "precision": 0.75
   },
   "term_narrowing": {
-   "tp": 6,
+   "tp": 4,
    "fn": 0,
    "fp": 3,
-   "support": 6,
+   "support": 4,
    "recall": 1.0,
-   "precision": 0.6666666666666666
+   "precision": 0.5714285714285714
   },
   "unverified_attribution": {
-   "tp": 10,
-   "fn": 0,
-   "fp": 3,
-   "support": 10,
-   "recall": 1.0,
-   "precision": 0.7692307692307693
+   "tp": 6,
+   "fn": 2,
+   "fp": 0,
+   "support": 8,
+   "recall": 0.75,
+   "precision": 1.0
   }
  },
  "cost": {
-  "calls": 403,
-  "live_calls": 403,
-  "cache_hits": 0,
-  "failed_calls": 0,
-  "errors": [],
+  "calls": 972,
+  "live_calls": 495,
+  "cache_hits": 403,
+  "failed_calls": 74,
+  "errors": [
+   "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anth"
+  ],
   "by_model": {
    "claude-sonnet-5-5": [
-    482193,
-    63521,
-    309
+    596827,
+    78842,
+    378
    ],
    "claude-haiku-4-5": [
-    257282,
-    23570,
-    94
+    320238,
+    29530,
+    117
    ]
   },
-  "usd": 1.9747
+  "usd": 2.45
  },
- "start": "2026-10-06T07:36:11.386697+00:00",
+ "start": "2026-10-05T15:15:57.511987+00:00",
  "first_run_cached": true
 }
